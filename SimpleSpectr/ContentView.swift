@@ -2,79 +2,157 @@
 //  ContentView.swift
 //  SimpleSpectr
 //
-//  Created by alexex on 20.06.2026.
-//
 
 import SwiftUI
-import SwiftData
+import UniformTypeIdentifiers
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @ObservedObject var model: SpectrogramModel
+    @State private var showImporter = false
+    @State private var isTargetedForDrop = false
+    @State private var showExporter = false
+
+    /// The loaded spectrogram (image + suggested file name), if any.
+    private var loaded: (name: String, result: SpectrogramResult)? {
+        if case .loaded(let name, let result) = model.state { return (name, result) }
+        return nil
+    }
 
     var body: some View {
-        NavigationViewWrapper {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
-                }
-                .onDelete(perform: deleteItems)
+        ZStack {
+            Color(white: 0.07).ignoresSafeArea()
+
+            switch model.state {
+            case .idle:
+                DropPrompt(isTargeted: isTargetedForDrop) { showImporter = true }
+            case .loading(let name):
+                LoadingView(name: name)
+            case .loaded(let name, let result):
+                SpectrogramScene(name: name, result: result)
+            case .failed(let message):
+                FailureView(message: message) { showImporter = true }
             }
-#if os(macOS)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-#endif
-            .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
+        }
+        .frame(minWidth: 640, minHeight: 420)
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showExporter = true
+                } label: {
+                    Label("Сохранить PNG", systemImage: "square.and.arrow.down")
                 }
-#endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
+                .disabled(loaded == nil)
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showImporter = true
+                } label: {
+                    Label("Открыть аудиофайл", systemImage: "waveform")
                 }
             }
+        }
+        .fileImporter(isPresented: $showImporter,
+                      allowedContentTypes: [.audio],
+                      allowsMultipleSelection: false) { result in
+            if case .success(let urls) = result, let url = urls.first {
+                model.load(url: url)
+            }
+        }
+        .fileExporter(isPresented: $showExporter,
+                      document: loaded.map { PNGDocument(image: $0.result.image) },
+                      contentType: .png,
+                      defaultFilename: exportFilename) { _ in }
+        .onDrop(of: [.fileURL], isTargeted: $isTargetedForDrop) { providers in
+            handleDrop(providers)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .openFileRequested)) { _ in
+            showImporter = true
         }
     }
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
+    private var exportFilename: String {
+        guard let name = loaded?.name else { return "spectrogram" }
+        return (name as NSString).deletingPathExtension + "-spectrogram"
     }
 
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+    private func handleDrop(_ providers: [NSItemProvider]) -> Bool {
+        guard let provider = providers.first else { return false }
+        _ = provider.loadObject(ofClass: URL.self) { url, _ in
+            if let url {
+                Task { @MainActor in model.load(url: url) }
             }
         }
+        return true
     }
 }
 
-fileprivate struct NavigationViewWrapper<Content: View>: View {
-    let content: () -> Content
+// MARK: - States
+
+private struct DropPrompt: View {
+    let isTargeted: Bool
+    let onOpen: () -> Void
 
     var body: some View {
-#if os(macOS)
-        NavigationSplitView {
-            content()
-        } detail: {
-            Text("Select an item")
+        VStack(spacing: 18) {
+            Image(systemName: "waveform.badge.magnifyingglass")
+                .font(.system(size: 64, weight: .thin))
+                .foregroundStyle(.secondary)
+            Text("Спектрограмма аудио")
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(.primary)
+            Text("Перетащите сюда аудиофайл\nили нажмите кнопку ниже")
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+            Button(action: onOpen) {
+                Label("Открыть аудиофайл", systemImage: "folder")
+            }
+            .controlSize(.large)
+            .buttonStyle(.borderedProminent)
+            Text("FLAC · AAC · MP3 · WAV · AIFF · ALAC и другие")
+                .font(.footnote)
+                .foregroundStyle(.tertiary)
         }
-#else
-        content()
-#endif
+        .padding(40)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay {
+            if isTargeted {
+                RoundedRectangle(cornerRadius: 16)
+                    .strokeBorder(Color.accentColor, style: StrokeStyle(lineWidth: 2, dash: [8]))
+                    .padding(16)
+            }
+        }
+        .foregroundStyle(.white)
     }
 }
 
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+private struct LoadingView: View {
+    let name: String
+    var body: some View {
+        VStack(spacing: 16) {
+            ProgressView()
+                .controlSize(.large)
+            Text("Анализ \(name)…")
+                .foregroundStyle(.secondary)
+        }
+        .foregroundStyle(.white)
+    }
+}
+
+private struct FailureView: View {
+    let message: String
+    let onOpen: () -> Void
+    var body: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 48, weight: .thin))
+                .foregroundStyle(.yellow)
+            Text(message)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.white)
+            Button("Выбрать другой файл", action: onOpen)
+                .buttonStyle(.bordered)
+        }
+        .padding(40)
+        .foregroundStyle(.white)
+    }
 }
