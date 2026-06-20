@@ -2,6 +2,9 @@
 
 A simple macOS app that displays the spectrogram of an audio file.
 
+<img width="1798" height="948" alt="image" src="https://github.com/user-attachments/assets/92650284-3990-4df8-af71-40fcade4e43b" />
+
+
 ## Features
 
 - **Open from the app** — click the toolbar button or drag-and-drop an audio file onto the window.
