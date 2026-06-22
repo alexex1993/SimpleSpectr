@@ -28,7 +28,7 @@ struct SimpleSpectrApp: App {
             }
             CommandGroup(replacing: .newItem) {
                 Button("Открыть…") {
-                    NotificationCenter.default.post(name: .openFileRequested, object: nil)
+                    model.openRequested = true
                 }
                 .keyboardShortcut("o", modifiers: .command)
             }
@@ -55,8 +55,4 @@ struct SimpleSpectrApp: App {
         NSApplication.shared.orderFrontStandardAboutPanel(options: [.credits: credits])
         NSApplication.shared.activate(ignoringOtherApps: true)
     }
-}
-
-extension Notification.Name {
-    static let openFileRequested = Notification.Name("SimpleSpectr.openFileRequested")
 }

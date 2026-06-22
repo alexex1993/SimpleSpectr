@@ -76,7 +76,7 @@ struct SpectrogramScene: View {
             Spacer()
             Text(String(format: "%.1f kHz · %@",
                         result.sampleRate / 1000,
-                        formatDuration(result.duration)))
+                        formatHeaderDuration(result.duration)))
                 .foregroundStyle(.secondary)
                 .font(.callout)
         }
@@ -97,7 +97,7 @@ struct SpectrogramScene: View {
 
     @ViewBuilder
     private func readout(in plot: CGRect) -> some View {
-        if let h = hover {
+        if let h = hover, let c = cursor {
             VStack(alignment: .leading, spacing: 2) {
                 readoutRow("Время", formatTimeMS(h.time))
                 readoutRow("Частота", formatFreq(h.frequency))
@@ -108,8 +108,17 @@ struct SpectrogramScene: View {
             .padding(.vertical, 6)
             .background(.black.opacity(0.6), in: RoundedRectangle(cornerRadius: 6))
             .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(.white.opacity(0.15)))
-            .position(x: plot.maxX - 70, y: plot.minY + 28)
+            .position(readoutPosition(cursor: c, plot: plot))
         }
+    }
+
+    /// Place the readout in the quadrant opposite the cursor so it never covers the crosshair.
+    private func readoutPosition(cursor c: CGPoint, plot: CGRect) -> CGPoint {
+        let halfW: CGFloat = 78
+        let halfH: CGFloat = 32
+        let x: CGFloat = c.x > plot.midX ? plot.minX + halfW : plot.maxX - halfW
+        let y: CGFloat = c.y > plot.midY ? plot.minY + halfH : plot.maxY - halfH
+        return CGPoint(x: x, y: y)
     }
 
     private func readoutRow(_ label: String, _ value: String) -> some View {
@@ -158,6 +167,13 @@ struct SpectrogramScene: View {
         let m = total / 60
         let s = total % 60
         return String(format: "%d:%02d", m, s)
+    }
+
+    /// Header duration: seconds with one decimal below a minute, otherwise m:ss.
+    private func formatHeaderDuration(_ seconds: Double) -> String {
+        if seconds < 60 { return String(format: "%.1f с", seconds) }
+        let total = Int(seconds.rounded())
+        return String(format: "%d:%02d", total / 60, total % 60)
     }
 
     private func formatTimeMS(_ seconds: Double) -> String {

@@ -21,20 +21,31 @@ final class SpectrogramModel: ObservableObject {
 
     @Published private(set) var state: State = .idle
 
+    /// Set to `true` to ask the UI to present the open-file panel (e.g. from the
+    /// ⌘O menu command). The view resets it once consumed.
+    @Published var openRequested = false
+
     private var loadToken = 0
+    private var loadTask: Task<Void, Never>?
 
     /// Load and render the spectrogram for `url` off the main thread.
+    /// A previous in-flight load is cancelled.
     func load(url: URL) {
+        loadTask?.cancel()
         let name = url.lastPathComponent
         loadToken += 1
         let token = loadToken
         state = .loading(name: name)
 
-        Task.detached(priority: .userInitiated) {
+        loadTask = Task.detached(priority: .userInitiated) {
             do {
                 let result = try SpectrogramEngine.generate(url: url)
+                guard !Task.isCancelled else { return }
                 await self.finish(token: token, name: name, result: .success(result))
+            } catch is CancellationError {
+                return
             } catch {
+                guard !Task.isCancelled else { return }
                 await self.finish(token: token, name: name, result: .failure(error))
             }
         }

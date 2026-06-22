@@ -65,8 +65,11 @@ struct ContentView: View {
         .onDrop(of: [.fileURL], isTargeted: $isTargetedForDrop) { providers in
             handleDrop(providers)
         }
-        .onReceive(NotificationCenter.default.publisher(for: .openFileRequested)) { _ in
-            showImporter = true
+        .onChange(of: model.openRequested) { _, requested in
+            if requested {
+                showImporter = true
+                model.openRequested = false
+            }
         }
     }
 
@@ -76,11 +79,14 @@ struct ContentView: View {
     }
 
     private func handleDrop(_ providers: [NSItemProvider]) -> Bool {
-        guard let provider = providers.first else { return false }
+        guard let provider = providers.first(where: {
+            $0.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier)
+        }) else {
+            return false
+        }
         _ = provider.loadObject(ofClass: URL.self) { url, _ in
-            if let url {
-                Task { @MainActor in model.load(url: url) }
-            }
+            guard let url, url.isFileURL else { return }
+            Task { @MainActor in model.load(url: url) }
         }
         return true
     }

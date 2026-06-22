@@ -38,4 +38,21 @@ xcodebuild -project SimpleSpectr.xcodeproj -scheme SimpleSpectr \
 
 ## How it works
 
-Audio is decoded with `AVAudioFile` (Core Audio), mixed down to mono, and transformed via a short-time Fourier transform (Hann window + real FFT) using Accelerate's `vDSP`. Magnitudes are converted to dB and mapped through an *inferno* colormap into a `CGImage`. Low frequencies are at the bottom, high at the top, and time advances left → right.
+Audio is decoded with `AVAudioFile` (Core Audio) and **streamed** through the analyzer, so long files are never loaded into memory in full. It is mixed down to mono and transformed via a short-time Fourier transform (Hann window + real FFT) using Accelerate's `vDSP`. The one-sided spectrum is amplitude-normalized and window-corrected, magnitudes are converted to dB, and mapped through a perceptual *inferno* colormap (interpolated in Oklab space) into a `CGImage`. Low frequencies are at the bottom, high at the top, and time advances left → right.
+
+## Changelog
+
+### 1.1
+
+- **Accurate dB readout** — the FFT is now amplitude-normalized (one-sided, Hann-window-corrected), and the DC bin is no longer contaminated by the Nyquist term. The hover readout reports true dBFS values.
+- **Lower memory use** — audio is decoded and analyzed as a stream instead of materializing the whole file; very long files no longer risk running out of memory.
+- **Faster rendering** — hoisted FFT scratch buffers, a 256-entry colormap LUT, and zero-copy pixel packaging.
+- **Perceptual colormap** — *inferno* is interpolated in Oklab space for smoother, more accurate gradients.
+- **Cancellable loads** — opening a new file cancels the previous in-flight analysis instead of wasting CPU.
+- **Better drag-and-drop** — non-file drops are rejected instead of silently failing.
+- **Smarter hover readout** — the time/frequency/dB panel flips to the opposite quadrant so it never covers the crosshair.
+- Reliability: `fftSize` is validated as a power of two; `CGImage`/`CGDataProvider` failures are handled instead of force-unwrapped.
+
+### 1.0
+
+- Initial release.
