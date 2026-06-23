@@ -8,6 +8,7 @@ import UniformTypeIdentifiers
 
 struct ContentView: View {
     @ObservedObject var model: SpectrogramModel
+    @ObservedObject private var l10n = LocalizationManager.shared
     @State private var showImporter = false
     @State private var isTargetedForDrop = false
     @State private var showExporter = false
@@ -39,7 +40,7 @@ struct ContentView: View {
                 Button {
                     showExporter = true
                 } label: {
-                    Label("Сохранить PNG", systemImage: "square.and.arrow.down")
+                    Label(L("button.savePNG"), systemImage: "square.and.arrow.down")
                 }
                 .disabled(loaded == nil)
             }
@@ -47,7 +48,7 @@ struct ContentView: View {
                 Button {
                     showImporter = true
                 } label: {
-                    Label("Открыть аудиофайл", systemImage: "waveform")
+                    Label(L("button.openAudio"), systemImage: "waveform")
                 }
             }
         }
@@ -97,24 +98,25 @@ struct ContentView: View {
 private struct DropPrompt: View {
     let isTargeted: Bool
     let onOpen: () -> Void
+    @ObservedObject private var l10n = LocalizationManager.shared
 
     var body: some View {
         VStack(spacing: 18) {
             Image(systemName: "waveform.badge.magnifyingglass")
                 .font(.system(size: 64, weight: .thin))
                 .foregroundStyle(.secondary)
-            Text("Спектрограмма аудио")
+            Text(L("prompt.title"))
                 .font(.title2.weight(.semibold))
                 .foregroundStyle(.primary)
-            Text("Перетащите сюда аудиофайл\nили нажмите кнопку ниже")
+            Text(L("prompt.subtitle"))
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
             Button(action: onOpen) {
-                Label("Открыть аудиофайл", systemImage: "folder")
+                Label(L("button.openAudio"), systemImage: "folder")
             }
             .controlSize(.large)
             .buttonStyle(.borderedProminent)
-            Text("FLAC · AAC · MP3 · WAV · AIFF · ALAC и другие")
+            Text(L("prompt.formats"))
                 .font(.footnote)
                 .foregroundStyle(.tertiary)
         }
@@ -133,11 +135,12 @@ private struct DropPrompt: View {
 
 private struct LoadingView: View {
     let name: String
+    @ObservedObject private var l10n = LocalizationManager.shared
     var body: some View {
         VStack(spacing: 16) {
             ProgressView()
                 .controlSize(.large)
-            Text("Анализ \(name)…")
+            Text(L("status.loading", name))
                 .foregroundStyle(.secondary)
         }
         .foregroundStyle(.white)
@@ -147,6 +150,7 @@ private struct LoadingView: View {
 private struct FailureView: View {
     let message: String
     let onOpen: () -> Void
+    @ObservedObject private var l10n = LocalizationManager.shared
     var body: some View {
         VStack(spacing: 16) {
             Image(systemName: "exclamationmark.triangle")
@@ -155,7 +159,7 @@ private struct FailureView: View {
             Text(message)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.white)
-            Button("Выбрать другой файл", action: onOpen)
+            Button(L("button.chooseAnother"), action: onOpen)
                 .buttonStyle(.bordered)
         }
         .padding(40)

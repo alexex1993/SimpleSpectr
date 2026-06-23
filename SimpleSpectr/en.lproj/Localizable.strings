@@ -1,0 +1,44 @@
+/* Menu items */
+"menu.about" = "About SimpleSpectr";
+"menu.open" = "Open…";
+"menu.github" = "GitHub Repository";
+
+/* About panel credits */
+"about.credits" = "Audio spectrogram viewer.\n\n";
+
+/* Toolbar / buttons */
+"button.savePNG" = "Save PNG";
+"button.openAudio" = "Open Audio File";
+"button.chooseAnother" = "Choose Another File";
+
+/* Drop prompt */
+"prompt.title" = "Audio Spectrogram";
+"prompt.subtitle" = "Drag an audio file here\nor click the button below";
+"prompt.formats" = "FLAC · AAC · MP3 · WAV · AIFF · ALAC and more";
+
+/* Loading status */
+"status.loading" = "Analyzing %@…";
+
+/* Hover readout */
+"readout.time" = "Time";
+"readout.frequency" = "Frequency";
+"readout.signal" = "Signal";
+
+/* Units */
+"unit.hz" = "%.0f Hz";
+"unit.khz" = "%.2f kHz";
+"unit.db" = "%.1f dB";
+"unit.seconds" = "%.1f s";
+
+/* Errors */
+"error.cannotOpen" = "Failed to open audio file: %@";
+"error.emptyAudio" = "The file contains no audio data.";
+"error.invalidFFTSize" = "FFT window size must be a power of two.";
+"error.fftSetupFailed" = "Failed to initialize FFT.";
+"error.renderFailed" = "Failed to render spectrogram image.";
+
+/* Settings */
+"settings.title" = "Settings";
+"settings.language" = "Language";
+"settings.restartHint" = "System language takes full effect after restart.";
+"lang.system" = "System";

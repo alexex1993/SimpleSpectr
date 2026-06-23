@@ -11,6 +11,7 @@ struct SpectrogramScene: View {
     let name: String
     let result: SpectrogramResult
 
+    @ObservedObject private var l10n = LocalizationManager.shared
     @State private var hover: (time: Double, frequency: Double, db: Double)?
     @State private var cursor: CGPoint?
 
@@ -99,9 +100,9 @@ struct SpectrogramScene: View {
     private func readout(in plot: CGRect) -> some View {
         if let h = hover, let c = cursor {
             VStack(alignment: .leading, spacing: 2) {
-                readoutRow("Время", formatTimeMS(h.time))
-                readoutRow("Частота", formatFreq(h.frequency))
-                readoutRow("Сигнал", String(format: "%.1f дБ", h.db))
+                readoutRow(L("readout.time"), formatTimeMS(h.time))
+                readoutRow(L("readout.frequency"), formatFreq(h.frequency))
+                readoutRow(L("readout.signal"), L("unit.db", h.db))
             }
             .font(.system(size: 11, design: .monospaced))
             .padding(.horizontal, 8)
@@ -171,7 +172,7 @@ struct SpectrogramScene: View {
 
     /// Header duration: seconds with one decimal below a minute, otherwise m:ss.
     private func formatHeaderDuration(_ seconds: Double) -> String {
-        if seconds < 60 { return String(format: "%.1f с", seconds) }
+        if seconds < 60 { return L("unit.seconds", seconds) }
         let total = Int(seconds.rounded())
         return String(format: "%d:%02d", total / 60, total % 60)
     }
@@ -183,6 +184,6 @@ struct SpectrogramScene: View {
     }
 
     private func formatFreq(_ hz: Double) -> String {
-        hz >= 1000 ? String(format: "%.2f кГц", hz / 1000) : String(format: "%.0f Гц", hz)
+        hz >= 1000 ? L("unit.khz", hz / 1000) : L("unit.hz", hz)
     }
 }

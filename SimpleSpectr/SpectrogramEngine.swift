@@ -49,11 +49,11 @@ enum SpectrogramError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .cannotOpen(let why): return "Не удалось открыть аудиофайл: \(why)"
-        case .emptyAudio:          return "Файл не содержит аудиоданных."
-        case .invalidFFTSize:      return "Размер окна БПФ должен быть степенью двойки."
-        case .fftSetupFailed:      return "Не удалось инициализировать БПФ."
-        case .renderFailed:        return "Не удалось построить изображение спектрограммы."
+        case .cannotOpen(let why): return L("error.cannotOpen", why)
+        case .emptyAudio:          return L("error.emptyAudio")
+        case .invalidFFTSize:      return L("error.invalidFFTSize")
+        case .fftSetupFailed:      return L("error.fftSetupFailed")
+        case .renderFailed:        return L("error.renderFailed")
         }
     }
 }

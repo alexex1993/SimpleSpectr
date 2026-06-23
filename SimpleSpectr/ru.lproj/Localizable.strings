@@ -1,0 +1,44 @@
+/* Menu items */
+"menu.about" = "О программе SimpleSpectr";
+"menu.open" = "Открыть…";
+"menu.github" = "Репозиторий на GitHub";
+
+/* About panel credits */
+"about.credits" = "Просмотр спектрограмм аудиофайлов.\n\n";
+
+/* Toolbar / buttons */
+"button.savePNG" = "Сохранить PNG";
+"button.openAudio" = "Открыть аудиофайл";
+"button.chooseAnother" = "Выбрать другой файл";
+
+/* Drop prompt */
+"prompt.title" = "Спектрограмма аудио";
+"prompt.subtitle" = "Перетащите сюда аудиофайл\nили нажмите кнопку ниже";
+"prompt.formats" = "FLAC · AAC · MP3 · WAV · AIFF · ALAC и другие";
+
+/* Loading status */
+"status.loading" = "Анализ %@…";
+
+/* Hover readout */
+"readout.time" = "Время";
+"readout.frequency" = "Частота";
+"readout.signal" = "Сигнал";
+
+/* Units */
+"unit.hz" = "%.0f Гц";
+"unit.khz" = "%.2f кГц";
+"unit.db" = "%.1f дБ";
+"unit.seconds" = "%.1f с";
+
+/* Errors */
+"error.cannotOpen" = "Не удалось открыть аудиофайл: %@";
+"error.emptyAudio" = "Файл не содержит аудиоданных.";
+"error.invalidFFTSize" = "Размер окна БПФ должен быть степенью двойки.";
+"error.fftSetupFailed" = "Не удалось инициализировать БПФ.";
+"error.renderFailed" = "Не удалось построить изображение спектрограммы.";
+
+/* Settings */
+"settings.title" = "Настройки";
+"settings.language" = "Язык";
+"settings.restartHint" = "Системный язык полностью применится после перезапуска.";
+"lang.system" = "Как в системе";
