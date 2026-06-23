@@ -10,6 +10,7 @@ import SwiftUI
 struct SpectrogramScene: View {
     let name: String
     let result: SpectrogramResult
+    @ObservedObject var player: AudioPlayerController
 
     @ObservedObject private var l10n = LocalizationManager.shared
     @State private var hover: (time: Double, frequency: Double, db: Double)?
@@ -37,6 +38,7 @@ struct SpectrogramScene: View {
                         .offset(x: plot.minX, y: plot.minY)
 
                     axes(in: plot)
+                    playhead(in: plot)
                     crosshair(in: plot)
                     readout(in: plot)
                 }
@@ -50,6 +52,10 @@ struct SpectrogramScene: View {
                         cursor = nil
                     }
                 }
+                .gesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { value in seekToPoint(value.location, plot: plot) }
+                )
             }
         }
         .padding(12)
@@ -68,6 +74,15 @@ struct SpectrogramScene: View {
         let fy = (plot.maxY - point.y) / plot.height
         hover = result.sample(fractionX: Double(fx), fractionY: Double(fy))
         cursor = point
+    }
+
+    /// Click/drag on the plot seeks the audio to the time under the pointer,
+    /// keeping the playhead in sync with the spectrogram.
+    private func seekToPoint(_ point: CGPoint, plot: CGRect) {
+        guard player.isReady, plot.width > 0, result.duration > 0 else { return }
+        let fx = (point.x - plot.minX) / plot.width
+        let t = Double(min(max(fx, 0), 1)) * result.duration
+        player.seek(to: t)
     }
 
     private var header: some View {
@@ -93,6 +108,22 @@ struct SpectrogramScene: View {
                 p.addLine(to: CGPoint(x: plot.maxX, y: c.y))
             }
             .stroke(Color.white.opacity(0.35), lineWidth: 0.5)
+        }
+    }
+
+    /// Vertical playhead that follows audio playback position.
+    @ViewBuilder
+    private func playhead(in plot: CGRect) -> some View {
+        if player.isReady, plot.height > 0, plot.width > 0, result.duration > 0 {
+            let frac = min(max(player.currentTime / result.duration, 0), 1)
+            let x = plot.minX + CGFloat(frac) * plot.width
+            Path { p in
+                p.move(to: CGPoint(x: x, y: plot.minY))
+                p.addLine(to: CGPoint(x: x, y: plot.maxY))
+            }
+            .stroke(Color.accentColor, lineWidth: 1.2)
+            .shadow(color: .black.opacity(0.4), radius: 1)
+            .allowsHitTesting(false)
         }
     }
 

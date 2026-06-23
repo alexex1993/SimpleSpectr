@@ -10,6 +10,10 @@
 "button.savePNG" = "Save PNG";
 "button.openAudio" = "Open Audio File";
 "button.chooseAnother" = "Choose Another File";
+"button.play" = "Play";
+"button.pause" = "Pause";
+"button.mute" = "Mute";
+"button.unmute" = "Unmute";
 
 /* Drop prompt */
 "prompt.title" = "Audio Spectrogram";

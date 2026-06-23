@@ -10,6 +10,10 @@
 "button.savePNG" = "Сохранить PNG";
 "button.openAudio" = "Открыть аудиофайл";
 "button.chooseAnother" = "Выбрать другой файл";
+"button.play" = "Воспроизвести";
+"button.pause" = "Пауза";
+"button.mute" = "Выключить звук";
+"button.unmute" = "Включить звук";
 
 /* Drop prompt */
 "prompt.title" = "Спектрограмма аудио";

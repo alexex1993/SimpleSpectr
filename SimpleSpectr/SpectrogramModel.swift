@@ -15,7 +15,7 @@ final class SpectrogramModel: ObservableObject {
     enum State {
         case idle
         case loading(name: String)
-        case loaded(name: String, result: SpectrogramResult)
+        case loaded(name: String, url: URL, result: SpectrogramResult)
         case failed(message: String)
     }
 
@@ -41,21 +41,21 @@ final class SpectrogramModel: ObservableObject {
             do {
                 let result = try SpectrogramEngine.generate(url: url)
                 guard !Task.isCancelled else { return }
-                await self.finish(token: token, name: name, result: .success(result))
+                await self.finish(token: token, name: name, url: url, result: .success(result))
             } catch is CancellationError {
                 return
             } catch {
                 guard !Task.isCancelled else { return }
-                await self.finish(token: token, name: name, result: .failure(error))
+                await self.finish(token: token, name: name, url: url, result: .failure(error))
             }
         }
     }
 
-    private func finish(token: Int, name: String, result: Result<SpectrogramResult, Error>) {
+    private func finish(token: Int, name: String, url: URL, result: Result<SpectrogramResult, Error>) {
         guard token == loadToken else { return } // a newer load superseded this one
         switch result {
         case .success(let res):
-            state = .loaded(name: name, result: res)
+            state = .loaded(name: name, url: url, result: res)
         case .failure(let err):
             let message = (err as? LocalizedError)?.errorDescription ?? err.localizedDescription
             state = .failed(message: message)

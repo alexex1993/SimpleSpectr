@@ -9,13 +9,14 @@ import UniformTypeIdentifiers
 struct ContentView: View {
     @ObservedObject var model: SpectrogramModel
     @ObservedObject private var l10n = LocalizationManager.shared
+    @StateObject private var player = AudioPlayerController()
     @State private var showImporter = false
     @State private var isTargetedForDrop = false
     @State private var showExporter = false
 
-    /// The loaded spectrogram (image + suggested file name), if any.
-    private var loaded: (name: String, result: SpectrogramResult)? {
-        if case .loaded(let name, let result) = model.state { return (name, result) }
+    /// The loaded spectrogram (image + source url + suggested file name), if any.
+    private var loaded: (name: String, url: URL, result: SpectrogramResult)? {
+        if case .loaded(let name, let url, let result) = model.state { return (name, url, result) }
         return nil
     }
 
@@ -28,8 +29,12 @@ struct ContentView: View {
                 DropPrompt(isTargeted: isTargetedForDrop) { showImporter = true }
             case .loading(let name):
                 LoadingView(name: name)
-            case .loaded(let name, let result):
-                SpectrogramScene(name: name, result: result)
+            case .loaded(let name, let url, let result):
+                VStack(spacing: 0) {
+                    SpectrogramScene(name: name, result: result, player: player)
+                    Divider().overlay(Color.white.opacity(0.08))
+                    PlayerBar(player: player)
+                }
             case .failed(let message):
                 FailureView(message: message) { showImporter = true }
             }
@@ -74,6 +79,14 @@ struct ContentView: View {
                 model.openRequested = false
             }
         }
+        .onChange(of: loaded?.url) { _, newURL in
+            if let url = newURL {
+                player.load(url: url)
+            } else {
+                player.unload()
+            }
+        }
+        .onDisappear { player.stop() }
     }
 
     private var exportFilename: String {
@@ -166,5 +179,72 @@ private struct FailureView: View {
         }
         .padding(40)
         .foregroundStyle(.white)
+    }
+}
+
+// MARK: - Player bar
+
+private struct PlayerBar: View {
+    @ObservedObject var player: AudioPlayerController
+    @ObservedObject private var l10n = LocalizationManager.shared
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Button {
+                player.togglePlayPause()
+            } label: {
+                Image(systemName: player.isPlaying ? "pause.fill" : "play.fill")
+                    .font(.system(size: 16, weight: .semibold))
+                    .frame(width: 22, height: 22)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.borderless)
+            .disabled(!player.isReady)
+            .help(player.isPlaying ? L("button.pause") : L("button.play"))
+
+            Text(formatTime(player.currentTime))
+                .font(.system(size: 11, design: .monospaced))
+                .monospacedDigit()
+                .foregroundStyle(.secondary)
+                .frame(minWidth: 42, alignment: .trailing)
+
+            Slider(value: sliderBinding, in: 0...maxSlider)
+                .tint(.accentColor)
+                .disabled(!player.isReady)
+
+            Text(formatTime(player.duration))
+                .font(.system(size: 11, design: .monospaced))
+                .monospacedDigit()
+                .foregroundStyle(.secondary)
+                .frame(minWidth: 42, alignment: .leading)
+
+            Button {
+                player.toggleMute()
+            } label: {
+                Image(systemName: player.isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                    .font(.system(size: 14))
+                    .frame(width: 22, height: 22)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.borderless)
+            .disabled(!player.isReady)
+            .help(player.isMuted ? L("button.unmute") : L("button.mute"))
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+    }
+
+    private var maxSlider: Double { max(player.duration, 0.001) }
+
+    private var sliderBinding: Binding<Double> {
+        Binding(
+            get: { player.currentTime },
+            set: { player.seek(to: $0) }
+        )
+    }
+
+    private func formatTime(_ seconds: Double) -> String {
+        let total = max(0, Int(seconds.rounded()))
+        return String(format: "%d:%02d", total / 60, total % 60)
     }
 }
