@@ -60,7 +60,9 @@ struct ContentView: View {
             }
         }
         .fileExporter(isPresented: $showExporter,
-                      document: loaded.map { PNGDocument(image: $0.result.image) },
+                      document: loaded.map {
+                          PNGDocument(image: PNGDocument.compositeImage(for: $0.result) ?? $0.result.image)
+                      },
                       contentType: .png,
                       defaultFilename: exportFilename) { _ in }
         .onDrop(of: [.fileURL], isTargeted: $isTargetedForDrop) { providers in
