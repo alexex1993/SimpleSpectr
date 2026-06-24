@@ -12,7 +12,12 @@ import Combine
 
 /// Languages offered in the app's settings.
 enum AppLanguage: String, CaseIterable, Identifiable {
-    case system, en, ru
+    case system
+    case en, ru
+    case zhHans = "zh-Hans"
+    case es, de, fr, hi, it, ja
+    case ptBR = "pt-BR"
+    case ar, bn, tr, ko
 
     var id: String { rawValue }
 
@@ -22,6 +27,18 @@ enum AppLanguage: String, CaseIterable, Identifiable {
         case .system: return L("lang.system")
         case .en:     return "English"
         case .ru:     return "Русский"
+        case .zhHans: return "中文"
+        case .es:     return "Español"
+        case .de:     return "Deutsch"
+        case .fr:     return "Français"
+        case .hi:     return "हिन्दी"
+        case .it:     return "Italiano"
+        case .ja:     return "日本語"
+        case .ptBR:   return "Português"
+        case .ar:     return "العربية"
+        case .bn:     return "বাংলা"
+        case .tr:     return "Türkçe"
+        case .ko:     return "한국어"
         }
     }
 }
@@ -55,10 +72,12 @@ final class LocalizationManager: ObservableObject {
         let code: String
         switch language {
         case .system:
-            // Clear override so future launches use the true system language.
+            // Don't override AppleLanguages — let the OS's real preferences
+            // stand (so unsupported system locales keep native date/number
+            // formatting). We only resolve *which* of our bundles to load.
             UserDefaults.standard.removeObject(forKey: "AppleLanguages")
             code = bestSystemCode()
-        case .en, .ru:
+        default:
             code = language.rawValue
             UserDefaults.standard.set([code], forKey: "AppleLanguages")
         }
@@ -70,12 +89,30 @@ final class LocalizationManager: ObservableObject {
 
     /// Picks the best supported language from the user's system preferences.
     private static func bestSystemCode() -> String {
-        let supported = ["en", "ru"]
+        let supported = AppLanguage.allCases.filter { $0 != .system }.map { $0.rawValue }
         for pref in Locale.preferredLanguages {
-            let code = String(pref.prefix(2)).lowercased()
-            if supported.contains(code) { return code }
+            let lower = pref.lowercased()
+            // Exact match first (e.g. "zh-hans", "pt-br").
+            if supported.contains(lower) { return lower }
+            // Map script/region variants onto our base codes
+            // (e.g. "zh-hant-tw" -> "zh-Hans", "pt-pt" -> "pt-BR").
+            let primary = String(pref.prefix { $0 != "-" && $0 != "_" }).lowercased()
+            if let match = Self.code(forPrimary: primary, in: supported) {
+                return match
+            }
         }
         return "en"
+    }
+
+    /// Resolves a primary language subtag (e.g. "zh", "pt", "es") to a
+    /// supported bundle code, collapsing regional/script variants onto the
+    /// single variant we ship.
+    private static func code(forPrimary primary: String, in supported: [String]) -> String? {
+        switch primary {
+        case "zh": return "zh-Hans"
+        case "pt": return "pt-BR"
+        default:   return supported.first { $0.lowercased() == primary }
+        }
     }
 }
 

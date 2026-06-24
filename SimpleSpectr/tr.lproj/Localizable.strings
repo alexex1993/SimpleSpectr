@@ -1,0 +1,48 @@
+/* Menu items */
+"menu.about" = "SimpleSpectr Hakkında";
+"menu.open" = "Aç…";
+"menu.github" = "GitHub Deposu";
+
+/* About panel credits */
+"about.credits" = "Ses spektrogram görüntüleyicisi.\n\n";
+
+/* Toolbar / buttons */
+"button.savePNG" = "PNG Kaydet";
+"button.openAudio" = "Ses Dosyası Aç";
+"button.chooseAnother" = "Başka Dosya Seç";
+"button.play" = "Oynat";
+"button.pause" = "Duraklat";
+"button.mute" = "Sesi Kıs";
+"button.unmute" = "Sesi Aç";
+
+/* Drop prompt */
+"prompt.title" = "Ses Spektrogramı";
+"prompt.subtitle" = "Buraya bir ses dosyası sürükleyin\nveya aşağıdaki düğmeye tıklayın";
+"prompt.formats" = "FLAC · AAC · MP3 · WAV · AIFF · ALAC ve daha fazlası";
+
+/* Loading status */
+"status.loading" = "%@ analiz ediliyor…";
+
+/* Hover readout */
+"readout.time" = "Süre";
+"readout.frequency" = "Frekans";
+"readout.signal" = "Sinyal";
+
+/* Units */
+"unit.hz" = "%.0f Hz";
+"unit.khz" = "%.2f kHz";
+"unit.db" = "%.1f dB";
+"unit.seconds" = "%.1f sn";
+
+/* Errors */
+"error.cannotOpen" = "Ses dosyası açılamadı: %@";
+"error.emptyAudio" = "Dosya ses verisi içermiyor.";
+"error.invalidFFTSize" = "FFT pencere boyutu ikinin kuvveti olmalıdır.";
+"error.fftSetupFailed" = "FFT başlatılamadı.";
+"error.renderFailed" = "Spektrogram görüntüsü oluşturulamadı.";
+
+/* Settings */
+"settings.title" = "Ayarlar";
+"settings.language" = "Dil";
+"settings.restartHint" = "Sistem dili yeniden başlatma sonrasında tamamen etkin olur.";
+"lang.system" = "Sistem";

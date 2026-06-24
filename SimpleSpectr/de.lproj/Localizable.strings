@@ -1,0 +1,48 @@
+/* Menu items */
+"menu.about" = "Über SimpleSpectr";
+"menu.open" = "Öffnen …";
+"menu.github" = "GitHub-Repository";
+
+/* About panel credits */
+"about.credits" = "Betrachter für Audio-Spektrogramme.\n\n";
+
+/* Toolbar / buttons */
+"button.savePNG" = "PNG speichern";
+"button.openAudio" = "Audiodatei öffnen";
+"button.chooseAnother" = "Andere Datei auswählen";
+"button.play" = "Wiedergeben";
+"button.pause" = "Pause";
+"button.mute" = "Stummschalten";
+"button.unmute" = "Ton einschalten";
+
+/* Drop prompt */
+"prompt.title" = "Audio-Spektrogramm";
+"prompt.subtitle" = "Audiodatei hierher ziehen\noder die Schaltfläche unten klicken";
+"prompt.formats" = "FLAC · AAC · MP3 · WAV · AIFF · ALAC und mehr";
+
+/* Loading status */
+"status.loading" = "%@ wird analysiert …";
+
+/* Hover readout */
+"readout.time" = "Zeit";
+"readout.frequency" = "Frequenz";
+"readout.signal" = "Signal";
+
+/* Units */
+"unit.hz" = "%.0f Hz";
+"unit.khz" = "%.2f kHz";
+"unit.db" = "%.1f dB";
+"unit.seconds" = "%.1f s";
+
+/* Errors */
+"error.cannotOpen" = "Audiodatei konnte nicht geöffnet werden: %@";
+"error.emptyAudio" = "Die Datei enthält keine Audiodaten.";
+"error.invalidFFTSize" = "Die FFT-Fenstergröße muss eine Zweierpotenz sein.";
+"error.fftSetupFailed" = "FFT konnte nicht initialisiert werden.";
+"error.renderFailed" = "Spektrogramm-Bild konnte nicht erzeugt werden.";
+
+/* Settings */
+"settings.title" = "Einstellungen";
+"settings.language" = "Sprache";
+"settings.restartHint" = "Die Systemsprache wird nach einem Neustart vollständig angewendet.";
+"lang.system" = "System";

@@ -1,0 +1,48 @@
+/* Menu items */
+"menu.about" = "SimpleSpectr について";
+"menu.open" = "開く…";
+"menu.github" = "GitHub リポジトリ";
+
+/* About panel credits */
+"about.credits" = "オーディオスペクトログラムビューア。\n\n";
+
+/* Toolbar / buttons */
+"button.savePNG" = "PNG を保存";
+"button.openAudio" = "オーディオファイルを開く";
+"button.chooseAnother" = "別のファイルを選択";
+"button.play" = "再生";
+"button.pause" = "一時停止";
+"button.mute" = "ミュート";
+"button.unmute" = "ミュート解除";
+
+/* Drop prompt */
+"prompt.title" = "オーディオスペクトログラム";
+"prompt.subtitle" = "オーディオファイルをここにドラッグ\nまたは下のボタンをクリック";
+"prompt.formats" = "FLAC · AAC · MP3 · WAV · AIFF · ALAC など";
+
+/* Loading status */
+"status.loading" = "%@ を分析中…";
+
+/* Hover readout */
+"readout.time" = "時間";
+"readout.frequency" = "周波数";
+"readout.signal" = "信号";
+
+/* Units */
+"unit.hz" = "%.0f Hz";
+"unit.khz" = "%.2f kHz";
+"unit.db" = "%.1f dB";
+"unit.seconds" = "%.1f 秒";
+
+/* Errors */
+"error.cannotOpen" = "オーディオファイルを開けませんでした：%@";
+"error.emptyAudio" = "ファイルにオーディオデータが含まれていません。";
+"error.invalidFFTSize" = "FFT ウィンドウサイズは 2 の累乗でなければなりません。";
+"error.fftSetupFailed" = "FFT を初期化できませんでした。";
+"error.renderFailed" = "スペクトログラム画像を生成できませんでした。";
+
+/* Settings */
+"settings.title" = "設定";
+"settings.language" = "言語";
+"settings.restartHint" = "システム言語は再起動後に完全に反映されます。";
+"lang.system" = "システムに従う";

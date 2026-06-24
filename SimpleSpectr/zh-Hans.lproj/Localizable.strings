@@ -1,0 +1,48 @@
+/* Menu items */
+"menu.about" = "关于 SimpleSpectr";
+"menu.open" = "打开…";
+"menu.github" = "GitHub 仓库";
+
+/* About panel credits */
+"about.credits" = "音频频谱图查看器。\n\n";
+
+/* Toolbar / buttons */
+"button.savePNG" = "保存 PNG";
+"button.openAudio" = "打开音频文件";
+"button.chooseAnother" = "选择其他文件";
+"button.play" = "播放";
+"button.pause" = "暂停";
+"button.mute" = "静音";
+"button.unmute" = "取消静音";
+
+/* Drop prompt */
+"prompt.title" = "音频频谱图";
+"prompt.subtitle" = "将音频文件拖到此处\n或点击下方按钮";
+"prompt.formats" = "FLAC · AAC · MP3 · WAV · AIFF · ALAC 等更多格式";
+
+/* Loading status */
+"status.loading" = "正在分析 %@…";
+
+/* Hover readout */
+"readout.time" = "时间";
+"readout.frequency" = "频率";
+"readout.signal" = "信号";
+
+/* Units */
+"unit.hz" = "%.0f Hz";
+"unit.khz" = "%.2f kHz";
+"unit.db" = "%.1f dB";
+"unit.seconds" = "%.1f 秒";
+
+/* Errors */
+"error.cannotOpen" = "无法打开音频文件：%@";
+"error.emptyAudio" = "该文件不包含音频数据。";
+"error.invalidFFTSize" = "FFT 窗口大小必须是 2 的幂。";
+"error.fftSetupFailed" = "FFT 初始化失败。";
+"error.renderFailed" = "无法生成频谱图图像。";
+
+/* Settings */
+"settings.title" = "设置";
+"settings.language" = "语言";
+"settings.restartHint" = "系统语言需重启后才能完全生效。";
+"lang.system" = "跟随系统";

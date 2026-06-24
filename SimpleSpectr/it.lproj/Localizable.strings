@@ -1,0 +1,48 @@
+/* Menu items */
+"menu.about" = "Informazioni su SimpleSpectr";
+"menu.open" = "Apri…";
+"menu.github" = "Repository GitHub";
+
+/* About panel credits */
+"about.credits" = "Visualizzatore di spettrogrammi audio.\n\n";
+
+/* Toolbar / buttons */
+"button.savePNG" = "Salva PNG";
+"button.openAudio" = "Apri file audio";
+"button.chooseAnother" = "Scegli un altro file";
+"button.play" = "Riproduci";
+"button.pause" = "Pausa";
+"button.mute" = "Silenzia";
+"button.unmute" = "Riattiva audio";
+
+/* Drop prompt */
+"prompt.title" = "Spettrogramma audio";
+"prompt.subtitle" = "Trascina qui un file audio\noppure clicca il pulsante sotto";
+"prompt.formats" = "FLAC · AAC · MP3 · WAV · AIFF · ALAC e altri";
+
+/* Loading status */
+"status.loading" = "Analisi di %@…";
+
+/* Hover readout */
+"readout.time" = "Tempo";
+"readout.frequency" = "Frequenza";
+"readout.signal" = "Segnale";
+
+/* Units */
+"unit.hz" = "%.0f Hz";
+"unit.khz" = "%.2f kHz";
+"unit.db" = "%.1f dB";
+"unit.seconds" = "%.1f s";
+
+/* Errors */
+"error.cannotOpen" = "Impossibile aprire il file audio: %@";
+"error.emptyAudio" = "Il file non contiene dati audio.";
+"error.invalidFFTSize" = "La dimensione della finestra FFT deve essere una potenza di due.";
+"error.fftSetupFailed" = "Inizializzazione della FFT non riuscita.";
+"error.renderFailed" = "Impossibile generare l'immagine dello spettrogramma.";
+
+/* Settings */
+"settings.title" = "Impostazioni";
+"settings.language" = "Lingua";
+"settings.restartHint" = "La lingua di sistema sarà applicata completamente dopo il riavvio.";
+"lang.system" = "Sistema";

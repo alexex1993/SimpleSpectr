@@ -1,0 +1,48 @@
+/* Menu items */
+"menu.about" = "SimpleSpectr সম্পর্কে";
+"menu.open" = "খুলুন…";
+"menu.github" = "GitHub সংগ্রহস্থল";
+
+/* About panel credits */
+"about.credits" = "অডিও স্পেক্ট্রোগ্রাম দর্শক।\n\n";
+
+/* Toolbar / buttons */
+"button.savePNG" = "PNG সংরক্ষণ করুন";
+"button.openAudio" = "অডিও ফাইল খুলুন";
+"button.chooseAnother" = "অন্য ফাইল নির্বাচন করুন";
+"button.play" = "চালান";
+"button.pause" = "বিরতি";
+"button.mute" = "মিউট করুন";
+"button.unmute" = "আনমিউট করুন";
+
+/* Drop prompt */
+"prompt.title" = "অডিও স্পেক্ট্রোগ্রাম";
+"prompt.subtitle" = "এখানে একটি অডিও ফাইল টেনে আনুন\nঅথবা নিচের বোতামে ক্লিক করুন";
+"prompt.formats" = "FLAC · AAC · MP3 · WAV · AIFF · ALAC এবং আরও";
+
+/* Loading status */
+"status.loading" = "%@ বিশ্লেষণ করা হচ্ছে…";
+
+/* Hover readout */
+"readout.time" = "সময়";
+"readout.frequency" = "কম্পাঙ্ক";
+"readout.signal" = "সংকেত";
+
+/* Units */
+"unit.hz" = "%.0f Hz";
+"unit.khz" = "%.2f kHz";
+"unit.db" = "%.1f dB";
+"unit.seconds" = "%.1f সে";
+
+/* Errors */
+"error.cannotOpen" = "অডিও ফাইল খুলতে ব্যর্থ: %@";
+"error.emptyAudio" = "ফাইলে কোনো অডিও ডেটা নেই।";
+"error.invalidFFTSize" = "FFT উইন্ডোর আকার অবশ্যই দুই-এর ঘাত হতে হবে।";
+"error.fftSetupFailed" = "FFT শুরু করতে ব্যর্থ।";
+"error.renderFailed" = "স্পেক্ট্রোগ্রাম ছবি তৈরি করতে ব্যর্থ।";
+
+/* Settings */
+"settings.title" = "সেটিংস";
+"settings.language" = "ভাষা";
+"settings.restartHint" = "সিস্টেম ভাষা পুনরায় চালু করার পরে সম্পূর্ণরূপে কার্যকর হবে।";
+"lang.system" = "সিস্টেম";

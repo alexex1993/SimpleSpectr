@@ -1,0 +1,48 @@
+/* Menu items */
+"menu.about" = "حول SimpleSpectr";
+"menu.open" = "فتح…";
+"menu.github" = "مستودع GitHub";
+
+/* About panel credits */
+"about.credits" = "عارض الطيف الصوتي.\n\n";
+
+/* Toolbar / buttons */
+"button.savePNG" = "حفظ PNG";
+"button.openAudio" = "فتح ملف صوتي";
+"button.chooseAnother" = "اختيار ملف آخر";
+"button.play" = "تشغيل";
+"button.pause" = "إيقاف مؤقت";
+"button.mute" = "كتم الصوت";
+"button.unmute" = "إلغاء الكتم";
+
+/* Drop prompt */
+"prompt.title" = "طيف صوتي";
+"prompt.subtitle" = "اسحب ملفًا صوتيًا إلى هنا\nأو انقر على الزر بالأسفل";
+"prompt.formats" = "FLAC · AAC · MP3 · WAV · AIFF · ALAC والمزيد";
+
+/* Loading status */
+"status.loading" = "جارٍ تحليل %@…";
+
+/* Hover readout */
+"readout.time" = "الوقت";
+"readout.frequency" = "التردد";
+"readout.signal" = "الإشارة";
+
+/* Units */
+"unit.hz" = "%.0f Hz";
+"unit.khz" = "%.2f kHz";
+"unit.db" = "%.1f dB";
+"unit.seconds" = "%.1f ث";
+
+/* Errors */
+"error.cannotOpen" = "تعذّر فتح الملف الصوتي: %@";
+"error.emptyAudio" = "الملف لا يحتوي على بيانات صوتية.";
+"error.invalidFFTSize" = "يجب أن يكون حجم نافذة FFT من مضاعفات اثنين.";
+"error.fftSetupFailed" = "تعذّر تهيئة FFT.";
+"error.renderFailed" = "تعذّر إنشاء صورة الطيف الصوتي.";
+
+/* Settings */
+"settings.title" = "الإعدادات";
+"settings.language" = "اللغة";
+"settings.restartHint" = "تُطبَّق لغة النظام بالكامل بعد إعادة التشغيل.";
+"lang.system" = "النظام";

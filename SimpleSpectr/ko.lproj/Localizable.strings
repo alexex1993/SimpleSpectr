@@ -1,0 +1,48 @@
+/* Menu items */
+"menu.about" = "SimpleSpectr 정보";
+"menu.open" = "열기…";
+"menu.github" = "GitHub 저장소";
+
+/* About panel credits */
+"about.credits" = "오디오 스펙트로그램 뷰어.\n\n";
+
+/* Toolbar / buttons */
+"button.savePNG" = "PNG 저장";
+"button.openAudio" = "오디오 파일 열기";
+"button.chooseAnother" = "다른 파일 선택";
+"button.play" = "재생";
+"button.pause" = "일시정지";
+"button.mute" = "음소거";
+"button.unmute" = "음소거 해제";
+
+/* Drop prompt */
+"prompt.title" = "오디오 스펙트로그램";
+"prompt.subtitle" = "오디오 파일을 여기로 드래그하거나\n아래 버튼을 클릭하세요";
+"prompt.formats" = "FLAC · AAC · MP3 · WAV · AIFF · ALAC 등";
+
+/* Loading status */
+"status.loading" = "%@ 분석 중…";
+
+/* Hover readout */
+"readout.time" = "시간";
+"readout.frequency" = "주파수";
+"readout.signal" = "신호";
+
+/* Units */
+"unit.hz" = "%.0f Hz";
+"unit.khz" = "%.2f kHz";
+"unit.db" = "%.1f dB";
+"unit.seconds" = "%.1f 초";
+
+/* Errors */
+"error.cannotOpen" = "오디오 파일을 열 수 없습니다: %@";
+"error.emptyAudio" = "파일에 오디오 데이터가 없습니다.";
+"error.invalidFFTSize" = "FFT 윈도우 크기는 2의 거듭제곱이어야 합니다.";
+"error.fftSetupFailed" = "FFT를 초기화하지 못했습니다.";
+"error.renderFailed" = "스펙트로그램 이미지를 생성하지 못했습니다.";
+
+/* Settings */
+"settings.title" = "설정";
+"settings.language" = "언어";
+"settings.restartHint" = "시스템 언어는 다시 시작한 후 완전히 적용됩니다.";
+"lang.system" = "시스템";

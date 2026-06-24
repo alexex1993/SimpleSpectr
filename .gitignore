@@ -3,7 +3,7 @@
 build/
 DerivedData/
 *.xcuserstate
-
+.zai/*
 # Xcode per-user state
 xcuserdata/
 
