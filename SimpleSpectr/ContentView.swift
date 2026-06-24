@@ -29,7 +29,7 @@ struct ContentView: View {
                 DropPrompt(isTargeted: isTargetedForDrop) { showImporter = true }
             case .loading(let name):
                 LoadingView(name: name)
-            case .loaded(let name, let url, let result):
+            case .loaded(let name, _, let result):
                 VStack(spacing: 0) {
                     SpectrogramScene(name: name, result: result, player: player)
                     Divider().overlay(Color.white.opacity(0.08))
@@ -202,7 +202,7 @@ private struct PlayerBar: View {
             .disabled(!player.isReady)
             .help(player.isPlaying ? L("button.pause") : L("button.play"))
 
-            Text(formatTime(player.currentTime))
+            Text(AxisFormatting.duration(player.currentTime))
                 .font(.system(size: 11, design: .monospaced))
                 .monospacedDigit()
                 .foregroundStyle(.secondary)
@@ -212,7 +212,7 @@ private struct PlayerBar: View {
                 .tint(.accentColor)
                 .disabled(!player.isReady)
 
-            Text(formatTime(player.duration))
+            Text(AxisFormatting.duration(player.duration))
                 .font(.system(size: 11, design: .monospaced))
                 .monospacedDigit()
                 .foregroundStyle(.secondary)
@@ -241,10 +241,5 @@ private struct PlayerBar: View {
             get: { player.currentTime },
             set: { player.seek(to: $0) }
         )
-    }
-
-    private func formatTime(_ seconds: Double) -> String {
-        let total = max(0, Int(seconds.rounded()))
-        return String(format: "%d:%02d", total / 60, total % 60)
     }
 }

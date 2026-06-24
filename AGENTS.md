@@ -1,0 +1,67 @@
+# AGENTS.md
+
+Compact orientation for OpenCode sessions. The full architecture narrative and
+data-flow walkthrough live in **`CLAUDE.md`** — read it for anything beyond
+quick orientation. This file only captures what an agent would otherwise get
+wrong.
+
+## What this is
+
+Single-target macOS SwiftUI app (`SimpleSpectr.xcodeproj`) that renders an
+audio-file spectrogram. No SPM/CocoaPods, no test target, no CI.
+
+## Build / run
+
+- Requires the **full Xcode app**, not just Command Line Tools. Prefix
+  `xcodebuild` with `DEVELOPER_DIR`, or it fails:
+  ```sh
+  DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild \
+    -project SimpleSpectr.xcodeproj -scheme SimpleSpectr \
+    -destination 'platform=macOS' build
+  ```
+  Release `.app` lands at `build/Build/Products/Release/SimpleSpectr.app` when
+  built with `-configuration Release -derivedDataPath build`.
+- Normal development is Xcode Run (⌘R).
+- **There are no tests.** Don't hunt for a test command. To verify DSP changes
+  without the GUI, compile the engine standalone — the entry file **must** be
+  named `main.swift`:
+  ```sh
+  xcrun swiftc SimpleSpectr/SpectrogramEngine.swift SimpleSpectr/Colormap.swift main.swift -o /tmp/tool
+  ```
+
+## Repo-specific gotchas (these bite)
+
+- **New `.swift` files need no `project.pbxproj` edits.** The target uses a
+  `PBXFileSystemSynchronizedRootGroup`, so files are auto-added. The one
+  exception is `Info.plist`, excluded via a
+  `PBXFileSystemSynchronizedBuildFileExceptionSet` (otherwise it'd be
+  double-copied as a resource). Never hand-edit the pbxproj to add sources.
+- **`SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`** is set at the target level, so
+  every type is main-isolated by default. `SpectrogramEngine`, `Colormap`, and
+  the private `MonoSource` are explicitly `nonisolated` to keep the STFT off the
+  MainActor — **do not remove that annotation**, it blocks the UI.
+- **`AVAudioFile.read(into:frameCount:)` throws at EOF** rather than returning 0
+  frames. The decode loop in `MonoSource` is driven by `framePosition < length`
+  reading `min(chunk, remaining)`. Switching to a `while true` + break-on-zero
+  loop **crashes**.
+- **Sandbox + security scope.** The app is sandboxed
+  (`ENABLE_USER_SELECTED_FILES = readwrite`). Both engine and player wrap file
+  access in `url.startAccessingSecurityScopedResource()`, balanced in `defer`.
+- **Engine and player use different memory models — intentionally.** The engine
+  streams + down-mixes to mono (`MonoSource`), never holding the whole file. The
+  player *does* materialize the whole file (`AVAudioPlayer(data:)`) for instant
+  seeking. Don't "fix" one to match the other.
+
+## Conventions
+
+- **Spectrogram orientation:** low frequencies at the bottom, high at top, time
+  advances left→right. The playhead is drawn from `currentTime/duration`, and
+  the spectrogram surface itself is the seek surface (click/drag to seek).
+- **`SpectrogramResult.magnitudes` layout:** `[column * bins + bin]`, bin 0 =
+  lowest frequency. The hover readout uses this to report exact dB without
+  re-reading pixels.
+- **Adding an audio format:** add the UTI to `LSItemContentTypes` in
+  `SimpleSpectr/Info.plist`. Decoding is whatever Core Audio supports (no code
+  change). Ogg/Opus are not supported out of the box.
+- **Localization:** ~14 `.lproj` dirs with string routing centralized in
+  `Localization.swift`; system language auto-detected with a Settings override.

@@ -100,16 +100,6 @@ final class SpectrogramModel: ObservableObject {
 
     private func commitReapply(token: Int, name: String, url: URL, base: SpectrogramResult, image: CGImage) {
         guard token == loadToken else { return }
-        let updated = SpectrogramResult(image: image,
-                                        duration: base.duration,
-                                        sampleRate: base.sampleRate,
-                                        maxFrequency: base.maxFrequency,
-                                        fftSize: base.fftSize,
-                                        columns: base.columns,
-                                        bins: base.bins,
-                                        minDB: base.minDB,
-                                        maxDB: base.maxDB,
-                                        magnitudes: base.magnitudes)
-        state = .loaded(name: name, url: url, result: updated)
+        state = .loaded(name: name, url: url, result: base.replacingImage(image))
     }
 }

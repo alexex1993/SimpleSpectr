@@ -11,7 +11,7 @@ import SwiftUI
 
 /// Selectable spectrogram colormap. Each case is backed by 8-bit sRGB anchor
 /// colors that are interpolated in Oklab space into a 256-entry LUT.
-enum Palette: String, CaseIterable, Identifiable {
+nonisolated enum Palette: String, CaseIterable, Identifiable, Sendable {
     case inferno     // default
     case viridis
     case magma
@@ -26,7 +26,7 @@ enum Palette: String, CaseIterable, Identifiable {
     var isDefault: Bool { self == .inferno }
 
     /// Display name — scientific colormap names are kept as proper nouns.
-    var displayName: String {
+    @MainActor var displayName: String {
         switch self {
         case .inferno:   return "Inferno"
         case .viridis:   return "Viridis"

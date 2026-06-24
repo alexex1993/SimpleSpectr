@@ -16,20 +16,11 @@ struct SpectrogramScene: View {
     @State private var hover: (time: Double, frequency: Double, db: Double)?
     @State private var cursor: CGPoint?
 
-    private let axisColor = Color(white: 0.6)
-    private let leftInset: CGFloat = 56
-    private let bottomInset: CGFloat = 28
-    private let topInset: CGFloat = 8
-    private let rightInset: CGFloat = 12
-
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             header
             GeometryReader { geo in
-                let plot = CGRect(x: leftInset,
-                                  y: topInset,
-                                  width: max(0, geo.size.width - leftInset - rightInset),
-                                  height: max(0, geo.size.height - topInset - bottomInset))
+                let plot = SpectrogramPlot.frame(available: geo.size)
                 ZStack(alignment: .topLeading) {
                     Image(decorative: result.image, scale: 1.0)
                         .resizable()
@@ -37,7 +28,7 @@ struct SpectrogramScene: View {
                         .frame(width: plot.width, height: plot.height)
                         .offset(x: plot.minX, y: plot.minY)
 
-                    axes(in: plot)
+                    SpectrogramAxes(result: result, plot: plot)
                     playhead(in: plot)
                     crosshair(in: plot)
                     readout(in: plot)
@@ -160,45 +151,6 @@ struct SpectrogramScene: View {
             Text(value).foregroundStyle(.white)
         }
         .frame(width: 124)
-    }
-
-    @ViewBuilder
-    private func axes(in plot: CGRect) -> some View {
-        // Frequency labels (y axis) — a few evenly spaced ticks.
-        let freqTicks = 6
-        ForEach(0...freqTicks, id: \.self) { i in
-            let frac = Double(i) / Double(freqTicks)
-            let y = plot.maxY - CGFloat(frac) * plot.height
-            let hz = frac * result.maxFrequency
-            Text(formatHz(hz))
-                .font(.system(size: 9))
-                .foregroundStyle(axisColor)
-                .frame(width: leftInset - 8, alignment: .trailing)
-                .position(x: (leftInset - 8) / 2, y: y)
-        }
-
-        // Time labels (x axis).
-        let timeTicks = 6
-        ForEach(0...timeTicks, id: \.self) { i in
-            let frac = Double(i) / Double(timeTicks)
-            let x = plot.minX + CGFloat(frac) * plot.width
-            let t = frac * result.duration
-            Text(formatDuration(t))
-                .font(.system(size: 9))
-                .foregroundStyle(axisColor)
-                .position(x: x, y: plot.maxY + 14)
-        }
-    }
-
-    private func formatHz(_ hz: Double) -> String {
-        hz >= 1000 ? String(format: "%.0fk", hz / 1000) : String(format: "%.0f", hz)
-    }
-
-    private func formatDuration(_ seconds: Double) -> String {
-        let total = Int(seconds.rounded())
-        let m = total / 60
-        let s = total % 60
-        return String(format: "%d:%02d", m, s)
     }
 
     /// Header duration: seconds with one decimal below a minute, otherwise m:ss.

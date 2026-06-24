@@ -38,6 +38,20 @@ struct SpectrogramResult: @unchecked Sendable {
         let time = fx * duration
         return (time, frequency, db)
     }
+
+    /// Copy keeping every field except `image` (e.g. re-rendered with a new palette).
+    func replacingImage(_ newImage: CGImage) -> SpectrogramResult {
+        SpectrogramResult(image: newImage,
+                          duration: duration,
+                          sampleRate: sampleRate,
+                          maxFrequency: maxFrequency,
+                          fftSize: fftSize,
+                          columns: columns,
+                          bins: bins,
+                          minDB: minDB,
+                          maxDB: maxDB,
+                          magnitudes: magnitudes)
+    }
 }
 
 enum SpectrogramError: LocalizedError {
@@ -268,7 +282,7 @@ enum SpectrogramEngine {
 /// Reads an `AVAudioFile` forward, down-mixing to mono, and hands out samples on
 /// demand. Only a small chunk is ever held in memory, so long files don't blow up
 /// the heap.
-private struct MonoSource {
+nonisolated private struct MonoSource {
     private let file: AVAudioFile
     private let channelCount: Int
     private let chunkFrames: AVAudioFrameCount
