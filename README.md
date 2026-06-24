@@ -2,7 +2,7 @@
 
 A simple macOS app that displays the spectrogram of an audio file.
 
-<img width="909" height="481" alt="Снимок экрана — 2026-06-23 в 19 18 54" src="https://github.com/user-attachments/assets/280a28a1-bb87-4bb8-b1d1-06c623530517" />
+<img width="909" height="481" alt="Screenshot — 2026-06-23 at 19 18 54" src="https://github.com/user-attachments/assets/280a28a1-bb87-4bb8-b1d1-06c623530517" />
 
 
 ## Features
@@ -42,16 +42,21 @@ Audio is decoded with `AVAudioFile` (Core Audio) and **streamed** through the an
 
 ## Changelog
 
+### 1.7
+
+- **Colormap picker** — choose the spectrogram palette in Settings (Inferno, Viridis, Magma, Plasma, Turbo, Cividis, Grayscale) with live gradient previews; the selection persists across launches.
+- **More languages** — added 12 new localizations: Arabic, Bengali, German, Spanish, French, Hindi, Italian, Japanese, Korean, Portuguese (Brazil), Turkish, Chinese (Simplified).
+
 ### 1.5
 
-- **Воспроизведение аудио** — внизу окна появился плеер, который проигрывает файл, открытый в спектрограмме.
-- **Синхронный курсор** — вертикальная линия-плейхед едет по спектрограмме синхронно со звуком; клик и перетаскивание по спектрограмме перемещают позицию воспроизведения.
-- **Пауза и перемотка** — кнопка Play/Pause и ползунок перемотки с текущим/общим временем.
-- **Отключение звука** — кнопка Mute: со звуком или без (в режиме без звука приложение работает как прежде — только спектрограмма).
+- **Audio playback** — a player appeared at the bottom of the window that plays the file shown in the spectrogram.
+- **Synced cursor** — a vertical playhead line moves across the spectrogram in sync with the sound; clicking and dragging on the spectrogram seeks through the file.
+- **Pause & seek** — a Play/Pause button and a seek slider showing the current and total time.
+- **Mute** — a Mute toggle: with or without sound (muted mode works as before — spectrogram only).
 
 ### 1.2
 
-- **Локализация (русский / английский)** — автоопределение системного языка и переключатель в настройках; локализованы все элементы интерфейса и единицы измерения.
+- **Localization (Russian / English)** — automatic detection of the system language plus a selector in Settings; all UI elements and units of measurement are localized.
 
 ### 1.1
 
