@@ -27,19 +27,30 @@ final class SpectrogramModel: ObservableObject {
 
     private var loadToken = 0
     private var loadTask: Task<Void, Never>?
+    private var reapplyTask: Task<Void, Never>?
+    private var paletteCancellable: AnyCancellable?
+
+    init() {
+        // Re-render the loaded spectrogram live when the user picks a palette.
+        paletteCancellable = ColormapPreferences.shared.$palette
+            .dropFirst()
+            .sink { [weak self] palette in self?.reapplyPalette(palette) }
+    }
 
     /// Load and render the spectrogram for `url` off the main thread.
     /// A previous in-flight load is cancelled.
     func load(url: URL) {
         loadTask?.cancel()
+        reapplyTask?.cancel()
         let name = url.lastPathComponent
+        let palette = ColormapPreferences.shared.palette
         loadToken += 1
         let token = loadToken
         state = .loading(name: name)
 
         loadTask = Task.detached(priority: .userInitiated) {
             do {
-                let result = try SpectrogramEngine.generate(url: url)
+                let result = try SpectrogramEngine.generate(url: url, palette: palette)
                 guard !Task.isCancelled else { return }
                 await self.finish(token: token, name: name, url: url, result: .success(result))
             } catch is CancellationError {
@@ -47,6 +58,31 @@ final class SpectrogramModel: ObservableObject {
             } catch {
                 guard !Task.isCancelled else { return }
                 await self.finish(token: token, name: name, url: url, result: .failure(error))
+            }
+        }
+    }
+
+    /// Re-render the currently loaded spectrogram with `palette`, reusing the
+    /// cached dB grid so the audio is never re-decoded. No-op unless loaded.
+    func reapplyPalette(_ palette: Palette) {
+        reapplyTask?.cancel()
+        guard case .loaded(let name, let url, let result) = state else { return }
+        let token = loadToken
+        reapplyTask = Task.detached(priority: .userInitiated) {
+            do {
+                let image = try SpectrogramEngine.renderImage(
+                    magnitudes: result.magnitudes,
+                    columns: result.columns,
+                    bins: result.bins,
+                    minDB: Float(result.minDB),
+                    maxDB: Float(result.maxDB),
+                    palette: palette)
+                guard !Task.isCancelled else { return }
+                await self.commitReapply(token: token, name: name, url: url, base: result, image: image)
+            } catch is CancellationError {
+                return
+            } catch {
+                return
             }
         }
     }
@@ -60,5 +96,20 @@ final class SpectrogramModel: ObservableObject {
             let message = (err as? LocalizedError)?.errorDescription ?? err.localizedDescription
             state = .failed(message: message)
         }
+    }
+
+    private func commitReapply(token: Int, name: String, url: URL, base: SpectrogramResult, image: CGImage) {
+        guard token == loadToken else { return }
+        let updated = SpectrogramResult(image: image,
+                                        duration: base.duration,
+                                        sampleRate: base.sampleRate,
+                                        maxFrequency: base.maxFrequency,
+                                        fftSize: base.fftSize,
+                                        columns: base.columns,
+                                        bins: base.bins,
+                                        minDB: base.minDB,
+                                        maxDB: base.maxDB,
+                                        magnitudes: base.magnitudes)
+        state = .loaded(name: name, url: url, result: updated)
     }
 }

@@ -45,4 +45,8 @@
 "settings.title" = "Impostazioni";
 "settings.language" = "Lingua";
 "settings.restartHint" = "La lingua di sistema sarà applicata completamente dopo il riavvio.";
+"settings.palette" = "Tavolozza";
+"settings.paletteHint" = "Cambiando la tavolozza lo spettrogramma aperto viene ri-renderizzato all'istante.";
+"palette.default" = "Predefinito";
+"palette.grayscale" = "Scala di grigi";
 "lang.system" = "Sistema";

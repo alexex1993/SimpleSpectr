@@ -45,4 +45,8 @@
 "settings.title" = "설정";
 "settings.language" = "언어";
 "settings.restartHint" = "시스템 언어는 다시 시작한 후 완전히 적용됩니다.";
+"settings.palette" = "색상 팔레트";
+"settings.paletteHint" = "팔레트를 변경하면 열려 있는 스펙트로그램이 즉시 다시 렌더링됩니다.";
+"palette.default" = "기본";
+"palette.grayscale" = "그레이스케일";
 "lang.system" = "시스템";

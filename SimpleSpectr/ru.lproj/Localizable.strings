@@ -45,4 +45,8 @@
 "settings.title" = "Настройки";
 "settings.language" = "Язык";
 "settings.restartHint" = "Системный язык полностью применится после перезапуска.";
+"settings.palette" = "Цветовая палитра";
+"settings.paletteHint" = "Смена палитры мгновенно обновляет открытую спектрограмму.";
+"palette.default" = "По умолчанию";
+"palette.grayscale" = "Оттенки серого";
 "lang.system" = "Как в системе";

@@ -45,4 +45,8 @@
 "settings.title" = "设置";
 "settings.language" = "语言";
 "settings.restartHint" = "系统语言需重启后才能完全生效。";
+"settings.palette" = "调色板";
+"settings.paletteHint" = "更改调色板会立即重新渲染当前频谱图。";
+"palette.default" = "默认";
+"palette.grayscale" = "灰度";
 "lang.system" = "跟随系统";

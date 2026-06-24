@@ -45,4 +45,8 @@
 "settings.title" = "設定";
 "settings.language" = "言語";
 "settings.restartHint" = "システム言語は再起動後に完全に反映されます。";
+"settings.palette" = "カラーパレット";
+"settings.paletteHint" = "パレットを変更すると、開いているスペクトログラムが即座に再描画されます。";
+"palette.default" = "デフォルト";
+"palette.grayscale" = "グレースケール";
 "lang.system" = "システムに従う";

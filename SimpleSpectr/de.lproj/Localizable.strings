@@ -45,4 +45,8 @@
 "settings.title" = "Einstellungen";
 "settings.language" = "Sprache";
 "settings.restartHint" = "Die Systemsprache wird nach einem Neustart vollständig angewendet.";
+"settings.palette" = "Farbpalette";
+"settings.paletteHint" = "Beim Wechsel der Palette wird das geöffnete Spektrogramm sofort neu gerendert.";
+"palette.default" = "Standard";
+"palette.grayscale" = "Graustufen";
 "lang.system" = "System";

@@ -45,4 +45,8 @@
 "settings.title" = "সেটিংস";
 "settings.language" = "ভাষা";
 "settings.restartHint" = "সিস্টেম ভাষা পুনরায় চালু করার পরে সম্পূর্ণরূপে কার্যকর হবে।";
+"settings.palette" = "রঙের প্যালেট";
+"settings.paletteHint" = "প্যালেট পরিবর্তন করলে খোলা স্পেকট্রোগ্রাম তাৎক্ষণিকভাবে পুনরায় আঁকা হয়।";
+"palette.default" = "ডিফল্ট";
+"palette.grayscale" = "গ্রেস্কেল";
 "lang.system" = "সিস্টেম";

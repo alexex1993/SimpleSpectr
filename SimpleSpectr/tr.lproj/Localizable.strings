@@ -45,4 +45,8 @@
 "settings.title" = "Ayarlar";
 "settings.language" = "Dil";
 "settings.restartHint" = "Sistem dili yeniden başlatma sonrasında tamamen etkin olur.";
+"settings.palette" = "Renk paleti";
+"settings.paletteHint" = "Paleti değiştirmek açık spektrogramı anında yeniden çizer.";
+"palette.default" = "Varsayılan";
+"palette.grayscale" = "Gri tonlama";
 "lang.system" = "Sistem";

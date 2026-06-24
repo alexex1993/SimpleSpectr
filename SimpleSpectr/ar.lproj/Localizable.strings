@@ -45,4 +45,8 @@
 "settings.title" = "الإعدادات";
 "settings.language" = "اللغة";
 "settings.restartHint" = "تُطبَّق لغة النظام بالكامل بعد إعادة التشغيل.";
+"settings.palette" = "اللوحة اللونية";
+"settings.paletteHint" = "يؤدي تغيير اللوحة إلى إعادة رسم المخطط الطيفي المفتوح فوراً.";
+"palette.default" = "افتراضي";
+"palette.grayscale" = "تدرّج رمادي";
 "lang.system" = "النظام";

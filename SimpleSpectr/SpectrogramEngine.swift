@@ -64,9 +64,11 @@ enum SpectrogramEngine {
     /// - Parameters:
     ///   - fftSize: FFT window size (power of two). 2048 → 1024 frequency bins.
     ///   - maxColumns: upper bound on the number of time columns (bounds compute/memory).
+    ///   - palette: colormap used to map dB → color.
     nonisolated static func generate(url: URL,
                                      fftSize: Int = 2048,
-                                     maxColumns: Int = 2000) throws -> SpectrogramResult {
+                                     maxColumns: Int = 2000,
+                                     palette: Palette = .inferno) throws -> SpectrogramResult {
         let scoped = url.startAccessingSecurityScopedResource()
         defer { if scoped { url.stopAccessingSecurityScopedResource() } }
 
@@ -183,11 +185,12 @@ enum SpectrogramEngine {
         let peak = globalMax.isFinite ? globalMax : 0
         let maxDB = peak
         let minDB = peak - dynamicRange
-        let image = try makeImage(magnitudes: magnitudes,
-                                  columns: columns,
-                                  bins: bins,
-                                  minDB: minDB,
-                                  maxDB: maxDB)
+        let image = try renderImage(magnitudes: magnitudes,
+                                    columns: columns,
+                                    bins: bins,
+                                    minDB: minDB,
+                                    maxDB: maxDB,
+                                    palette: palette)
 
         return SpectrogramResult(image: image,
                                  duration: Double(total) / sampleRate,
@@ -203,14 +206,19 @@ enum SpectrogramEngine {
 
     // MARK: - Image generation
 
-    private nonisolated static func makeImage(magnitudes: [Float],
-                                              columns: Int,
-                                              bins: Int,
-                                              minDB: Float,
-                                              maxDB: Float) throws -> CGImage {
+    /// Map a dB magnitude grid into a `CGImage` using the given colormap.
+    /// Exposed so a loaded spectrogram can be re-rendered (e.g. when the user
+    /// changes palette) without re-decoding the audio.
+    nonisolated static func renderImage(magnitudes: [Float],
+                                        columns: Int,
+                                        bins: Int,
+                                        minDB: Float,
+                                        maxDB: Float,
+                                        palette: Palette = .inferno) throws -> CGImage {
         let width = columns
         let height = bins
         let invRange = 1.0 / max(1e-6, (maxDB - minDB))
+        let lut = palette.lut
 
         var pixels = Data(count: width * height * 4)
         pixels.withUnsafeMutableBytes { raw in
@@ -223,7 +231,7 @@ enum SpectrogramEngine {
                     var t = (db - minDB) * invRange
                     if !t.isFinite { t = 0 }
                     if t < 0 { t = 0 } else if t > 1 { t = 1 }
-                    let (r, g, b) = Colormap.infernoLUT(Int(t * 255))
+                    let (r, g, b) = lut[Int(t * 255)]
                     let offset = (row * width + col) * 4
                     p[offset + 0] = r
                     p[offset + 1] = g

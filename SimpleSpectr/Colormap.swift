@@ -2,44 +2,160 @@
 //  Colormap.swift
 //  SimpleSpectr
 //
-//  "Inferno" perceptual colormap, interpolated in Oklab space and baked into a LUT.
+//  Perceptual colormaps, interpolated in Oklab space and baked into LUTs.
+//  "Inferno" is the app default; the others are selectable in Settings.
 //
 
 import Foundation
+import SwiftUI
 
-enum Colormap {
-    // Anchor colors sampled along matplotlib's "inferno" (8-bit sRGB).
-    private static let anchors: [(Double, Double, Double)] = [
-        (0,   0,   4),
-        (40,  11,  84),
-        (101, 21,  110),
-        (159, 42,  99),
-        (212, 72,  66),
-        (245, 125, 21),
-        (250, 193, 39),
-        (252, 255, 164),
-    ]
+/// Selectable spectrogram colormap. Each case is backed by 8-bit sRGB anchor
+/// colors that are interpolated in Oklab space into a 256-entry LUT.
+enum Palette: String, CaseIterable, Identifiable {
+    case inferno     // default
+    case viridis
+    case magma
+    case plasma
+    case turbo
+    case cividis
+    case grayscale
 
-    // Same anchors converted to Oklab once, so per-pixel interpolation is perceptual.
-    private static let anchorsLab: [(Double, Double, Double)] = anchors.map { srgbToOklab($0) }
+    var id: String { rawValue }
 
-    // 256-entry RGB lookup table, computed once.
-    private static let lut: [(UInt8, UInt8, UInt8)] = {
-        (0..<256).map { i in oklabToSRGB8(sampleLab(Double(i) / 255.0)) }
-    }()
+    /// Whether this is the factory default (shown with a "Default" caption).
+    var isDefault: Bool { self == .inferno }
 
-    /// Map an index in 0…255 to an RGB triple.
-    static func infernoLUT(_ index: Int) -> (UInt8, UInt8, UInt8) {
-        return lut[min(max(index, 0), 255)]
+    /// Display name — scientific colormap names are kept as proper nouns.
+    var displayName: String {
+        switch self {
+        case .inferno:   return "Inferno"
+        case .viridis:   return "Viridis"
+        case .magma:     return "Magma"
+        case .plasma:    return "Plasma"
+        case .turbo:     return "Turbo"
+        case .cividis:   return "Cividis"
+        case .grayscale: return L("palette.grayscale")
+        }
     }
 
-    private static func sampleLab(_ t: Double) -> (Double, Double, Double) {
-        let segments = anchorsLab.count - 1
+    /// Anchor colors sampled along each colormap (8-bit sRGB).
+    private var anchors: [(Double, Double, Double)] {
+        switch self {
+        case .inferno:
+            return [
+                (0,   0,   4),
+                (40,  11,  84),
+                (101, 21,  110),
+                (159, 42,  99),
+                (212, 72,  66),
+                (245, 125, 21),
+                (250, 193, 39),
+                (252, 255, 164),
+            ]
+        case .viridis:
+            return [
+                (68,  1,   84),
+                (71,  40,  120),
+                (62,  74,  137),
+                (49,  104, 142),
+                (38,  130, 142),
+                (31,  158, 137),
+                (53,  183, 121),
+                (109, 205, 89),
+                (180, 222, 44),
+                (253, 231, 37),
+            ]
+        case .magma:
+            return [
+                (0,   0,   4),
+                (28,  16,  68),
+                (79,  18,  123),
+                (129, 37,  129),
+                (181, 54,  122),
+                (229, 80,  100),
+                (251, 135, 97),
+                (254, 194, 135),
+                (252, 253, 191),
+            ]
+        case .plasma:
+            return [
+                (13,  8,   135),
+                (75,  3,   161),
+                (125, 3,   168),
+                (168, 34,  150),
+                (203, 70,  121),
+                (229, 107, 93),
+                (248, 148, 65),
+                (253, 195, 40),
+                (240, 249, 33),
+            ]
+        case .turbo:
+            return [
+                (48,  18,  59),
+                (70,  93,  211),
+                (33,  168, 221),
+                (28,  213, 169),
+                (109, 235, 89),
+                (202, 226, 50),
+                (253, 165, 49),
+                (232, 78,  27),
+                (122, 4,   3),
+            ]
+        case .cividis:
+            return [
+                (0,   32,  76),
+                (45,  75,  122),
+                (92,  121, 153),
+                (137, 160, 175),
+                (194, 196, 181),
+                (237, 234, 193),
+                (255, 253, 219),
+            ]
+        case .grayscale:
+            return [
+                (15,  15,  15),
+                (255, 255, 255),
+            ]
+        }
+    }
+
+    // 256-entry RGB lookup table for this palette, computed once per case.
+    var lut: [(UInt8, UInt8, UInt8)] { Self.allLUTs[self]! }
+
+    /// Map an index in 0…255 to an RGB triple.
+    func sample(_ index: Int) -> (UInt8, UInt8, UInt8) {
+        lut[min(max(index, 0), 255)]
+    }
+
+    /// SwiftUI gradient stops sampled from the LUT, for live previews.
+    func gradientColors(count: Int = 32) -> [Color] {
+        let n = max(2, count)
+        return (0..<n).map { i in
+            let t = Double(i) / Double(n - 1) * 255.0
+            let (r, g, b) = sample(Int(t))
+            return Color(red: Double(r) / 255.0,
+                         green: Double(g) / 255.0,
+                         blue: Double(b) / 255.0)
+        }
+    }
+
+    // All LUTs built once, thread-safely, at first access.
+    private static let allLUTs: [Palette: [(UInt8, UInt8, UInt8)]] = {
+        var dict: [Palette: [(UInt8, UInt8, UInt8)]] = [:]
+        for p in Palette.allCases {
+            let lab = p.anchors.map { srgbToOklab($0) }
+            dict[p] = (0..<256).map { i in oklabToSRGB8(sampleLab(Double(i) / 255.0, lab: lab)) }
+        }
+        return dict
+    }()
+
+    private static func sampleLab(_ t: Double, lab: [(Double, Double, Double)]) -> (Double, Double, Double) {
+        let segments = lab.count - 1
         let scaled = min(max(t, 0), 1) * Double(segments)
         let idx = min(Int(scaled), segments - 1)
         let frac = scaled - Double(idx)
-        let a = anchorsLab[idx]
-        let b = anchorsLab[idx + 1]
+        let a = lab[idx]
+        let b = lab[idx + 1]
         return (a.0 + (b.0 - a.0) * frac,
                 a.1 + (b.1 - a.1) * frac,
                 a.2 + (b.2 - a.2) * frac)

@@ -45,4 +45,8 @@
 "settings.title" = "Réglages";
 "settings.language" = "Langue";
 "settings.restartHint" = "La langue du système s'appliquera pleinement après le redémarrage.";
+"settings.palette" = "Palette de couleurs";
+"settings.paletteHint" = "Changer de palette ré-affiche instantanément le spectrogramme ouvert.";
+"palette.default" = "Par défaut";
+"palette.grayscale" = "Niveaux de gris";
 "lang.system" = "Système";

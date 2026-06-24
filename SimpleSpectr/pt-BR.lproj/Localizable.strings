@@ -45,4 +45,8 @@
 "settings.title" = "Ajustes";
 "settings.language" = "Idioma";
 "settings.restartHint" = "O idioma do sistema será totalmente aplicado após reiniciar.";
+"settings.palette" = "Paleta de cores";
+"settings.paletteHint" = "Alterar a paleta renderiza novamente o espectrograma aberto instantaneamente.";
+"palette.default" = "Padrão";
+"palette.grayscale" = "Tons de cinza";
 "lang.system" = "Sistema";

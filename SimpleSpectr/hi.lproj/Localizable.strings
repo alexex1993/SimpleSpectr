@@ -45,4 +45,8 @@
 "settings.title" = "सेटिंग्स";
 "settings.language" = "भाषा";
 "settings.restartHint" = "सिस्टम भाषा पुनरारंभ के बाद पूरी तरह लागू होगी।";
+"settings.palette" = "रंग पैलेट";
+"settings.paletteHint" = "पैलेट बदलने पर खुला स्पेक्ट्रोग्राम तुरंत पुनः रेंडर हो जाता है।";
+"palette.default" = "डिफ़ॉल्ट";
+"palette.grayscale" = "ग्रेस्केल";
 "lang.system" = "सिस्टम";

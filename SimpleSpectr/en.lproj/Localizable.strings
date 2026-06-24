@@ -45,4 +45,8 @@
 "settings.title" = "Settings";
 "settings.language" = "Language";
 "settings.restartHint" = "System language takes full effect after restart.";
+"settings.palette" = "Color palette";
+"settings.paletteHint" = "Changing the palette re-renders the open spectrogram instantly.";
+"palette.default" = "Default";
+"palette.grayscale" = "Grayscale";
 "lang.system" = "System";
