@@ -10,9 +10,13 @@ struct ContentView: View {
     @ObservedObject var model: SpectrogramModel
     @ObservedObject private var l10n = LocalizationManager.shared
     @StateObject private var player = AudioPlayerController()
+    @StateObject private var markers = MarkersStore()
     @State private var showImporter = false
     @State private var isTargetedForDrop = false
     @State private var showExporter = false
+    @State private var showInfo = false
+    @State private var showMarkers = false
+    @State private var zoom: CGFloat = 1
 
     /// The loaded spectrogram (image + source url + suggested file name), if any.
     private var loaded: (name: String, url: URL, result: SpectrogramResult)? {
@@ -31,7 +35,8 @@ struct ContentView: View {
                 LoadingView(name: name)
             case .loaded(let name, _, let result):
                 VStack(spacing: 0) {
-                    SpectrogramScene(name: name, result: result, player: player)
+                    SpectrogramScene(name: name, result: result, player: player,
+                                     markers: markers, zoom: $zoom)
                     Divider().overlay(Color.white.opacity(0.08))
                     PlayerBar(player: player)
                 }
@@ -41,6 +46,32 @@ struct ContentView: View {
         }
         .frame(minWidth: 640, minHeight: 420)
         .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showInfo = true
+                } label: {
+                    Label(L("button.fileInfo"), systemImage: "info.circle")
+                }
+                .disabled(model.fileInfo == nil)
+                .popover(isPresented: $showInfo, arrowEdge: .bottom) {
+                    if let info = model.fileInfo {
+                        FileInfoPopover(info: info)
+                    }
+                }
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showMarkers = true
+                } label: {
+                    Label(L("button.markers"), systemImage: "mappin.and.ellipse")
+                }
+                .disabled(loaded == nil)
+                .popover(isPresented: $showMarkers, arrowEdge: .bottom) {
+                    MarkersPopover(markers: markers,
+                                   canAdd: player.isReady,
+                                   onAdd: { markers.add(at: player.currentTime) })
+                }
+            }
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     showExporter = true
@@ -80,6 +111,9 @@ struct ContentView: View {
             }
         }
         .onChange(of: loaded?.url) { _, newURL in
+            // A different file: reset per-file UI state (markers, zoom).
+            markers.clear()
+            zoom = 1
             if let url = newURL {
                 player.load(url: url)
             } else {
@@ -241,5 +275,125 @@ private struct PlayerBar: View {
             get: { player.currentTime },
             set: { player.seek(to: $0) }
         )
+    }
+}
+
+// MARK: - File info popover
+
+private struct FileInfoPopover: View {
+    let info: AudioFileInfo
+    @ObservedObject private var l10n = LocalizationManager.shared
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(L("info.title")).font(.headline)
+            Divider()
+            Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 16, verticalSpacing: 6) {
+                row(L("info.codec"), info.codec)
+                row(L("info.sampleRate"), L("unit.khzPlain", info.sampleRate / 1000))
+                row(L("info.channels"), channelsText)
+                if let bd = info.bitDepth { row(L("info.bitDepth"), L("unit.bitDepth", bd)) }
+                if let br = info.bitrate { row(L("info.bitrate"), L("unit.kbps", br / 1000)) }
+                row(L("info.duration"), durationText)
+                if let size = info.fileSize { row(L("info.fileSize"), sizeText(size)) }
+            }
+        }
+        .padding(16)
+        .frame(width: 280, alignment: .leading)
+    }
+
+    private func row(_ label: String, _ value: String) -> some View {
+        GridRow {
+            Text(label).foregroundStyle(.secondary)
+            Text(value).fontWeight(.medium).gridColumnAlignment(.leading)
+        }
+        .font(.system(size: 12))
+    }
+
+    private var channelsText: String {
+        switch info.channels {
+        case 1: return L("info.mono")
+        case 2: return L("info.stereo")
+        default: return L("unit.channels", info.channels)
+        }
+    }
+
+    private var durationText: String {
+        let total = Int(info.duration.rounded())
+        return String(format: "%d:%02d", total / 60, total % 60)
+    }
+
+    private func sizeText(_ bytes: Int64) -> String {
+        ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
+    }
+}
+
+// MARK: - Markers popover
+
+private struct MarkersPopover: View {
+    @ObservedObject var markers: MarkersStore
+    let canAdd: Bool
+    let onAdd: () -> Void
+    @ObservedObject private var l10n = LocalizationManager.shared
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(L("markers.title")).font(.headline)
+                Spacer()
+                Button(action: onAdd) {
+                    Image(systemName: "plus")
+                }
+                .buttonStyle(.borderless)
+                .disabled(!canAdd)
+                .help(L("button.addMarker"))
+            }
+            Divider()
+
+            if markers.markers.isEmpty {
+                Text(L("markers.empty"))
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            } else {
+                ScrollView {
+                    VStack(spacing: 6) {
+                        ForEach(markers.markers) { marker in
+                            HStack(spacing: 8) {
+                                Text(timeLabel(marker.time))
+                                    .font(.system(size: 11, design: .monospaced))
+                                    .monospacedDigit()
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 48, alignment: .leading)
+                                TextField(L("marker.placeholder"), text: labelBinding(marker))
+                                    .textFieldStyle(.roundedBorder)
+                                Button {
+                                    markers.remove(marker.id)
+                                } label: {
+                                    Image(systemName: "trash")
+                                }
+                                .buttonStyle(.borderless)
+                            }
+                        }
+                    }
+                }
+                .frame(maxHeight: 240)
+                Divider()
+                Button(L("markers.clear")) { markers.clear() }
+            }
+        }
+        .padding(16)
+        .frame(width: 320, alignment: .leading)
+    }
+
+    private func labelBinding(_ marker: Marker) -> Binding<String> {
+        Binding(get: { marker.label },
+                set: { markers.updateLabel(marker.id, to: $0) })
+    }
+
+    private func timeLabel(_ seconds: Double) -> String {
+        let m = Int(seconds) / 60
+        let s = seconds - Double(m * 60)
+        return String(format: "%d:%05.2f", m, s)
     }
 }

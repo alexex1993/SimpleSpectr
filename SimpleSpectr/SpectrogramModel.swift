@@ -21,6 +21,10 @@ final class SpectrogramModel: ObservableObject {
 
     @Published private(set) var state: State = .idle
 
+    /// Container metadata (codec, sample rate, bitrate…) for the loaded file,
+    /// shown in the "File Info" popover. `nil` until a file finishes loading.
+    @Published private(set) var fileInfo: AudioFileInfo?
+
     /// Set to `true` to ask the UI to present the open-file panel (e.g. from the
     /// ⌘O menu command). The view resets it once consumed.
     @Published var openRequested = false
@@ -88,6 +92,8 @@ final class SpectrogramModel: ObservableObject {
         loadTask?.cancel()
         reapplyTask?.cancel()
         needsDisplayRefresh = false
+        fileInfo = nil
+        RecentFilesStore.shared.add(url: url)
         let name = url.lastPathComponent
         let palette = ColormapPreferences.shared.palette
         let render = RenderPreferences.shared
@@ -110,12 +116,13 @@ final class SpectrogramModel: ObservableObject {
                     frequencyScale: frequencyScale,
                     palette: palette)
                 guard !Task.isCancelled else { return }
-                await self.finish(token: token, name: name, url: url, result: .success(result))
+                let info = AudioFileInfo.load(url: url)
+                await self.finish(token: token, name: name, url: url, info: info, result: .success(result))
             } catch is CancellationError {
                 return
             } catch {
                 guard !Task.isCancelled else { return }
-                await self.finish(token: token, name: name, url: url, result: .failure(error))
+                await self.finish(token: token, name: name, url: url, info: nil, result: .failure(error))
             }
         }
     }
@@ -170,10 +177,11 @@ final class SpectrogramModel: ObservableObject {
         }
     }
 
-    private func finish(token: Int, name: String, url: URL, result: Result<SpectrogramResult, Error>) {
+    private func finish(token: Int, name: String, url: URL, info: AudioFileInfo?, result: Result<SpectrogramResult, Error>) {
         guard token == loadToken else { return } // a newer load superseded this one
         switch result {
         case .success(let res):
+            fileInfo = info
             state = .loaded(name: name, url: url, result: res)
             // A display setting changed while this load was running (palette /
             // scale); generate used the old values, so re-render from the cache.

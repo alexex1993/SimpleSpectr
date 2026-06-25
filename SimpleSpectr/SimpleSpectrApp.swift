@@ -11,6 +11,7 @@ import UniformTypeIdentifiers
 struct SimpleSpectrApp: App {
     @StateObject private var model = SpectrogramModel()
     @ObservedObject private var l10n = LocalizationManager.shared
+    @ObservedObject private var recents = RecentFilesStore.shared
 
     static let repositoryURL = URL(string: "https://github.com/alexex1993/SimpleSpectr")!
 
@@ -32,6 +33,18 @@ struct SimpleSpectrApp: App {
                     model.openRequested = true
                 }
                 .keyboardShortcut("o", modifiers: .command)
+
+                Menu(L("menu.recentFiles")) {
+                    if recents.items.isEmpty {
+                        Button(L("menu.noRecents")) {}.disabled(true)
+                    } else {
+                        ForEach(recents.items) { item in
+                            Button(item.name) { openRecent(item) }
+                        }
+                        Divider()
+                        Button(L("menu.clearRecents")) { recents.clear() }
+                    }
+                }
             }
             CommandGroup(replacing: .help) {
                 Link(L("menu.github"), destination: Self.repositoryURL)
@@ -39,6 +52,13 @@ struct SimpleSpectrApp: App {
         }
         Settings {
             SettingsView()
+        }
+    }
+
+    /// Resolve a recent item's security-scoped bookmark and load it.
+    private func openRecent(_ item: RecentFilesStore.Item) {
+        if let url = recents.resolve(item) {
+            model.load(url: url)
         }
     }
 

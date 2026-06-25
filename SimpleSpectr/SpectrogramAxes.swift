@@ -31,75 +31,102 @@ enum SpectrogramPlot {
 
 /// Frequency (y) and time (x) axes drawn over `plot` for `result`.
 /// Low frequencies sit at the bottom, high at the top; time runs left → right.
-/// On a logarithmic frequency axis, octave-C gridlines and note names (plus the
-/// A4 = 440 Hz reference) are drawn instead of evenly spaced Hz ticks.
+/// Used by the PNG export, which lays everything out in a single coordinate
+/// space. The live scene composes the pieces below directly so it can pin the
+/// frequency labels while the time axis scrolls/zooms.
 struct SpectrogramAxes: View {
     let result: SpectrogramResult
     let plot: CGRect
 
     var body: some View {
-        frequencyAxis
-        timeAxis
+        FrequencyAxisContent(result: result, plot: plot, showLabels: true, showGridlines: true)
+        TimeAxisLabels(result: result, plot: plot)
     }
+}
 
-    @ViewBuilder
-    private var frequencyAxis: some View {
+/// Frequency axis pieces: evenly spaced Hz labels on a linear scale, or
+/// octave-C/A4 note labels plus faint gridlines on a logarithmic scale.
+/// `showLabels` / `showGridlines` let callers split labels (pinned gutter) from
+/// gridlines (over the scrolling image).
+struct FrequencyAxisContent: View {
+    let result: SpectrogramResult
+    let plot: CGRect
+    var showLabels: Bool = true
+    var showGridlines: Bool = true
+
+    var body: some View {
         switch result.frequencyScale {
-        case .linear:      linearFrequencyAxis
-        case .logarithmic: logFrequencyAxis
+        case .linear:      linearAxis
+        case .logarithmic: logAxis
         }
     }
 
-    /// Evenly spaced Hz ticks from DC to Nyquist.
-    private var linearFrequencyAxis: some View {
-        let ticks = SpectrogramPlot.tickCount
-        return ForEach(0...ticks, id: \.self) { i in
-            let frac = Double(i) / Double(ticks)
-            let y = plot.maxY - CGFloat(frac) * plot.height
-            let hz = frac * result.maxFrequency
-            Text(AxisFormatting.hz(hz))
-                .font(.system(size: SpectrogramPlot.tickFontSize))
-                .foregroundStyle(SpectrogramPlot.axisColor)
-                .frame(width: SpectrogramPlot.leftInset - 8, alignment: .trailing)
-                .position(x: (SpectrogramPlot.leftInset - 8) / 2, y: y)
+    /// Evenly spaced Hz labels from DC to Nyquist (linear scale has no gridlines).
+    @ViewBuilder
+    private var linearAxis: some View {
+        if showLabels {
+            let ticks = SpectrogramPlot.tickCount
+            ForEach(0...ticks, id: \.self) { i in
+                let frac = Double(i) / Double(ticks)
+                let y = plot.maxY - CGFloat(frac) * plot.height
+                let hz = frac * result.maxFrequency
+                Text(AxisFormatting.hz(hz))
+                    .font(.system(size: SpectrogramPlot.tickFontSize))
+                    .foregroundStyle(SpectrogramPlot.axisColor)
+                    .frame(width: SpectrogramPlot.leftInset - 8, alignment: .trailing)
+                    .position(x: (SpectrogramPlot.leftInset - 8) / 2, y: y)
+            }
         }
     }
 
     /// Note-labelled log axis: faint octave gridlines, C-name labels per octave,
     /// and an emphasized A4 (440 Hz) reference line.
-    private var logFrequencyAxis: some View {
+    private var logAxis: some View {
         let axis = result.frequencyAxis
         let notes = axis.noteTicks()
         return ForEach(notes, id: \.midi) { note in
             let y = plot.maxY - CGFloat(note.frac) * plot.height
             let isRef = note.midi == MusicNotes.a4MIDI
-            Path { p in
-                p.move(to: CGPoint(x: plot.minX, y: y))
-                p.addLine(to: CGPoint(x: plot.maxX, y: y))
-            }
-            .stroke(isRef ? Color.accentColor.opacity(0.30)
-                          : Color.white.opacity(0.08),
-                    lineWidth: 0.5)
 
-            HStack(spacing: 2) {
-                Text(MusicNotes.name(midi: note.midi))
-                if isRef {
-                    Text(AxisFormatting.hz(note.freq))
-                        .font(.system(size: SpectrogramPlot.tickFontSize - 1))
-                        .foregroundStyle(.secondary)
+            if showGridlines {
+                Path { p in
+                    p.move(to: CGPoint(x: plot.minX, y: y))
+                    p.addLine(to: CGPoint(x: plot.maxX, y: y))
                 }
+                .stroke(isRef ? Color.accentColor.opacity(0.30)
+                              : Color.white.opacity(0.08),
+                        lineWidth: 0.5)
             }
-            .font(.system(size: SpectrogramPlot.tickFontSize,
-                          weight: isRef ? .semibold : .regular))
-            .foregroundStyle(isRef ? Color.accentColor : SpectrogramPlot.axisColor)
-            .frame(width: SpectrogramPlot.leftInset - 8, alignment: .trailing)
-            .position(x: (SpectrogramPlot.leftInset - 8) / 2, y: y)
+
+            if showLabels {
+                HStack(spacing: 2) {
+                    Text(MusicNotes.name(midi: note.midi))
+                    if isRef {
+                        Text(AxisFormatting.hz(note.freq))
+                            .font(.system(size: SpectrogramPlot.tickFontSize - 1))
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .font(.system(size: SpectrogramPlot.tickFontSize,
+                              weight: isRef ? .semibold : .regular))
+                .foregroundStyle(isRef ? Color.accentColor : SpectrogramPlot.axisColor)
+                .frame(width: SpectrogramPlot.leftInset - 8, alignment: .trailing)
+                .position(x: (SpectrogramPlot.leftInset - 8) / 2, y: y)
+            }
         }
     }
+}
 
-    private var timeAxis: some View {
-        let ticks = SpectrogramPlot.tickCount
-        return ForEach(0...ticks, id: \.self) { i in
+/// Time (x) labels along the bottom of `plot`. `tickCount` can be raised when
+/// the plot is zoomed so labels stay dense enough to read.
+struct TimeAxisLabels: View {
+    let result: SpectrogramResult
+    let plot: CGRect
+    var tickCount: Int = SpectrogramPlot.tickCount
+
+    var body: some View {
+        let ticks = max(1, tickCount)
+        ForEach(0...ticks, id: \.self) { i in
             let frac = Double(i) / Double(ticks)
             let x = plot.minX + CGFloat(frac) * plot.width
             let t = frac * result.duration

@@ -64,3 +64,39 @@
 "palette.default" = "Standard";
 "palette.grayscale" = "Graustufen";
 "lang.system" = "System";
+
+/* File info */
+"button.fileInfo" = "File Info";
+"button.markers" = "Markers";
+"button.addMarker" = "Add marker at playhead";
+"info.title" = "File Information";
+"info.codec" = "Codec";
+"info.sampleRate" = "Sample rate";
+"info.channels" = "Channels";
+"info.bitDepth" = "Bit depth";
+"info.bitrate" = "Bitrate";
+"info.duration" = "Duration";
+"info.fileSize" = "File size";
+"info.mono" = "Mono";
+"info.stereo" = "Stereo";
+
+/* Markers */
+"markers.title" = "Markers";
+"markers.empty" = "No markers yet. Press M to add one at the playhead.";
+"markers.clear" = "Clear All";
+"markers.defaultLabel" = "Marker %d";
+"marker.placeholder" = "Label";
+
+/* Recent files / view */
+"menu.recentFiles" = "Open Recent";
+"menu.noRecents" = "No Recent Files";
+"menu.clearRecents" = "Clear Menu";
+"menu.zoomIn" = "Zoom In";
+"menu.zoomOut" = "Zoom Out";
+"menu.zoomReset" = "Fit Width";
+
+/* Units (file info) */
+"unit.khzPlain" = "%.1f kHz";
+"unit.bitDepth" = "%d-bit";
+"unit.kbps" = "%.0f kbps";
+"unit.channels" = "%d channels";

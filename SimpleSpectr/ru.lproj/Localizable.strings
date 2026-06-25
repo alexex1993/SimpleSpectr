@@ -64,3 +64,39 @@
 "palette.default" = "По умолчанию";
 "palette.grayscale" = "Оттенки серого";
 "lang.system" = "Как в системе";
+
+/* File info */
+"button.fileInfo" = "О файле";
+"button.markers" = "Маркеры";
+"button.addMarker" = "Добавить маркер на позиции воспроизведения";
+"info.title" = "Информация о файле";
+"info.codec" = "Кодек";
+"info.sampleRate" = "Частота дискретизации";
+"info.channels" = "Каналы";
+"info.bitDepth" = "Битность";
+"info.bitrate" = "Битрейт";
+"info.duration" = "Длительность";
+"info.fileSize" = "Размер файла";
+"info.mono" = "Моно";
+"info.stereo" = "Стерео";
+
+/* Markers */
+"markers.title" = "Маркеры";
+"markers.empty" = "Маркеров пока нет. Нажмите M, чтобы добавить на позиции воспроизведения.";
+"markers.clear" = "Очистить все";
+"markers.defaultLabel" = "Маркер %d";
+"marker.placeholder" = "Подпись";
+
+/* Recent files / view */
+"menu.recentFiles" = "Открыть недавние";
+"menu.noRecents" = "Нет недавних файлов";
+"menu.clearRecents" = "Очистить меню";
+"menu.zoomIn" = "Увеличить";
+"menu.zoomOut" = "Уменьшить";
+"menu.zoomReset" = "По ширине";
+
+/* Units (file info) */
+"unit.khzPlain" = "%.1f кГц";
+"unit.bitDepth" = "%d бит";
+"unit.kbps" = "%.0f кбит/с";
+"unit.channels" = "%d канала";
