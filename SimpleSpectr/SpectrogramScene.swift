@@ -25,6 +25,7 @@ struct SpectrogramScene: View {
     @State private var cursor: CGPoint?
     @State private var measureMode = false
     @State private var selection: PlotSelection?
+    @State private var slice: SpectrumSlice?
     @FocusState private var focused: Bool
 
     static let minZoom: CGFloat = 1
@@ -88,6 +89,7 @@ struct SpectrogramScene: View {
                             playhead(in: band)
                             markerFlags(in: band)
                             selectionOverlay(in: content)
+                            sliceLine(in: content)
                             crosshair(in: content)
                             if render.showHarmonics { harmonicCursor(in: content) }
                             readout(in: content)
@@ -118,6 +120,12 @@ struct SpectrogramScene: View {
                                     if measureMode { finalizeSelection() }
                                 }
                         )
+                        .simultaneousGesture(
+                            SpatialTapGesture(count: 2)
+                                .onEnded { value in
+                                    showSlice(at: value.location, content: content)
+                                }
+                        )
                     }
                 }
                 .overlay(alignment: .bottomTrailing) {
@@ -127,9 +135,19 @@ struct SpectrogramScene: View {
                             .padding(.bottom, SpectrogramPlot.bottomInset + 6)
                     }
                 }
+                .overlay(alignment: .bottomLeading) {
+                    if let slice {
+                        SpectrumSliceView(result: result, slice: slice) {
+                            self.slice = nil
+                        }
+                        .padding(.leading, SpectrogramPlot.leftInset + 6)
+                        .padding(.bottom, SpectrogramPlot.bottomInset + 6)
+                        .transition(.opacity)
+                    }
+                }
             }
         }
-        .onChange(of: url) { _, _ in clearSelection() }
+        .onChange(of: url) { _, _ in clearSelection(); slice = nil }
         .onChange(of: measureMode) { _, on in if !on { clearSelection() } }
         .padding(12)
         .foregroundStyle(.white)
@@ -144,6 +162,9 @@ struct SpectrogramScene: View {
 
     private func handleKey(_ press: KeyPress) -> KeyPress.Result {
         switch press.key {
+        case .escape:
+            if slice != nil { slice = nil; return .handled }
+            return .ignored
         case .space:
             player.togglePlayPause(); return .handled
         case .leftArrow:
@@ -209,6 +230,31 @@ struct SpectrogramScene: View {
         let fx = point.x / content.width
         let t = Double(min(max(fx, 0), 1)) * result.duration
         player.seek(to: t)
+    }
+
+    // MARK: - Spectrum slice
+
+    /// Double-click: capture the spectrum of the time column under the pointer.
+    private func showSlice(at point: CGPoint, content: CGRect) {
+        guard content.width > 0 else { return }
+        let fx = Double(min(max(point.x / content.width, 0), 1))
+        slice = result.slice(atFractionX: fx)
+    }
+
+    /// Vertical marker at the sliced time column, distinct from the playhead.
+    @ViewBuilder
+    private func sliceLine(in content: CGRect) -> some View {
+        if let slice, content.width > 0, content.height > 0, result.duration > 0 {
+            let frac = min(max(slice.time / result.duration, 0), 1)
+            let x = CGFloat(frac) * content.width
+            Path { p in
+                p.move(to: CGPoint(x: x, y: content.minY))
+                p.addLine(to: CGPoint(x: x, y: content.maxY))
+            }
+            .stroke(Color.cyan.opacity(0.9),
+                    style: StrokeStyle(lineWidth: 1, dash: [3, 2]))
+            .allowsHitTesting(false)
+        }
     }
 
     // MARK: - Measurement selection

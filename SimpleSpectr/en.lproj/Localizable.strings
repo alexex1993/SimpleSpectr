@@ -109,6 +109,10 @@
 "unit.dbtp" = "%.1f dBTP";
 "unit.lufs" = "%.1f LUFS";
 
+/* Spectrum slice (double-click a time point) */
+"slice.title" = "Spectrum slice";
+"slice.close" = "Close";
+
 /* Recent files / view */
 "menu.recentFiles" = "Open Recent";
 "menu.noRecents" = "No Recent Files";
