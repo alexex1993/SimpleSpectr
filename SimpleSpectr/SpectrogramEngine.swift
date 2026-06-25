@@ -29,6 +29,12 @@ struct SpectrogramResult: @unchecked Sendable {
     let frequencyScale: FrequencyScale
     let minDisplayedFrequency: Double   // Hz at the bottom of the plot (log axis anchor)
 
+    /// Per-column waveform envelope: the min and max raw sample within each STFT
+    /// frame (length == columns). Drives the overview waveform lane, lined up 1:1
+    /// with the spectrogram's time columns.
+    let waveformMin: [Float]
+    let waveformMax: [Float]
+
     /// Frequency-axis mapping the image and axes were rendered with.
     var frequencyAxis: FrequencyAxis {
         FrequencyAxis(scale: frequencyScale,
@@ -70,7 +76,9 @@ struct SpectrogramResult: @unchecked Sendable {
                           maxDB: maxDB,
                           magnitudes: magnitudes,
                           frequencyScale: scale ?? frequencyScale,
-                          minDisplayedFrequency: minDisplayedFrequency ?? self.minDisplayedFrequency)
+                          minDisplayedFrequency: minDisplayedFrequency ?? self.minDisplayedFrequency,
+                          waveformMin: waveformMin,
+                          waveformMax: waveformMax)
     }
 }
 
@@ -161,6 +169,10 @@ enum SpectrogramEngine {
         var magnitudes = [Float](repeating: 0, count: columns * bins)
         var globalMax: Float = -.greatestFiniteMagnitude
 
+        // Per-column overview waveform envelope.
+        var waveMin = [Float](repeating: 0, count: columns)
+        var waveMax = [Float](repeating: 0, count: columns)
+
         // Decode on the fly through a sequential mono source so the whole file is
         // never materialized in memory.
         var source = MonoSource(file: file, channelCount: channelCount)
@@ -181,6 +193,14 @@ enum SpectrogramEngine {
                 }
             }
             try Task.checkCancellation()
+
+            // Overview waveform: peak min/max of the raw samples in this frame.
+            var frameMin: Float = 0
+            var frameMax: Float = 0
+            vDSP_minv(windowSamples, 1, &frameMin, vDSP_Length(fftSize))
+            vDSP_maxv(windowSamples, 1, &frameMax, vDSP_Length(fftSize))
+            waveMin[col] = frameMin
+            waveMax[col] = frameMax
 
             // Apply window into `windowed`.
             vDSP_vmul(windowSamples, 1, window, 1, &windowed, 1, vDSP_Length(fftSize))
@@ -251,7 +271,9 @@ enum SpectrogramEngine {
                                  maxDB: Double(maxDB),
                                  magnitudes: magnitudes,
                                  frequencyScale: frequencyScale,
-                                 minDisplayedFrequency: axis.minFrequency)
+                                 minDisplayedFrequency: axis.minFrequency,
+                                 waveformMin: waveMin,
+                                 waveformMax: waveMax)
     }
 
     // MARK: - Image generation

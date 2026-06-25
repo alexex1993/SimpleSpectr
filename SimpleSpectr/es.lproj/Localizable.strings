@@ -100,3 +100,7 @@
 "unit.bitDepth" = "%d-bit";
 "unit.kbps" = "%.0f kbps";
 "unit.channels" = "%d channels";
+
+/* Overlay toggles */
+"toggle.waveform" = "Waveform overview";
+"toggle.harmonics" = "Harmonic cursor (overtones)";

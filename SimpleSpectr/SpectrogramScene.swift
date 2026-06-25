@@ -18,6 +18,7 @@ struct SpectrogramScene: View {
     @Binding var zoom: CGFloat
 
     @ObservedObject private var l10n = LocalizationManager.shared
+    @ObservedObject private var render = RenderPreferences.shared
     @State private var hover: (time: Double, frequency: Double, db: Double)?
     @State private var cursor: CGPoint?
     @FocusState private var focused: Bool
@@ -27,16 +28,27 @@ struct SpectrogramScene: View {
     static let zoomStep: CGFloat = 1.6
     static let seekStep: Double = 5   // seconds for ←/→
 
+    /// Height of the overview waveform lane and its gap to the spectrogram.
+    static let waveLaneHeight: CGFloat = 56
+    static let waveLaneGap: CGFloat = 6
+    /// Overtones drawn by the harmonic cursor (×2…×N of the hovered frequency).
+    static let harmonicCount = 8
+
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             header
             GeometryReader { geo in
                 let topInset = SpectrogramPlot.topInset
-                let plotHeight = max(0, geo.size.height - topInset - SpectrogramPlot.bottomInset)
+                let waveH: CGFloat = render.showWaveform ? Self.waveLaneHeight : 0
+                let waveGap: CGFloat = render.showWaveform ? Self.waveLaneGap : 0
+                let plotTop = topInset + waveH + waveGap
+                let plotHeight = max(0, geo.size.height - plotTop - SpectrogramPlot.bottomInset)
                 let visibleWidth = max(0, geo.size.width - SpectrogramPlot.leftInset - SpectrogramPlot.rightInset)
                 let contentWidth = max(visibleWidth, visibleWidth * zoom)
                 // Plot rect inside the scrolling content (origin top-left of content).
-                let content = CGRect(x: 0, y: topInset, width: contentWidth, height: plotHeight)
+                let content = CGRect(x: 0, y: plotTop, width: contentWidth, height: plotHeight)
+                // Full vertical span the playhead / markers cover (wave lane + plot).
+                let band = CGRect(x: 0, y: topInset, width: contentWidth, height: waveH + waveGap + plotHeight)
 
                 HStack(spacing: 0) {
                     // Pinned frequency axis gutter. The Color.clear gives the
@@ -46,7 +58,7 @@ struct SpectrogramScene: View {
                         Color.clear
                         FrequencyAxisContent(
                             result: result,
-                            plot: CGRect(x: 0, y: topInset, width: SpectrogramPlot.leftInset, height: plotHeight),
+                            plot: CGRect(x: 0, y: plotTop, width: SpectrogramPlot.leftInset, height: plotHeight),
                             showLabels: true,
                             showGridlines: false)
                     }
@@ -59,15 +71,20 @@ struct SpectrogramScene: View {
                                 .resizable()
                                 .interpolation(.medium)
                                 .frame(width: contentWidth, height: plotHeight)
-                                .offset(x: 0, y: topInset)
+                                .offset(x: 0, y: plotTop)
+
+                            if render.showWaveform {
+                                waveformLane(width: contentWidth, height: waveH, top: topInset)
+                            }
 
                             // Log-scale gridlines span the (zoomed) image width.
                             FrequencyAxisContent(result: result, plot: content,
                                                  showLabels: false, showGridlines: true)
                             TimeAxisLabels(result: result, plot: content, tickCount: timeTicks)
-                            playhead(in: content)
-                            markerFlags(in: content)
+                            playhead(in: band)
+                            markerFlags(in: band)
                             crosshair(in: content)
+                            if render.showHarmonics { harmonicCursor(in: content) }
                             readout(in: content)
                         }
                         .frame(width: contentWidth, height: geo.size.height, alignment: .topLeading)
@@ -184,8 +201,35 @@ struct SpectrogramScene: View {
                         formatHeaderDuration(result.duration)))
                 .foregroundStyle(.secondary)
                 .font(.callout)
+            overlayToggles
             zoomControls
         }
+    }
+
+    /// Toggle the overview waveform lane, the harmonic cursor, and the pitch track.
+    private var overlayToggles: some View {
+        HStack(spacing: 4) {
+            toggleButton(systemImage: "waveform.path",
+                         isOn: render.showWaveform,
+                         help: L("toggle.waveform")) { render.showWaveform.toggle() }
+            toggleButton(systemImage: "lines.measurement.horizontal",
+                         isOn: render.showHarmonics,
+                         help: L("toggle.harmonics")) { render.showHarmonics.toggle() }
+        }
+        .buttonStyle(.borderless)
+        .font(.system(size: 13))
+        .padding(.trailing, 4)
+    }
+
+    private func toggleButton(systemImage: String,
+                              isOn: Bool,
+                              help: String,
+                              action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: systemImage)
+                .foregroundStyle(isOn ? Color.accentColor : Color.secondary)
+        }
+        .help(help)
     }
 
     private var zoomControls: some View {
@@ -219,6 +263,72 @@ struct SpectrogramScene: View {
     }
 
     // MARK: - Overlays
+
+    /// Overview waveform lane: a filled peak envelope (min/max per column) with a
+    /// faint zero line. Lined up 1:1 with the spectrogram's time columns above it.
+    private func waveformLane(width: CGFloat, height: CGFloat, top: CGFloat) -> some View {
+        Canvas { ctx, size in
+            let cols = result.columns
+            guard cols > 0, size.width > 0, size.height > 0 else { return }
+            let mid = size.height / 2
+
+            // Normalize to the loudest peak so quiet files still fill the lane.
+            var peak: Float = 1e-6
+            for i in 0..<cols { peak = max(peak, max(result.waveformMax[i], -result.waveformMin[i])) }
+            let scale = Double(mid * 0.92) / Double(peak)
+
+            func x(_ i: Int) -> CGFloat { (CGFloat(i) + 0.5) / CGFloat(cols) * size.width }
+            func y(_ v: Float) -> CGFloat { mid - CGFloat(Double(v) * scale) }
+
+            var env = Path()
+            env.move(to: CGPoint(x: x(0), y: y(result.waveformMax[0])))
+            for i in 1..<cols { env.addLine(to: CGPoint(x: x(i), y: y(result.waveformMax[i]))) }
+            for i in stride(from: cols - 1, through: 0, by: -1) {
+                env.addLine(to: CGPoint(x: x(i), y: y(result.waveformMin[i])))
+            }
+            env.closeSubpath()
+            ctx.fill(env, with: .color(.white.opacity(0.5)))
+
+            var zero = Path()
+            zero.move(to: CGPoint(x: 0, y: mid))
+            zero.addLine(to: CGPoint(x: size.width, y: mid))
+            ctx.stroke(zero, with: .color(.white.opacity(0.12)), lineWidth: 0.5)
+        }
+        .frame(width: width, height: height)
+        .background(Color.white.opacity(0.03))
+        .offset(x: 0, y: top)
+        .allowsHitTesting(false)
+    }
+
+    /// Harmonic cursor: faint horizontal lines at ×2…×N of the hovered frequency,
+    /// labelled with the multiplier, to make an overtone series easy to read off.
+    @ViewBuilder
+    private func harmonicCursor(in content: CGRect) -> some View {
+        if let h = hover, h.frequency > 0 {
+            let axis = result.frequencyAxis
+            ForEach(2...Self.harmonicCount, id: \.self) { n in
+                let freq = h.frequency * Double(n)
+                if freq <= result.maxFrequency {
+                    let frac = axis.fraction(forFrequency: freq)
+                    if frac >= 0, frac <= 1 {
+                        let y = content.maxY - CGFloat(frac) * content.height
+                        Path { p in
+                            p.move(to: CGPoint(x: content.minX, y: y))
+                            p.addLine(to: CGPoint(x: content.maxX, y: y))
+                        }
+                        .stroke(Color.orange.opacity(0.45),
+                                style: StrokeStyle(lineWidth: 0.75, dash: [4, 3]))
+
+                        Text("×\(n)")
+                            .font(.system(size: 9, weight: .medium, design: .monospaced))
+                            .foregroundStyle(Color.orange.opacity(0.9))
+                            .position(x: content.minX + 12, y: y - 6)
+                    }
+                }
+            }
+            .allowsHitTesting(false)
+        }
+    }
 
     @ViewBuilder
     private func crosshair(in content: CGRect) -> some View {

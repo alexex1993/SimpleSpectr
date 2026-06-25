@@ -87,6 +87,10 @@
 "markers.defaultLabel" = "Маркер %d";
 "marker.placeholder" = "Подпись";
 
+/* Overlay toggles */
+"toggle.waveform" = "Обзор волны";
+"toggle.harmonics" = "Гармонический курсор (обертоны)";
+
 /* Recent files / view */
 "menu.recentFiles" = "Открыть недавние";
 "menu.noRecents" = "Нет недавних файлов";

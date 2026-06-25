@@ -87,6 +87,10 @@
 "markers.defaultLabel" = "Marker %d";
 "marker.placeholder" = "Label";
 
+/* Overlay toggles */
+"toggle.waveform" = "Waveform overview";
+"toggle.harmonics" = "Harmonic cursor (overtones)";
+
 /* Recent files / view */
 "menu.recentFiles" = "Open Recent";
 "menu.noRecents" = "No Recent Files";

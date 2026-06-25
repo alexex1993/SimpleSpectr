@@ -22,6 +22,8 @@ final class RenderPreferences: ObservableObject {
         static let overlapPercent = "spectrogramOverlap"
         static let windowFunction = "spectrogramWindow"
         static let frequencyScale = "spectrogramFrequencyScale"
+        static let showWaveform = "spectrogramShowWaveform"
+        static let showHarmonics = "spectrogramShowHarmonics"
     }
 
     /// Selectable FFT window sizes (powers of two).
@@ -48,6 +50,16 @@ final class RenderPreferences: ObservableObject {
         didSet { UserDefaults.standard.set(frequencyScale.rawValue, forKey: Keys.frequencyScale) }
     }
 
+    // Display-only overlay toggles. These don't re-analyze the file — the
+    // waveform and pitch data are always computed at load — so `SpectrogramModel`
+    // deliberately does not observe them.
+    @Published var showWaveform: Bool {
+        didSet { UserDefaults.standard.set(showWaveform, forKey: Keys.showWaveform) }
+    }
+    @Published var showHarmonics: Bool {
+        didSet { UserDefaults.standard.set(showHarmonics, forKey: Keys.showHarmonics) }
+    }
+
     private init() {
         let savedFFT = UserDefaults.standard.object(forKey: Keys.fftSize) as? Int
         fftSize = Self.fftSizeOptions.contains(savedFFT ?? 0) ? savedFFT! : Self.defaultFFTSize
@@ -60,5 +72,10 @@ final class RenderPreferences: ObservableObject {
 
         let savedScaleRaw = UserDefaults.standard.string(forKey: Keys.frequencyScale)
         frequencyScale = FrequencyScale(rawValue: savedScaleRaw ?? "") ?? Self.defaultScale
+
+        let defaults = UserDefaults.standard
+        // Waveform lane on by default; pitch / harmonic overlays off until asked.
+        showWaveform = defaults.object(forKey: Keys.showWaveform) as? Bool ?? true
+        showHarmonics = defaults.object(forKey: Keys.showHarmonics) as? Bool ?? false
     }
 }
