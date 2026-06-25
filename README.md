@@ -46,6 +46,13 @@ Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). Free for non
 
 ## Changelog
 
+### 1.9.6
+
+- **Waveform overview** — a time-domain amplitude lane sits above the spectrogram and stays locked to the same time axis (and time zoom), so you can see the track's overall dynamics — quiet passages, hits, fades — at a glance and relate them to what's happening in the frequency view below. Toggle it on or off; it's on by default.
+- **Harmonic cursor** — switch on the harmonic overlay and, as you hover, faint guide lines mark the overtone series (2×, 3×, 4×… the frequency under the cursor) stacked above the fundamental. Lining the guides up with the bands in the spectrum makes it easy to tell pitched, harmonic content (voices, instruments) from inharmonic noise and to read off a note's fundamental.
+- **Measure region** — drag a rectangle across the spectrogram to select a time × frequency area and get an instant measurement panel. Cheap geometry is shown live: Δtime and Δfrequency of the selection, the musical interval and the rate it implies (1 / Δt, handy for spacing and tempo), and the loudest cell inside the box (peak frequency and level). In the background the app re-reads the raw samples for that time span — independent of the STFT grid, so the numbers match the source — and reports true amplitude statistics: RMS, sample peak (dBFS), 4× oversampled true peak (dBTP), and ITU-R BS.1770 integrated loudness (LUFS).
+- **Spectrum slice** — double-click any point in time to pop open a 1-D amplitude-vs-frequency plot of that exact STFT column (à la Audition / Acoustica). It reads the cached analysis, so nothing is re-decoded; frequency runs left→right on the same linear/log scale as the spectrogram, amplitude (dB) bottom→top, and the loudest bin is called out — useful for reading peak frequencies and the spectral shape at a single instant.
+
 ### 1.9
 
 - **File info panel** — a toolbar button shows the source file's codec, sample rate, channels, bit depth, bitrate, duration, and size.
