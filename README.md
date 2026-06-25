@@ -46,6 +46,15 @@ Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). Free for non
 
 ## Changelog
 
+### 1.9
+
+- **File info panel** — a toolbar button shows the source file's codec, sample rate, channels, bit depth, bitrate, duration, and size.
+- **Markers / annotations** — drop labelled markers on the time axis (press **M** or use the Markers popover), then rename or delete them. Markers live for the current session.
+- **Horizontal time zoom** — stretch the spectrogram along the time axis with the **+ / −** keys (or the zoom controls), with the frequency axis pinned on the left while the plot scrolls.
+- **Keyboard shortcuts** — **Space** play/pause, **← / →** seek ±5 s, **+ / −** zoom, **M** add marker.
+- **Recent files** — *File → Open Recent* reopens recently analyzed files across launches (via security-scoped bookmarks).
+- **License** — the project is now released under the [PolyForm Noncommercial License 1.0.0](LICENSE).
+
 ### 1.7
 
 - **Colormap picker** — choose the spectrogram palette in Settings (Inferno, Viridis, Magma, Plasma, Turbo, Cividis, Grayscale) with live gradient previews; the selection persists across launches.
