@@ -57,6 +57,12 @@ final class LocalizationManager: ObservableObject {
     /// Bundle for the active language; nil means "use Bundle.main".
     private(set) var bundle: Bundle?
 
+    /// English bundle, used as a fallback when a key is missing from the active
+    /// language so new strings never surface as raw `dotted.identifiers`.
+    static let enFallbackBundle: Bundle? = {
+        Bundle.main.path(forResource: "en", ofType: "lproj").flatMap { Bundle(path: $0) }
+    }()
+
     private init() {
         let raw = UserDefaults.standard.string(forKey: Self.storageKey) ?? AppLanguage.system.rawValue
         language = AppLanguage(rawValue: raw) ?? .system
@@ -119,7 +125,13 @@ final class LocalizationManager: ObservableObject {
 /// Looks up a localized string for `key` in the active language bundle.
 /// Variadic arguments are substituted via `String(format:)`.
 func L(_ key: String, _ args: CVarArg...) -> String {
-    let template = (LocalizationManager.shared.bundle ?? .main)
-        .localizedString(forKey: key, value: nil, table: "Localizable")
+    let sentinel = "\u{0}missing\u{0}"
+    var template = (LocalizationManager.shared.bundle ?? .main)
+        .localizedString(forKey: key, value: sentinel, table: "Localizable")
+    if template == sentinel {
+        // Missing in the active language — fall back to English, then the key.
+        template = (LocalizationManager.enFallbackBundle ?? .main)
+            .localizedString(forKey: key, value: key, table: "Localizable")
+    }
     return args.isEmpty ? template : String(format: template, arguments: args)
 }

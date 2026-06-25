@@ -90,6 +90,24 @@
 /* Overlay toggles */
 "toggle.waveform" = "Waveform overview";
 "toggle.harmonics" = "Harmonic cursor (overtones)";
+"toggle.measure" = "Measure region (drag to select)";
+
+/* Measurement panel */
+"measure.title" = "Measurement";
+"measure.deltaTime" = "Δ time";
+"measure.deltaFreq" = "Δ freq";
+"measure.interval" = "Interval";
+"measure.rate" = "1 / Δt";
+"measure.peakFreq" = "Peak freq";
+"measure.peakLevel" = "Peak level";
+"measure.rms" = "RMS";
+"measure.peak" = "Peak";
+"measure.truePeak" = "True peak";
+"measure.lufs" = "Loudness";
+"measure.analyzing" = "Analyzing…";
+"unit.dbfs" = "%.1f dBFS";
+"unit.dbtp" = "%.1f dBTP";
+"unit.lufs" = "%.1f LUFS";
 
 /* Recent files / view */
 "menu.recentFiles" = "Open Recent";

@@ -90,6 +90,24 @@
 /* Overlay toggles */
 "toggle.waveform" = "Обзор волны";
 "toggle.harmonics" = "Гармонический курсор (обертоны)";
+"toggle.measure" = "Измерить область (выделите перетаскиванием)";
+
+/* Measurement panel */
+"measure.title" = "Измерение";
+"measure.deltaTime" = "Δ время";
+"measure.deltaFreq" = "Δ частота";
+"measure.interval" = "Интервал";
+"measure.rate" = "1 / Δt";
+"measure.peakFreq" = "Пик частоты";
+"measure.peakLevel" = "Уровень пика";
+"measure.rms" = "RMS";
+"measure.peak" = "Пик";
+"measure.truePeak" = "Истинный пик";
+"measure.lufs" = "Громкость";
+"measure.analyzing" = "Анализ…";
+"unit.dbfs" = "%.1f dBFS";
+"unit.dbtp" = "%.1f dBTP";
+"unit.lufs" = "%.1f LUFS";
 
 /* Recent files / view */
 "menu.recentFiles" = "Открыть недавние";

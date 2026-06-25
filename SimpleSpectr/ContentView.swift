@@ -33,9 +33,9 @@ struct ContentView: View {
                 DropPrompt(isTargeted: isTargetedForDrop) { showImporter = true }
             case .loading(let name):
                 LoadingView(name: name)
-            case .loaded(let name, _, let result):
+            case .loaded(let name, let url, let result):
                 VStack(spacing: 0) {
-                    SpectrogramScene(name: name, result: result, player: player,
+                    SpectrogramScene(name: name, url: url, result: result, player: player,
                                      markers: markers, zoom: $zoom)
                     Divider().overlay(Color.white.opacity(0.08))
                     PlayerBar(player: player)

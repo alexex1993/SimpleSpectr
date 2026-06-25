@@ -12,6 +12,7 @@ import SwiftUI
 
 struct SpectrogramScene: View {
     let name: String
+    let url: URL
     let result: SpectrogramResult
     @ObservedObject var player: AudioPlayerController
     @ObservedObject var markers: MarkersStore
@@ -19,8 +20,11 @@ struct SpectrogramScene: View {
 
     @ObservedObject private var l10n = LocalizationManager.shared
     @ObservedObject private var render = RenderPreferences.shared
+    @StateObject private var measurement = MeasurementModel()
     @State private var hover: (time: Double, frequency: Double, db: Double)?
     @State private var cursor: CGPoint?
+    @State private var measureMode = false
+    @State private var selection: PlotSelection?
     @FocusState private var focused: Bool
 
     static let minZoom: CGFloat = 1
@@ -83,6 +87,7 @@ struct SpectrogramScene: View {
                             TimeAxisLabels(result: result, plot: content, tickCount: timeTicks)
                             playhead(in: band)
                             markerFlags(in: band)
+                            selectionOverlay(in: content)
                             crosshair(in: content)
                             if render.showHarmonics { harmonicCursor(in: content) }
                             readout(in: content)
@@ -102,13 +107,30 @@ struct SpectrogramScene: View {
                             DragGesture(minimumDistance: 0)
                                 .onChanged { value in
                                     focused = true
-                                    seekToPoint(value.location, content: content)
+                                    if measureMode {
+                                        updateSelection(start: value.startLocation,
+                                                        current: value.location, content: content)
+                                    } else {
+                                        seekToPoint(value.location, content: content)
+                                    }
+                                }
+                                .onEnded { _ in
+                                    if measureMode { finalizeSelection() }
                                 }
                         )
                     }
                 }
+                .overlay(alignment: .bottomTrailing) {
+                    if measureMode, let sel = selection, sel.isMeaningful {
+                        measurementPanel(sel)
+                            .padding(.trailing, SpectrogramPlot.rightInset + 6)
+                            .padding(.bottom, SpectrogramPlot.bottomInset + 6)
+                    }
+                }
             }
         }
+        .onChange(of: url) { _, _ in clearSelection() }
+        .onChange(of: measureMode) { _, on in if !on { clearSelection() } }
         .padding(12)
         .foregroundStyle(.white)
         .focusable()
@@ -189,6 +211,60 @@ struct SpectrogramScene: View {
         player.seek(to: t)
     }
 
+    // MARK: - Measurement selection
+
+    /// Resolve a point in content coordinates to a (time, frequency) pair.
+    private func point(at p: CGPoint, content: CGRect) -> (time: Double, frequency: Double) {
+        let fx = min(max(p.x / content.width, 0), 1)
+        let fy = min(max((content.maxY - p.y) / content.height, 0), 1)
+        return (Double(fx) * result.duration,
+                result.frequencyAxis.frequency(forFraction: Double(fy)))
+    }
+
+    /// Update the live selection while dragging in measure mode.
+    private func updateSelection(start: CGPoint, current: CGPoint, content: CGRect) {
+        guard content.width > 0, content.height > 0, result.duration > 0 else { return }
+        let a = point(at: start, content: content)
+        let b = point(at: current, content: content)
+        selection = PlotSelection(anchorTime: a.time, anchorFreq: a.frequency,
+                                  focusTime: b.time, focusFreq: b.frequency)
+    }
+
+    /// Drag ended: kick off (or clear) the amplitude-stats computation.
+    private func finalizeSelection() {
+        guard let sel = selection, sel.isMeaningful else {
+            clearSelection()
+            return
+        }
+        measurement.compute(url: url, timeRange: sel.timeRange)
+    }
+
+    private func clearSelection() {
+        selection = nil
+        measurement.clear()
+    }
+
+    @ViewBuilder
+    private func selectionOverlay(in content: CGRect) -> some View {
+        if let sel = selection, sel.isMeaningful, result.duration > 0 {
+            let axis = result.frequencyAxis
+            let x0 = CGFloat(sel.timeRange.lowerBound / result.duration) * content.width
+            let x1 = CGFloat(sel.timeRange.upperBound / result.duration) * content.width
+            let yLow = content.maxY - CGFloat(axis.fraction(forFrequency: sel.freqRange.lowerBound)) * content.height
+            let yHigh = content.maxY - CGFloat(axis.fraction(forFrequency: sel.freqRange.upperBound)) * content.height
+            let rect = CGRect(x: x0, y: min(yLow, yHigh),
+                              width: max(1, x1 - x0), height: max(1, abs(yLow - yHigh)))
+            ZStack {
+                Path { $0.addRect(rect) }
+                    .fill(Color.accentColor.opacity(0.12))
+                Path { $0.addRect(rect) }
+                    .stroke(Color.accentColor.opacity(0.9),
+                            style: StrokeStyle(lineWidth: 1, dash: [4, 3]))
+            }
+            .allowsHitTesting(false)
+        }
+    }
+
     // MARK: - Header
 
     private var header: some View {
@@ -215,6 +291,9 @@ struct SpectrogramScene: View {
             toggleButton(systemImage: "lines.measurement.horizontal",
                          isOn: render.showHarmonics,
                          help: L("toggle.harmonics")) { render.showHarmonics.toggle() }
+            toggleButton(systemImage: "rectangle.dashed",
+                         isOn: measureMode,
+                         help: L("toggle.measure")) { measureMode.toggle() }
         }
         .buttonStyle(.borderless)
         .font(.system(size: 13))
@@ -445,5 +524,99 @@ struct SpectrogramScene: View {
 
     private func formatFreq(_ hz: Double) -> String {
         hz >= 1000 ? L("unit.khz", hz / 1000) : L("unit.hz", hz)
+    }
+
+    // MARK: - Measurement panel
+
+    /// Floating results card for the current selection: time/frequency deltas,
+    /// the loudest bin in the region, and time-domain amplitude statistics.
+    private func measurementPanel(_ sel: PlotSelection) -> some View {
+        let peak = result.regionPeak(timeRange: sel.timeRange, freqRange: sel.freqRange)
+        return VStack(alignment: .leading, spacing: 5) {
+            Text(L("measure.title"))
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundStyle(.secondary)
+
+            measureRow(L("measure.deltaTime"), formatDeltaTime(sel.deltaTime))
+            measureRow(L("measure.deltaFreq"), formatDeltaFreq(sel.deltaFreq))
+            if let interval = pitchInterval(sel) {
+                measureRow(L("measure.interval"), interval)
+            }
+            if let rate = rateFromDelta(sel.deltaTime) {
+                measureRow(L("measure.rate"), rate)
+            }
+
+            Divider().overlay(Color.white.opacity(0.15))
+
+            if let p = peak {
+                measureRow(L("measure.peakFreq"), formatFreq(p.frequency))
+                measureRow(L("measure.peakLevel"), L("unit.db", p.db))
+            }
+
+            Divider().overlay(Color.white.opacity(0.15))
+
+            if measurement.isComputing {
+                HStack(spacing: 6) {
+                    ProgressView().controlSize(.mini)
+                    Text(L("measure.analyzing")).foregroundStyle(.secondary)
+                }
+                .font(.system(size: 10))
+            } else if let s = measurement.stats {
+                measureRow(L("measure.rms"), formatDB(s.rmsDBFS, "unit.dbfs"))
+                measureRow(L("measure.peak"), formatDB(s.peakDBFS, "unit.dbfs"))
+                measureRow(L("measure.truePeak"), formatDB(s.truePeakDBTP, "unit.dbtp"))
+                measureRow(L("measure.lufs"), formatDB(s.lufs, "unit.lufs"))
+            }
+        }
+        .font(.system(size: 11, design: .monospaced))
+        .padding(.horizontal, 9)
+        .padding(.vertical, 7)
+        .frame(width: 196, alignment: .leading)
+        .background(.black.opacity(0.72), in: RoundedRectangle(cornerRadius: 7))
+        .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(.white.opacity(0.15)))
+    }
+
+    private func measureRow(_ label: String, _ value: String) -> some View {
+        HStack(spacing: 6) {
+            Text(label).foregroundStyle(.secondary)
+            Spacer(minLength: 8)
+            Text(value).foregroundStyle(.white).monospacedDigit()
+        }
+    }
+
+    /// Signed time delta: ms below a second, else seconds with sign.
+    private func formatDeltaTime(_ dt: Double) -> String {
+        let a = abs(dt)
+        let sign = dt < 0 ? "−" : ""
+        if a < 1 { return String(format: "%@%.1f ms", sign, a * 1000) }
+        return String(format: "%@%.3f s", sign, a)
+    }
+
+    private func formatDeltaFreq(_ df: Double) -> String {
+        let a = abs(df)
+        let sign = df < 0 ? "−" : ""
+        return a >= 1000 ? String(format: "%@%.2f kHz", sign, a / 1000)
+                         : String(format: "%@%.1f Hz", sign, a)
+    }
+
+    /// Musical interval between the two selected frequencies (semitones + ratio).
+    private func pitchInterval(_ sel: PlotSelection) -> String? {
+        let lo = sel.freqRange.lowerBound, hi = sel.freqRange.upperBound
+        guard lo > 0, hi > lo else { return nil }
+        let semitones = 12 * log2(hi / lo)
+        return String(format: "%.2f st · %.3f×", semitones, hi / lo)
+    }
+
+    /// Reading a periodic spacing off the time delta: its frequency and tempo.
+    private func rateFromDelta(_ dt: Double) -> String? {
+        let a = abs(dt)
+        guard a > 1e-5 else { return nil }
+        let hz = 1.0 / a
+        return String(format: "%@ · %.1f BPM", formatFreq(hz), hz * 60)
+    }
+
+    /// dB value with a unit key, or an em dash when undefined (silence / too short).
+    private func formatDB(_ value: Double, _ unitKey: String) -> String {
+        value.isFinite ? L(unitKey, value) : "—"
     }
 }
