@@ -11,3 +11,5 @@ xcuserdata/
 .build/
 .swiftpm/
 dist/
+.lance/
+.claude/
