@@ -10,6 +10,7 @@ import SwiftUI
 struct SettingsView: View {
     @ObservedObject private var l10n = LocalizationManager.shared
     @ObservedObject private var prefs = ColormapPreferences.shared
+    @ObservedObject private var render = RenderPreferences.shared
 
     var body: some View {
         Form {
@@ -26,6 +27,54 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
+            }
+
+            Section {
+                Picker(L("settings.fftSize"), selection: $render.fftSize) {
+                    ForEach(RenderPreferences.fftSizeOptions, id: \.self) { size in
+                        Text(formattedFFT(size)).tag(size)
+                    }
+                }
+                .pickerStyle(.menu)
+
+                Picker(L("settings.overlap"), selection: $render.overlapPercent) {
+                    ForEach(RenderPreferences.overlapOptions, id: \.self) { pct in
+                        Text(formattedOverlap(pct)).tag(pct)
+                    }
+                }
+                .pickerStyle(.menu)
+
+                Picker(L("settings.window"), selection: $render.windowFunction) {
+                    ForEach(WindowFunction.allCases) { w in
+                        Text(w.displayName).tag(w)
+                    }
+                }
+                .pickerStyle(.menu)
+
+                Text(render.windowFunction.hint)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Text(L("settings.analysisHint"))
+                    .font(.caption)
+                    .foregroundStyle(.tertiary)
+            } header: {
+                Text(L("settings.analysis"))
+            }
+
+            Section {
+                Picker(L("settings.scale"), selection: $render.frequencyScale) {
+                    ForEach(FrequencyScale.allCases) { s in
+                        Text(s.displayName).tag(s)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                Text(L("settings.scaleHint"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } header: {
+                Text(L("settings.freqAxis"))
             }
 
             Section {
@@ -50,8 +99,27 @@ struct SettingsView: View {
         }
         .formStyle(.grouped)
         .padding(20)
-        .frame(width: 420)
+        .frame(width: 440)
         .navigationTitle(L("settings.title"))
+    }
+
+    /// "2048" or "2048 — Default" for the factory default size.
+    private func formattedFFT(_ size: Int) -> String {
+        size == RenderPreferences.defaultFFTSize
+            ? "\(size) — \(L("palette.default"))"
+            : "\(size)"
+    }
+
+    /// "75%" with the default badge on the factory choice.
+    private func formattedOverlap(_ pct: Double) -> String {
+        let suffix = pct == RenderPreferences.defaultOverlap
+            ? " — \(L("palette.default"))"
+            : ""
+        // Drop a redundant ".0" so 75 shows as "75%" not "75.0%".
+        let value = pct.truncatingRemainder(dividingBy: 1) == 0
+            ? String(format: "%.0f", pct)
+            : String(format: "%.1f", pct)
+        return "\(value)%\(suffix)"
     }
 }
 

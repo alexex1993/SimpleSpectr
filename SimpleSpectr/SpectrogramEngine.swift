@@ -23,7 +23,21 @@ struct SpectrogramResult: @unchecked Sendable {
     let minDB: Double             // dB value mapped to the bottom of the color scale
     let maxDB: Double             // dB value mapped to the top of the color scale
     /// Column-major dB magnitudes: `magnitudes[column * bins + bin]`, bin 0 = lowest freq.
+    /// Always stored on the *linear* bin grid regardless of `frequencyScale`, so the
+    /// hover readout and a scale re-render stay exact without re-decoding audio.
     let magnitudes: [Float]
+    let frequencyScale: FrequencyScale
+    let minDisplayedFrequency: Double   // Hz at the bottom of the plot (log axis anchor)
+
+    /// Frequency-axis mapping the image and axes were rendered with.
+    var frequencyAxis: FrequencyAxis {
+        FrequencyAxis(scale: frequencyScale,
+                      sampleRate: sampleRate,
+                      fftSize: fftSize,
+                      bins: bins,
+                      minFrequency: minDisplayedFrequency,
+                      maxFrequency: maxFrequency)
+    }
 
     /// dB magnitude at a fractional position in the plot (0…1, origin bottom-left).
     /// Returns the value plus the resolved time/frequency for a hover readout.
@@ -32,16 +46,20 @@ struct SpectrogramResult: @unchecked Sendable {
         let fx = min(max(fractionX, 0), 1)
         let fy = min(max(fractionY, 0), 1)
         let column = min(Int(fx * Double(columns)), columns - 1)
-        let bin = min(Int(fy * Double(bins)), bins - 1)
+        let axis = frequencyAxis
+        let bin = axis.bin(forFraction: fy)
         let db = Double(magnitudes[column * bins + bin])
-        let frequency = Double(bin) * sampleRate / Double(fftSize)
+        let frequency = axis.frequency(forFraction: fy)
         let time = fx * duration
         return (time, frequency, db)
     }
 
-    /// Copy keeping every field except `image` (e.g. re-rendered with a new palette).
-    func replacingImage(_ newImage: CGImage) -> SpectrogramResult {
-        SpectrogramResult(image: newImage,
+    /// Copy keeping the magnitudes but swapping the presented image and frequency
+    /// axis (used when re-rendering with a new palette or a new frequency scale).
+    func rerendered(image: CGImage,
+                    scale: FrequencyScale? = nil,
+                    minDisplayedFrequency: Double? = nil) -> SpectrogramResult {
+        SpectrogramResult(image: image,
                           duration: duration,
                           sampleRate: sampleRate,
                           maxFrequency: maxFrequency,
@@ -50,7 +68,9 @@ struct SpectrogramResult: @unchecked Sendable {
                           bins: bins,
                           minDB: minDB,
                           maxDB: maxDB,
-                          magnitudes: magnitudes)
+                          magnitudes: magnitudes,
+                          frequencyScale: scale ?? frequencyScale,
+                          minDisplayedFrequency: minDisplayedFrequency ?? self.minDisplayedFrequency)
     }
 }
 
@@ -77,10 +97,17 @@ enum SpectrogramEngine {
     /// Compute a spectrogram for the audio file at `url`.
     /// - Parameters:
     ///   - fftSize: FFT window size (power of two). 2048 → 1024 frequency bins.
+    ///   - overlapPercent: STFT overlap in percent (0…87.5). Larger values give
+    ///     smoother time detail; the hop is `fftSize * (1 - overlap/100)`.
+    ///   - windowFunction: window applied to each frame before the FFT.
+    ///   - frequencyScale: presentation of the rendered image's frequency axis.
     ///   - maxColumns: upper bound on the number of time columns (bounds compute/memory).
     ///   - palette: colormap used to map dB → color.
     nonisolated static func generate(url: URL,
                                      fftSize: Int = 2048,
+                                     overlapPercent: Double = 75,
+                                     windowFunction: WindowFunction = .hann,
+                                     frequencyScale: FrequencyScale = .linear,
                                      maxColumns: Int = 2000,
                                      palette: Palette = .inferno) throws -> SpectrogramResult {
         let scoped = url.startAccessingSecurityScopedResource()
@@ -109,15 +136,17 @@ enum SpectrogramEngine {
 
         let bins = fftSize / 2
         let total = totalFrames
-        // Hop so that we land near (but not above) maxColumns, never finer than fftSize/4.
-        let minHop = max(1, fftSize / 4)
+        // Hop from the requested overlap; clamp to the column cap so long files
+        // never blow up memory (effective overlap then drops below the request).
+        let clampedOverlap = min(max(overlapPercent, 0), 87.5)
+        let desiredHop = max(1, Int((Double(fftSize) * (1.0 - clampedOverlap / 100.0)).rounded()))
         let neededHop = Int(ceil(Double(total - fftSize) / Double(max(1, maxColumns - 1))))
-        let hop = max(minHop, neededHop)
+        let hop = max(desiredHop, neededHop)
         let columns = max(1, (total - fftSize) / hop + 1)
 
-        // Hann window and its coherent sum (used to normalize FFT output to amplitude).
-        var window = [Float](repeating: 0, count: fftSize)
-        vDSP_hann_window(&window, vDSP_Length(fftSize), Int32(vDSP_HANN_NORM))
+        // Window (user-selectable) and its coherent sum, used to normalize FFT
+        // output back to physical amplitude (one-sided spectrum factor 2 applied).
+        let window = windowFunction.generate(size: fftSize)
         var winSum: Float = 0
         vDSP_sve(window, 1, &winSum, vDSP_Length(fftSize))
         let twoOverWinSum: Float = 2.0 / winSum // one-sided spectrum, window-corrected
@@ -199,12 +228,17 @@ enum SpectrogramEngine {
         let peak = globalMax.isFinite ? globalMax : 0
         let maxDB = peak
         let minDB = peak - dynamicRange
+        let axis = FrequencyAxis.make(scale: frequencyScale,
+                                      sampleRate: sampleRate,
+                                      fftSize: fftSize,
+                                      bins: bins)
         let image = try renderImage(magnitudes: magnitudes,
                                     columns: columns,
                                     bins: bins,
                                     minDB: minDB,
                                     maxDB: maxDB,
-                                    palette: palette)
+                                    palette: palette,
+                                    frequencyAxis: axis)
 
         return SpectrogramResult(image: image,
                                  duration: Double(total) / sampleRate,
@@ -215,33 +249,52 @@ enum SpectrogramEngine {
                                  bins: bins,
                                  minDB: Double(minDB),
                                  maxDB: Double(maxDB),
-                                 magnitudes: magnitudes)
+                                 magnitudes: magnitudes,
+                                 frequencyScale: frequencyScale,
+                                 minDisplayedFrequency: axis.minFrequency)
     }
 
     // MARK: - Image generation
 
     /// Map a dB magnitude grid into a `CGImage` using the given colormap.
     /// Exposed so a loaded spectrogram can be re-rendered (e.g. when the user
-    /// changes palette) without re-decoding the audio.
+    /// changes palette or frequency scale) without re-decoding the audio.
+    ///
+    /// `magnitudes` is always the linear-bin grid. When `frequencyAxis.scale` is
+    /// `.logarithmic`, each output row is sampled at the matching frequency with
+    /// linear interpolation between adjacent bins, warping the image to the log
+    /// axis so it lines up with the on-screen note labels.
     nonisolated static func renderImage(magnitudes: [Float],
                                         columns: Int,
                                         bins: Int,
                                         minDB: Float,
                                         maxDB: Float,
-                                        palette: Palette = .inferno) throws -> CGImage {
+                                        palette: Palette = .inferno,
+                                        frequencyAxis: FrequencyAxis? = nil) throws -> CGImage {
         let width = columns
         let height = bins
         let invRange = 1.0 / max(1e-6, (maxDB - minDB))
         let lut = palette.lut
+        let logScale = frequencyAxis?.scale == .logarithmic
 
         var pixels = Data(count: width * height * 4)
         pixels.withUnsafeMutableBytes { raw in
             guard let p = raw.bindMemory(to: UInt8.self).baseAddress else { return }
             for col in 0..<columns {
+                let colBase = col * bins
                 for row in 0..<height {
-                    // row 0 = top = highest frequency → bin index (bins - 1 - row)
-                    let bin = bins - 1 - row
-                    let db = magnitudes[col * bins + bin]
+                    // row 0 = top = highest frequency → fraction 1 at top, 0 at bottom.
+                    let db: Float
+                    if logScale, let axis = frequencyAxis, height > 1 {
+                        let fracY = Double(height - 1 - row) / Double(height - 1)
+                        let freq = axis.frequency(forFraction: fracY)
+                        let fbin = freq * Double(axis.fftSize) / axis.sampleRate
+                        db = Self.sampleLinear(magnitudes, colBase: colBase, bins: bins, at: fbin)
+                    } else {
+                        // Linear 1:1 — row 0 (top) → highest bin.
+                        let bin = bins - 1 - row
+                        db = magnitudes[colBase + bin]
+                    }
                     var t = (db - minDB) * invRange
                     if !t.isFinite { t = 0 }
                     if t < 0 { t = 0 } else if t > 1 { t = 1 }
@@ -274,6 +327,20 @@ enum SpectrogramEngine {
             throw SpectrogramError.renderFailed
         }
         return image
+    }
+
+    /// Linearly interpolate the dB magnitude at a fractional bin index for one
+    /// column (colBase = column * bins). Used by the log-frequency resample.
+    nonisolated private static func sampleLinear(_ magnitudes: [Float],
+                                                 colBase: Int,
+                                                 bins: Int,
+                                                 at fractionalBin: Double) -> Float {
+        let lo = max(0, min(bins - 1, Int(fractionalBin)))
+        let hi = min(bins - 1, lo + 1)
+        let frac = Float(max(0, min(1, fractionalBin - Double(lo))))
+        let a = magnitudes[colBase + lo]
+        let b = magnitudes[colBase + hi]
+        return a + (b - a) * frac
     }
 }
 
