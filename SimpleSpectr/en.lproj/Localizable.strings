@@ -15,11 +15,26 @@
 "button.pause" = "Pause";
 "button.mute" = "Mute";
 "button.unmute" = "Unmute";
+"button.record" = "Record";
+"button.stopRecording" = "Stop";
+"button.saveRecording" = "Save Recording…";
+"button.openSettings" = "Open System Settings";
 
 /* Drop prompt */
 "prompt.title" = "Audio Spectrogram";
 "prompt.subtitle" = "Drag an audio file here\nor click the button below";
 "prompt.formats" = "FLAC · AAC · MP3 · WAV · AIFF · ALAC and more";
+
+/* Audio source / recording */
+"source.file" = "File";
+"source.microphone" = "Microphone";
+"record.prompt.title" = "Record from Microphone";
+"record.prompt.subtitle" = "Capture audio live and watch its spectrogram\nbuild as you record";
+"record.codecNote" = "FLAC · lossless";
+"record.recording" = "Recording";
+"record.waiting" = "Waiting for audio…";
+"record.permissionDenied" = "Microphone access is denied. Allow it in System Settings to record.";
+"record.error.noInput" = "No audio input device is available.";
 
 /* Loading status */
 "status.loading" = "Analyzing %@…";

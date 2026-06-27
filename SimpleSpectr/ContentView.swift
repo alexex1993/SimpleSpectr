@@ -7,13 +7,19 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct ContentView: View {
+    /// Audio source the idle screen offers: open a file or record the mic.
+    enum Source: Hashable { case file, microphone }
+
     @ObservedObject var model: SpectrogramModel
     @ObservedObject private var l10n = LocalizationManager.shared
     @StateObject private var player = AudioPlayerController()
     @StateObject private var markers = MarkersStore()
+    @StateObject private var recorder = AudioRecorderController()
+    @State private var source: Source = .file
     @State private var showImporter = false
     @State private var isTargetedForDrop = false
     @State private var showExporter = false
+    @State private var showRecordingExporter = false
     @State private var showInfo = false
     @State private var showMarkers = false
     @State private var zoom: CGFloat = 1
@@ -24,13 +30,23 @@ struct ContentView: View {
         return nil
     }
 
-    var body: some View {
-        ZStack {
-            Color(white: 0.07).ignoresSafeArea()
+    /// True when the loaded file is a microphone recording (drives "Save recording").
+    private var isRecordingLoaded: Bool {
+        guard let url = loaded?.url else { return false }
+        return AudioRecorderController.isRecordingURL(url)
+    }
 
+    @ViewBuilder
+    private var content: some View {
+        if recorder.phase != .idle {
+            RecordingView(recorder: recorder, onStop: stopRecording)
+        } else {
             switch model.state {
             case .idle:
-                DropPrompt(isTargeted: isTargetedForDrop) { showImporter = true }
+                IdlePrompt(source: $source,
+                           isTargeted: isTargetedForDrop,
+                           onOpen: { showImporter = true },
+                           onRecord: startRecording)
             case .loading(let name):
                 LoadingView(name: name)
             case .loaded(let name, let url, let result):
@@ -43,6 +59,13 @@ struct ContentView: View {
             case .failed(let message):
                 FailureView(message: message) { showImporter = true }
             }
+        }
+    }
+
+    var body: some View {
+        ZStack {
+            Color(white: 0.07).ignoresSafeArea()
+            content
         }
         .frame(minWidth: 640, minHeight: 420)
         .toolbar {
@@ -74,6 +97,15 @@ struct ContentView: View {
             }
             ToolbarItem(placement: .primaryAction) {
                 Button {
+                    showRecordingExporter = true
+                } label: {
+                    Label(L("button.saveRecording"), systemImage: "square.and.arrow.down.on.square")
+                }
+                .disabled(!isRecordingLoaded)
+                .help(L("button.saveRecording"))
+            }
+            ToolbarItem(placement: .primaryAction) {
+                Button {
                     showExporter = true
                 } label: {
                     Label(L("button.export"), systemImage: "square.and.arrow.down")
@@ -81,11 +113,21 @@ struct ContentView: View {
                 .disabled(loaded == nil)
             }
             ToolbarItem(placement: .primaryAction) {
+                Button(role: .destructive) {
+                    startRecording()
+                } label: {
+                    Label(L("button.record"), systemImage: "record.circle")
+                }
+                .disabled(recorder.phase == .recording)
+                .help(L("button.record"))
+            }
+            ToolbarItem(placement: .primaryAction) {
                 Button {
                     showImporter = true
                 } label: {
                     Label(L("button.openAudio"), systemImage: "waveform")
                 }
+                .disabled(recorder.phase == .recording)
             }
         }
         .fileImporter(isPresented: $showImporter,
@@ -105,6 +147,10 @@ struct ContentView: View {
                              onClose: { showExporter = false })
             }
         }
+        .fileExporter(isPresented: $showRecordingExporter,
+                      document: loaded.flatMap { FLACDocument(sourceURL: $0.url) },
+                      contentType: FLACDocument.flacType,
+                      defaultFilename: loaded?.name) { _ in }
         .onDrop(of: [.fileURL], isTargeted: $isTargetedForDrop) { providers in
             handleDrop(providers)
         }
@@ -124,7 +170,24 @@ struct ContentView: View {
                 player.unload()
             }
         }
-        .onDisappear { player.stop() }
+        .onDisappear {
+            player.stop()
+            recorder.cancel()
+        }
+    }
+
+    /// Start a microphone recording (also flips the idle source to mic).
+    private func startRecording() {
+        source = .microphone
+        player.stop()
+        recorder.start()
+    }
+
+    /// Stop recording and open the finished FLAC through the normal load path.
+    private func stopRecording() {
+        if let url = recorder.stop() {
+            model.load(url: url)
+        }
     }
 
     private func handleDrop(_ providers: [NSItemProvider]) -> Bool {
@@ -142,6 +205,66 @@ struct ContentView: View {
 }
 
 // MARK: - States
+
+/// Idle screen: a File / Microphone source toggle over the matching prompt.
+private struct IdlePrompt: View {
+    @Binding var source: ContentView.Source
+    let isTargeted: Bool
+    let onOpen: () -> Void
+    let onRecord: () -> Void
+    @ObservedObject private var l10n = LocalizationManager.shared
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Picker("", selection: $source) {
+                Text(L("source.file")).tag(ContentView.Source.file)
+                Text(L("source.microphone")).tag(ContentView.Source.microphone)
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .frame(maxWidth: 280)
+
+            switch source {
+            case .file:
+                DropPrompt(isTargeted: isTargeted, onOpen: onOpen)
+            case .microphone:
+                RecordPrompt(onRecord: onRecord)
+            }
+        }
+        .padding(40)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .foregroundStyle(.white)
+    }
+}
+
+/// Microphone prompt shown on the idle screen when the source is "Microphone".
+private struct RecordPrompt: View {
+    let onRecord: () -> Void
+    @ObservedObject private var l10n = LocalizationManager.shared
+
+    var body: some View {
+        VStack(spacing: 18) {
+            Image(systemName: "mic.circle")
+                .font(.system(size: 64, weight: .thin))
+                .foregroundStyle(.secondary)
+            Text(L("record.prompt.title"))
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(.primary)
+            Text(L("record.prompt.subtitle"))
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+            Button(action: onRecord) {
+                Label(L("button.record"), systemImage: "record.circle")
+            }
+            .controlSize(.large)
+            .buttonStyle(.borderedProminent)
+            .tint(.red)
+            Text(L("record.codecNote"))
+                .font(.footnote)
+                .foregroundStyle(.tertiary)
+        }
+    }
+}
 
 private struct DropPrompt: View {
     let isTargeted: Bool

@@ -15,11 +15,26 @@
 "button.pause" = "Пауза";
 "button.mute" = "Выключить звук";
 "button.unmute" = "Включить звук";
+"button.record" = "Запись";
+"button.stopRecording" = "Стоп";
+"button.saveRecording" = "Сохранить запись…";
+"button.openSettings" = "Открыть Системные настройки";
 
 /* Drop prompt */
 "prompt.title" = "Спектрограмма аудио";
 "prompt.subtitle" = "Перетащите сюда аудиофайл\nили нажмите кнопку ниже";
 "prompt.formats" = "FLAC · AAC · MP3 · WAV · AIFF · ALAC и другие";
+
+/* Источник звука / запись */
+"source.file" = "Файл";
+"source.microphone" = "Микрофон";
+"record.prompt.title" = "Запись с микрофона";
+"record.prompt.subtitle" = "Записывайте звук вживую и наблюдайте,\nкак строится спектрограмма";
+"record.codecNote" = "FLAC · без потерь";
+"record.recording" = "Идёт запись";
+"record.waiting" = "Ожидание звука…";
+"record.permissionDenied" = "Доступ к микрофону запрещён. Разрешите его в Системных настройках, чтобы записывать.";
+"record.error.noInput" = "Нет доступного устройства аудиовхода.";
 
 /* Loading status */
 "status.loading" = "Анализ %@…";
