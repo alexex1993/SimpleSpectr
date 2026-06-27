@@ -8,17 +8,33 @@
 
 /* Toolbar / buttons */
 "button.savePNG" = "PNG সংরক্ষণ করুন";
+"button.export" = "এক্সপোর্ট করুন…";
 "button.openAudio" = "অডিও ফাইল খুলুন";
 "button.chooseAnother" = "অন্য ফাইল নির্বাচন করুন";
 "button.play" = "চালান";
 "button.pause" = "বিরতি";
 "button.mute" = "মিউট করুন";
 "button.unmute" = "আনমিউট করুন";
+"button.record" = "রেকর্ড করুন";
+"button.stopRecording" = "থামান";
+"button.saveRecording" = "রেকর্ডিং সংরক্ষণ করুন…";
+"button.openSettings" = "সিস্টেম সেটিংস খুলুন";
 
 /* Drop prompt */
 "prompt.title" = "অডিও স্পেক্ট্রোগ্রাম";
 "prompt.subtitle" = "এখানে একটি অডিও ফাইল টেনে আনুন\nঅথবা নিচের বোতামে ক্লিক করুন";
 "prompt.formats" = "FLAC · AAC · MP3 · WAV · AIFF · ALAC এবং আরও";
+
+/* Audio source / recording */
+"source.file" = "ফাইল";
+"source.microphone" = "মাইক্রোফোন";
+"record.prompt.title" = "মাইক্রোফোন থেকে রেকর্ড করুন";
+"record.prompt.subtitle" = "সরাসরি অডিও ধারণ করুন এবং রেকর্ড করার সাথে\nসাথে স্পেক্ট্রোগ্রাম তৈরি হতে দেখুন";
+"record.codecNote" = "FLAC · ক্ষতিহীন";
+"record.recording" = "রেকর্ড হচ্ছে";
+"record.waiting" = "অডিওর অপেক্ষায়…";
+"record.permissionDenied" = "মাইক্রোফোন অ্যাক্সেস অস্বীকৃত। রেকর্ড করতে সিস্টেম সেটিংসে এটি অনুমতি দিন।";
+"record.error.noInput" = "কোনো অডিও ইনপুট ডিভাইস উপলব্ধ নেই।";
 
 /* Loading status */
 "status.loading" = "%@ বিশ্লেষণ করা হচ্ছে…";
@@ -66,41 +82,101 @@
 "lang.system" = "সিস্টেম";
 
 /* File info */
-"button.fileInfo" = "File Info";
-"button.markers" = "Markers";
-"button.addMarker" = "Add marker at playhead";
-"info.title" = "File Information";
-"info.codec" = "Codec";
-"info.sampleRate" = "Sample rate";
-"info.channels" = "Channels";
-"info.bitDepth" = "Bit depth";
-"info.bitrate" = "Bitrate";
-"info.duration" = "Duration";
-"info.fileSize" = "File size";
-"info.mono" = "Mono";
-"info.stereo" = "Stereo";
+"button.fileInfo" = "ফাইল তথ্য";
+"button.markers" = "মার্কার";
+"button.addMarker" = "প্লেহেডে মার্কার যোগ করুন";
+"info.title" = "ফাইল তথ্য";
+"info.codec" = "কোডেক";
+"info.sampleRate" = "স্যাম্পল রেট";
+"info.channels" = "চ্যানেল";
+"info.bitDepth" = "বিট গভীরতা";
+"info.bitrate" = "বিটরেট";
+"info.duration" = "স্থিতিকাল";
+"info.fileSize" = "ফাইলের আকার";
+"info.mono" = "মোনো";
+"info.stereo" = "স্টেরিও";
 
 /* Markers */
-"markers.title" = "Markers";
-"markers.empty" = "No markers yet. Press M to add one at the playhead.";
-"markers.clear" = "Clear All";
-"markers.defaultLabel" = "Marker %d";
-"marker.placeholder" = "Label";
+"markers.title" = "মার্কার";
+"markers.empty" = "এখনও কোনো মার্কার নেই। প্লেহেডে একটি যোগ করতে M চাপুন।";
+"markers.clear" = "সব মুছুন";
+"markers.defaultLabel" = "মার্কার %d";
+"marker.placeholder" = "লেবেল";
+
+/* Overlay toggles */
+"toggle.waveform" = "তরঙ্গরূপ সারসংক্ষেপ";
+"toggle.harmonics" = "হারমোনিক কার্সর (উপসুর)";
+"toggle.measure" = "অঞ্চল মাপুন (নির্বাচন করতে টেনে আনুন)";
+
+/* Measurement panel */
+"measure.title" = "পরিমাপ";
+"measure.deltaTime" = "Δ সময়";
+"measure.deltaFreq" = "Δ কম্পাঙ্ক";
+"measure.interval" = "ব্যবধান";
+"measure.rate" = "1 / Δt";
+"measure.peakFreq" = "শীর্ষ কম্পাঙ্ক";
+"measure.peakLevel" = "শীর্ষ স্তর";
+"measure.rms" = "RMS";
+"measure.peak" = "শীর্ষ";
+"measure.truePeak" = "ট্রু পিক";
+"measure.lufs" = "প্রবলতা";
+"measure.analyzing" = "বিশ্লেষণ করা হচ্ছে…";
+"unit.dbfs" = "%.1f dBFS";
+"unit.dbtp" = "%.1f dBTP";
+"unit.lufs" = "%.1f LUFS";
+
+/* Spectrum slice (double-click a time point) */
+"slice.title" = "স্পেক্ট্রাম স্লাইস";
+"slice.close" = "বন্ধ করুন";
 
 /* Recent files / view */
-"menu.recentFiles" = "Open Recent";
-"menu.noRecents" = "No Recent Files";
-"menu.clearRecents" = "Clear Menu";
-"menu.zoomIn" = "Zoom In";
-"menu.zoomOut" = "Zoom Out";
-"menu.zoomReset" = "Fit Width";
+"menu.recentFiles" = "সাম্প্রতিক খুলুন";
+"menu.noRecents" = "কোনো সাম্প্রতিক ফাইল নেই";
+"menu.clearRecents" = "মেনু মুছুন";
+"menu.zoomIn" = "জুম ইন";
+"menu.zoomOut" = "জুম আউট";
+"menu.zoomReset" = "প্রস্থে মানানসই করুন";
+
+/* Export dialog */
+"export.title" = "স্পেক্ট্রোগ্রাম এক্সপোর্ট করুন";
+"export.export" = "এক্সপোর্ট করুন";
+"export.cancel" = "বাতিল করুন";
+"export.format" = "ফরম্যাট";
+"export.format.csv" = "CSV — dB ম্যাট্রিক্স";
+"export.format.json" = "JSON — ডেটা + মেটাডেটা";
+"export.format.png" = "PNG — ছবি";
+"export.format.markers" = "মার্কার — CSV";
+"export.png.axes" = "অক্ষ অন্তর্ভুক্ত করুন";
+"export.png.axesHint" = "চালু: কম্পাঙ্ক ও সময় অক্ষসহ স্পেক্ট্রোগ্রাম। বন্ধ: নেটিভ রেজোলিউশনে কাঁচা ছবি।";
+"export.dataSection" = "ডেটা";
+"export.units" = "মান";
+"export.units.db" = "ডেসিবেল (dB)";
+"export.units.linear" = "রৈখিক প্রশস্ততা";
+"export.units.normalized" = "সাধারণীকৃত 0–1";
+"export.maxColumns" = "সর্বোচ্চ সময় কলাম";
+"export.maxBins" = "সর্বোচ্চ কম্পাঙ্ক বিন";
+"export.cellCount" = "কোষ (কলাম × বিন)";
+"export.rangeSection" = "পরিসর";
+"export.timeFrom" = "সময়: থেকে";
+"export.timeTo" = "পর্যন্ত";
+"export.freqFrom" = "কম্পাঙ্ক: থেকে";
+"export.freqTo" = "পর্যন্ত";
+"export.resetRange" = "সম্পূর্ণ পরিসরে রিসেট করুন";
+"export.numberSection" = "সংখ্যা ফরম্যাট";
+"export.delimiter" = "বিভাজক";
+"export.delimiter.comma" = "কমা ( , )";
+"export.delimiter.semicolon" = "সেমিকোলন ( ; )";
+"export.delimiter.tab" = "ট্যাব";
+"export.decimal" = "দশমিক চিহ্ন";
+"export.decimal.point" = "বিন্দু ( . )";
+"export.decimal.comma" = "কমা ( , )";
+"export.precision" = "দশমিক স্থান";
+"export.headers" = "হেডার অন্তর্ভুক্ত করুন";
+"export.markersSection" = "মার্কার";
+"export.markersCount" = "এক্সপোর্টের জন্য মার্কার";
 
 /* Units (file info) */
 "unit.khzPlain" = "%.1f kHz";
-"unit.bitDepth" = "%d-bit";
+"unit.bitDepth" = "%d-বিট";
 "unit.kbps" = "%.0f kbps";
-"unit.channels" = "%d channels";
-
-/* Overlay toggles */
-"toggle.waveform" = "Waveform overview";
-"toggle.harmonics" = "Harmonic cursor (overtones)";
+"unit.channels" = "%d চ্যানেল";

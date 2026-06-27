@@ -8,17 +8,33 @@
 
 /* Toolbar / buttons */
 "button.savePNG" = "Enregistrer en PNG";
+"button.export" = "Exporter…";
 "button.openAudio" = "Ouvrir un fichier audio";
 "button.chooseAnother" = "Choisir un autre fichier";
 "button.play" = "Lire";
 "button.pause" = "Pause";
 "button.mute" = "Couper le son";
 "button.unmute" = "Activer le son";
+"button.record" = "Enregistrer";
+"button.stopRecording" = "Arrêter";
+"button.saveRecording" = "Enregistrer la capture…";
+"button.openSettings" = "Ouvrir les Réglages Système";
 
 /* Drop prompt */
 "prompt.title" = "Spectrogramme audio";
 "prompt.subtitle" = "Glissez un fichier audio ici\nou cliquez sur le bouton ci-dessous";
 "prompt.formats" = "FLAC · AAC · MP3 · WAV · AIFF · ALAC et plus";
+
+/* Audio source / recording */
+"source.file" = "Fichier";
+"source.microphone" = "Microphone";
+"record.prompt.title" = "Enregistrer depuis le micro";
+"record.prompt.subtitle" = "Capturez l'audio en direct et regardez\nson spectrogramme se construire";
+"record.codecNote" = "FLAC · sans perte";
+"record.recording" = "Enregistrement";
+"record.waiting" = "En attente d'audio…";
+"record.permissionDenied" = "L'accès au microphone est refusé. Autorisez-le dans les Réglages Système pour enregistrer.";
+"record.error.noInput" = "Aucun périphérique d'entrée audio disponible.";
 
 /* Loading status */
 "status.loading" = "Analyse de %@…";
@@ -66,41 +82,101 @@
 "lang.system" = "Système";
 
 /* File info */
-"button.fileInfo" = "File Info";
-"button.markers" = "Markers";
-"button.addMarker" = "Add marker at playhead";
-"info.title" = "File Information";
+"button.fileInfo" = "Infos du fichier";
+"button.markers" = "Marqueurs";
+"button.addMarker" = "Ajouter un marqueur à la tête de lecture";
+"info.title" = "Informations du fichier";
 "info.codec" = "Codec";
-"info.sampleRate" = "Sample rate";
-"info.channels" = "Channels";
-"info.bitDepth" = "Bit depth";
-"info.bitrate" = "Bitrate";
-"info.duration" = "Duration";
-"info.fileSize" = "File size";
+"info.sampleRate" = "Fréquence d'échantillonnage";
+"info.channels" = "Canaux";
+"info.bitDepth" = "Profondeur de bits";
+"info.bitrate" = "Débit";
+"info.duration" = "Durée";
+"info.fileSize" = "Taille du fichier";
 "info.mono" = "Mono";
-"info.stereo" = "Stereo";
+"info.stereo" = "Stéréo";
 
 /* Markers */
-"markers.title" = "Markers";
-"markers.empty" = "No markers yet. Press M to add one at the playhead.";
-"markers.clear" = "Clear All";
-"markers.defaultLabel" = "Marker %d";
-"marker.placeholder" = "Label";
+"markers.title" = "Marqueurs";
+"markers.empty" = "Aucun marqueur. Appuyez sur M pour en ajouter un à la tête de lecture.";
+"markers.clear" = "Tout effacer";
+"markers.defaultLabel" = "Marqueur %d";
+"marker.placeholder" = "Étiquette";
+
+/* Overlay toggles */
+"toggle.waveform" = "Aperçu de la forme d'onde";
+"toggle.harmonics" = "Curseur harmonique (harmoniques)";
+"toggle.measure" = "Mesurer une région (glisser pour sélectionner)";
+
+/* Measurement panel */
+"measure.title" = "Mesure";
+"measure.deltaTime" = "Δ temps";
+"measure.deltaFreq" = "Δ fréq.";
+"measure.interval" = "Intervalle";
+"measure.rate" = "1 / Δt";
+"measure.peakFreq" = "Fréq. de crête";
+"measure.peakLevel" = "Niveau de crête";
+"measure.rms" = "RMS";
+"measure.peak" = "Crête";
+"measure.truePeak" = "Crête vraie";
+"measure.lufs" = "Sonie";
+"measure.analyzing" = "Analyse…";
+"unit.dbfs" = "%.1f dBFS";
+"unit.dbtp" = "%.1f dBTP";
+"unit.lufs" = "%.1f LUFS";
+
+/* Spectrum slice (double-click a time point) */
+"slice.title" = "Coupe spectrale";
+"slice.close" = "Fermer";
 
 /* Recent files / view */
-"menu.recentFiles" = "Open Recent";
-"menu.noRecents" = "No Recent Files";
-"menu.clearRecents" = "Clear Menu";
-"menu.zoomIn" = "Zoom In";
-"menu.zoomOut" = "Zoom Out";
-"menu.zoomReset" = "Fit Width";
+"menu.recentFiles" = "Ouvrir un élément récent";
+"menu.noRecents" = "Aucun élément récent";
+"menu.clearRecents" = "Effacer le menu";
+"menu.zoomIn" = "Zoom avant";
+"menu.zoomOut" = "Zoom arrière";
+"menu.zoomReset" = "Ajuster à la largeur";
+
+/* Export dialog */
+"export.title" = "Exporter le spectrogramme";
+"export.export" = "Exporter";
+"export.cancel" = "Annuler";
+"export.format" = "Format";
+"export.format.csv" = "CSV — matrice dB";
+"export.format.json" = "JSON — données + métadonnées";
+"export.format.png" = "PNG — image";
+"export.format.markers" = "Marqueurs — CSV";
+"export.png.axes" = "Inclure les axes";
+"export.png.axesHint" = "Activé : spectrogramme avec axes de fréquence et de temps. Désactivé : image brute en résolution native.";
+"export.dataSection" = "Données";
+"export.units" = "Valeurs";
+"export.units.db" = "Décibels (dB)";
+"export.units.linear" = "Amplitude linéaire";
+"export.units.normalized" = "Normalisé 0–1";
+"export.maxColumns" = "Colonnes de temps max.";
+"export.maxBins" = "Bandes de fréquence max.";
+"export.cellCount" = "Cellules (colonnes × bandes)";
+"export.rangeSection" = "Plage";
+"export.timeFrom" = "Temps de";
+"export.timeTo" = "à";
+"export.freqFrom" = "Fréq. de";
+"export.freqTo" = "à";
+"export.resetRange" = "Réinitialiser à la plage complète";
+"export.numberSection" = "Format des nombres";
+"export.delimiter" = "Séparateur";
+"export.delimiter.comma" = "Virgule ( , )";
+"export.delimiter.semicolon" = "Point-virgule ( ; )";
+"export.delimiter.tab" = "Tabulation";
+"export.decimal" = "Séparateur décimal";
+"export.decimal.point" = "Point ( . )";
+"export.decimal.comma" = "Virgule ( , )";
+"export.precision" = "Décimales";
+"export.headers" = "Inclure les en-têtes";
+"export.markersSection" = "Marqueurs";
+"export.markersCount" = "Marqueurs à exporter";
 
 /* Units (file info) */
 "unit.khzPlain" = "%.1f kHz";
-"unit.bitDepth" = "%d-bit";
-"unit.kbps" = "%.0f kbps";
-"unit.channels" = "%d channels";
-
-/* Overlay toggles */
-"toggle.waveform" = "Waveform overview";
-"toggle.harmonics" = "Harmonic cursor (overtones)";
+"unit.bitDepth" = "%d bits";
+"unit.kbps" = "%.0f kbit/s";
+"unit.channels" = "%d canaux";

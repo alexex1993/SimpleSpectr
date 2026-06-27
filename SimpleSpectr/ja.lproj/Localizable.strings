@@ -8,17 +8,33 @@
 
 /* Toolbar / buttons */
 "button.savePNG" = "PNG を保存";
+"button.export" = "書き出す…";
 "button.openAudio" = "オーディオファイルを開く";
 "button.chooseAnother" = "別のファイルを選択";
 "button.play" = "再生";
 "button.pause" = "一時停止";
 "button.mute" = "ミュート";
 "button.unmute" = "ミュート解除";
+"button.record" = "録音";
+"button.stopRecording" = "停止";
+"button.saveRecording" = "録音を保存…";
+"button.openSettings" = "システム設定を開く";
 
 /* Drop prompt */
 "prompt.title" = "オーディオスペクトログラム";
 "prompt.subtitle" = "オーディオファイルをここにドラッグ\nまたは下のボタンをクリック";
 "prompt.formats" = "FLAC · AAC · MP3 · WAV · AIFF · ALAC など";
+
+/* Audio source / recording */
+"source.file" = "ファイル";
+"source.microphone" = "マイク";
+"record.prompt.title" = "マイクから録音";
+"record.prompt.subtitle" = "音声をライブで取り込み、スペクトログラムが\n構築される様子を見る";
+"record.codecNote" = "FLAC · ロスレス";
+"record.recording" = "録音中";
+"record.waiting" = "音声を待機中…";
+"record.permissionDenied" = "マイクへのアクセスが拒否されています。録音するにはシステム設定で許可してください。";
+"record.error.noInput" = "利用可能なオーディオ入力デバイスがありません。";
 
 /* Loading status */
 "status.loading" = "%@ を分析中…";
@@ -66,41 +82,101 @@
 "lang.system" = "システムに従う";
 
 /* File info */
-"button.fileInfo" = "File Info";
-"button.markers" = "Markers";
-"button.addMarker" = "Add marker at playhead";
-"info.title" = "File Information";
-"info.codec" = "Codec";
-"info.sampleRate" = "Sample rate";
-"info.channels" = "Channels";
-"info.bitDepth" = "Bit depth";
-"info.bitrate" = "Bitrate";
-"info.duration" = "Duration";
-"info.fileSize" = "File size";
-"info.mono" = "Mono";
-"info.stereo" = "Stereo";
+"button.fileInfo" = "ファイル情報";
+"button.markers" = "マーカー";
+"button.addMarker" = "再生ヘッドにマーカーを追加";
+"info.title" = "ファイル情報";
+"info.codec" = "コーデック";
+"info.sampleRate" = "サンプルレート";
+"info.channels" = "チャンネル";
+"info.bitDepth" = "ビット深度";
+"info.bitrate" = "ビットレート";
+"info.duration" = "長さ";
+"info.fileSize" = "ファイルサイズ";
+"info.mono" = "モノラル";
+"info.stereo" = "ステレオ";
 
 /* Markers */
-"markers.title" = "Markers";
-"markers.empty" = "No markers yet. Press M to add one at the playhead.";
-"markers.clear" = "Clear All";
-"markers.defaultLabel" = "Marker %d";
-"marker.placeholder" = "Label";
+"markers.title" = "マーカー";
+"markers.empty" = "まだマーカーがありません。M キーを押すと再生ヘッドに追加できます。";
+"markers.clear" = "すべて消去";
+"markers.defaultLabel" = "マーカー %d";
+"marker.placeholder" = "ラベル";
+
+/* Overlay toggles */
+"toggle.waveform" = "波形の概観";
+"toggle.harmonics" = "倍音カーソル（倍音）";
+"toggle.measure" = "領域を測定（ドラッグで選択）";
+
+/* Measurement panel */
+"measure.title" = "測定";
+"measure.deltaTime" = "Δ 時間";
+"measure.deltaFreq" = "Δ 周波数";
+"measure.interval" = "音程";
+"measure.rate" = "1 / Δt";
+"measure.peakFreq" = "ピーク周波数";
+"measure.peakLevel" = "ピークレベル";
+"measure.rms" = "RMS";
+"measure.peak" = "ピーク";
+"measure.truePeak" = "トゥルーピーク";
+"measure.lufs" = "ラウドネス";
+"measure.analyzing" = "分析中…";
+"unit.dbfs" = "%.1f dBFS";
+"unit.dbtp" = "%.1f dBTP";
+"unit.lufs" = "%.1f LUFS";
+
+/* Spectrum slice (double-click a time point) */
+"slice.title" = "スペクトルスライス";
+"slice.close" = "閉じる";
 
 /* Recent files / view */
-"menu.recentFiles" = "Open Recent";
-"menu.noRecents" = "No Recent Files";
-"menu.clearRecents" = "Clear Menu";
-"menu.zoomIn" = "Zoom In";
-"menu.zoomOut" = "Zoom Out";
-"menu.zoomReset" = "Fit Width";
+"menu.recentFiles" = "最近使った項目を開く";
+"menu.noRecents" = "最近使った項目なし";
+"menu.clearRecents" = "メニューを消去";
+"menu.zoomIn" = "拡大";
+"menu.zoomOut" = "縮小";
+"menu.zoomReset" = "幅に合わせる";
+
+/* Export dialog */
+"export.title" = "スペクトログラムを書き出す";
+"export.export" = "書き出す";
+"export.cancel" = "キャンセル";
+"export.format" = "フォーマット";
+"export.format.csv" = "CSV — dB マトリクス";
+"export.format.json" = "JSON — データ + メタデータ";
+"export.format.png" = "PNG — 画像";
+"export.format.markers" = "マーカー — CSV";
+"export.png.axes" = "軸を含める";
+"export.png.axesHint" = "オン：周波数軸と時間軸付きのスペクトログラム。オフ：ネイティブ解像度の生画像。";
+"export.dataSection" = "データ";
+"export.units" = "値";
+"export.units.db" = "デシベル (dB)";
+"export.units.linear" = "線形振幅";
+"export.units.normalized" = "正規化 0–1";
+"export.maxColumns" = "最大時間列数";
+"export.maxBins" = "最大周波数ビン数";
+"export.cellCount" = "セル数（列 × ビン）";
+"export.rangeSection" = "範囲";
+"export.timeFrom" = "時間：開始";
+"export.timeTo" = "終了";
+"export.freqFrom" = "周波数：開始";
+"export.freqTo" = "終了";
+"export.resetRange" = "全範囲にリセット";
+"export.numberSection" = "数値フォーマット";
+"export.delimiter" = "区切り文字";
+"export.delimiter.comma" = "カンマ ( , )";
+"export.delimiter.semicolon" = "セミコロン ( ; )";
+"export.delimiter.tab" = "タブ";
+"export.decimal" = "小数点記号";
+"export.decimal.point" = "ピリオド ( . )";
+"export.decimal.comma" = "カンマ ( , )";
+"export.precision" = "小数点以下の桁数";
+"export.headers" = "ヘッダーを含める";
+"export.markersSection" = "マーカー";
+"export.markersCount" = "書き出すマーカー";
 
 /* Units (file info) */
 "unit.khzPlain" = "%.1f kHz";
-"unit.bitDepth" = "%d-bit";
+"unit.bitDepth" = "%d ビット";
 "unit.kbps" = "%.0f kbps";
-"unit.channels" = "%d channels";
-
-/* Overlay toggles */
-"toggle.waveform" = "Waveform overview";
-"toggle.harmonics" = "Harmonic cursor (overtones)";
+"unit.channels" = "%d チャンネル";

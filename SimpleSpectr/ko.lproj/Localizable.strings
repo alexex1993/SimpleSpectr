@@ -8,17 +8,33 @@
 
 /* Toolbar / buttons */
 "button.savePNG" = "PNG 저장";
+"button.export" = "내보내기…";
 "button.openAudio" = "오디오 파일 열기";
 "button.chooseAnother" = "다른 파일 선택";
 "button.play" = "재생";
 "button.pause" = "일시정지";
 "button.mute" = "음소거";
 "button.unmute" = "음소거 해제";
+"button.record" = "녹음";
+"button.stopRecording" = "정지";
+"button.saveRecording" = "녹음 저장…";
+"button.openSettings" = "시스템 설정 열기";
 
 /* Drop prompt */
 "prompt.title" = "오디오 스펙트로그램";
 "prompt.subtitle" = "오디오 파일을 여기로 드래그하거나\n아래 버튼을 클릭하세요";
 "prompt.formats" = "FLAC · AAC · MP3 · WAV · AIFF · ALAC 등";
+
+/* Audio source / recording */
+"source.file" = "파일";
+"source.microphone" = "마이크";
+"record.prompt.title" = "마이크로 녹음";
+"record.prompt.subtitle" = "오디오를 실시간으로 캡처하고\n스펙트로그램이 그려지는 것을 확인하세요";
+"record.codecNote" = "FLAC · 무손실";
+"record.recording" = "녹음 중";
+"record.waiting" = "오디오 대기 중…";
+"record.permissionDenied" = "마이크 접근이 거부되었습니다. 녹음하려면 시스템 설정에서 허용하세요.";
+"record.error.noInput" = "사용 가능한 오디오 입력 장치가 없습니다.";
 
 /* Loading status */
 "status.loading" = "%@ 분석 중…";
@@ -66,41 +82,101 @@
 "lang.system" = "시스템";
 
 /* File info */
-"button.fileInfo" = "File Info";
-"button.markers" = "Markers";
-"button.addMarker" = "Add marker at playhead";
-"info.title" = "File Information";
-"info.codec" = "Codec";
-"info.sampleRate" = "Sample rate";
-"info.channels" = "Channels";
-"info.bitDepth" = "Bit depth";
-"info.bitrate" = "Bitrate";
-"info.duration" = "Duration";
-"info.fileSize" = "File size";
-"info.mono" = "Mono";
-"info.stereo" = "Stereo";
+"button.fileInfo" = "파일 정보";
+"button.markers" = "마커";
+"button.addMarker" = "재생 헤드에 마커 추가";
+"info.title" = "파일 정보";
+"info.codec" = "코덱";
+"info.sampleRate" = "샘플레이트";
+"info.channels" = "채널";
+"info.bitDepth" = "비트 심도";
+"info.bitrate" = "비트레이트";
+"info.duration" = "길이";
+"info.fileSize" = "파일 크기";
+"info.mono" = "모노";
+"info.stereo" = "스테레오";
 
 /* Markers */
-"markers.title" = "Markers";
-"markers.empty" = "No markers yet. Press M to add one at the playhead.";
-"markers.clear" = "Clear All";
-"markers.defaultLabel" = "Marker %d";
-"marker.placeholder" = "Label";
+"markers.title" = "마커";
+"markers.empty" = "아직 마커가 없습니다. M 키를 눌러 재생 헤드에 추가하세요.";
+"markers.clear" = "모두 지우기";
+"markers.defaultLabel" = "마커 %d";
+"marker.placeholder" = "레이블";
+
+/* Overlay toggles */
+"toggle.waveform" = "파형 개요";
+"toggle.harmonics" = "배음 커서 (배음)";
+"toggle.measure" = "영역 측정 (드래그하여 선택)";
+
+/* Measurement panel */
+"measure.title" = "측정";
+"measure.deltaTime" = "Δ 시간";
+"measure.deltaFreq" = "Δ 주파수";
+"measure.interval" = "음정";
+"measure.rate" = "1 / Δt";
+"measure.peakFreq" = "피크 주파수";
+"measure.peakLevel" = "피크 레벨";
+"measure.rms" = "RMS";
+"measure.peak" = "피크";
+"measure.truePeak" = "트루 피크";
+"measure.lufs" = "라우드니스";
+"measure.analyzing" = "분석 중…";
+"unit.dbfs" = "%.1f dBFS";
+"unit.dbtp" = "%.1f dBTP";
+"unit.lufs" = "%.1f LUFS";
+
+/* Spectrum slice (double-click a time point) */
+"slice.title" = "스펙트럼 슬라이스";
+"slice.close" = "닫기";
 
 /* Recent files / view */
-"menu.recentFiles" = "Open Recent";
-"menu.noRecents" = "No Recent Files";
-"menu.clearRecents" = "Clear Menu";
-"menu.zoomIn" = "Zoom In";
-"menu.zoomOut" = "Zoom Out";
-"menu.zoomReset" = "Fit Width";
+"menu.recentFiles" = "최근 항목 열기";
+"menu.noRecents" = "최근 파일 없음";
+"menu.clearRecents" = "메뉴 지우기";
+"menu.zoomIn" = "확대";
+"menu.zoomOut" = "축소";
+"menu.zoomReset" = "너비에 맞추기";
+
+/* Export dialog */
+"export.title" = "스펙트로그램 내보내기";
+"export.export" = "내보내기";
+"export.cancel" = "취소";
+"export.format" = "형식";
+"export.format.csv" = "CSV — dB 행렬";
+"export.format.json" = "JSON — 데이터 + 메타데이터";
+"export.format.png" = "PNG — 이미지";
+"export.format.markers" = "마커 — CSV";
+"export.png.axes" = "축 포함";
+"export.png.axesHint" = "켜기: 주파수 및 시간 축이 있는 스펙트로그램. 끄기: 원본 해상도의 가공 전 이미지.";
+"export.dataSection" = "데이터";
+"export.units" = "값";
+"export.units.db" = "데시벨 (dB)";
+"export.units.linear" = "선형 진폭";
+"export.units.normalized" = "정규화 0–1";
+"export.maxColumns" = "최대 시간 열";
+"export.maxBins" = "최대 주파수 빈";
+"export.cellCount" = "셀 (열 × 빈)";
+"export.rangeSection" = "범위";
+"export.timeFrom" = "시간 시작";
+"export.timeTo" = "끝";
+"export.freqFrom" = "주파수 시작";
+"export.freqTo" = "끝";
+"export.resetRange" = "전체 범위로 초기화";
+"export.numberSection" = "숫자 형식";
+"export.delimiter" = "구분자";
+"export.delimiter.comma" = "쉼표 ( , )";
+"export.delimiter.semicolon" = "세미콜론 ( ; )";
+"export.delimiter.tab" = "탭";
+"export.decimal" = "소수점 기호";
+"export.decimal.point" = "마침표 ( . )";
+"export.decimal.comma" = "쉼표 ( , )";
+"export.precision" = "소수 자릿수";
+"export.headers" = "헤더 포함";
+"export.markersSection" = "마커";
+"export.markersCount" = "내보낼 마커";
 
 /* Units (file info) */
 "unit.khzPlain" = "%.1f kHz";
-"unit.bitDepth" = "%d-bit";
+"unit.bitDepth" = "%d비트";
 "unit.kbps" = "%.0f kbps";
-"unit.channels" = "%d channels";
-
-/* Overlay toggles */
-"toggle.waveform" = "Waveform overview";
-"toggle.harmonics" = "Harmonic cursor (overtones)";
+"unit.channels" = "%d채널";

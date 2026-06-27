@@ -8,17 +8,33 @@
 
 /* Toolbar / buttons */
 "button.savePNG" = "PNG सहेजें";
+"button.export" = "निर्यात करें…";
 "button.openAudio" = "ऑडियो फ़ाइल खोलें";
 "button.chooseAnother" = "दूसरी फ़ाइल चुनें";
 "button.play" = "चलाएँ";
 "button.pause" = "रोकें";
 "button.mute" = "म्यूट करें";
 "button.unmute" = "अनम्यूट करें";
+"button.record" = "रिकॉर्ड करें";
+"button.stopRecording" = "रोकें";
+"button.saveRecording" = "रिकॉर्डिंग सहेजें…";
+"button.openSettings" = "सिस्टम सेटिंग्स खोलें";
 
 /* Drop prompt */
 "prompt.title" = "ऑडियो स्पेक्ट्रोग्राम";
 "prompt.subtitle" = "ऑडियो फ़ाइल यहाँ खींचें\nया नीचे दिए बटन पर क्लिक करें";
 "prompt.formats" = "FLAC · AAC · MP3 · WAV · AIFF · ALAC और अधिक";
+
+/* Audio source / recording */
+"source.file" = "फ़ाइल";
+"source.microphone" = "माइक्रोफ़ोन";
+"record.prompt.title" = "माइक्रोफ़ोन से रिकॉर्ड करें";
+"record.prompt.subtitle" = "ऑडियो को सीधे कैप्चर करें और उसका\nस्पेक्ट्रोग्राम बनते हुए देखें";
+"record.codecNote" = "FLAC · दोषरहित";
+"record.recording" = "रिकॉर्ड हो रहा है";
+"record.waiting" = "ऑडियो की प्रतीक्षा…";
+"record.permissionDenied" = "माइक्रोफ़ोन की अनुमति अस्वीकृत है। रिकॉर्ड करने के लिए सिस्टम सेटिंग्स में इसे अनुमति दें।";
+"record.error.noInput" = "कोई ऑडियो इनपुट डिवाइस उपलब्ध नहीं है।";
 
 /* Loading status */
 "status.loading" = "%@ का विश्लेषण कर रहे हैं…";
@@ -66,41 +82,101 @@
 "lang.system" = "सिस्टम";
 
 /* File info */
-"button.fileInfo" = "File Info";
-"button.markers" = "Markers";
-"button.addMarker" = "Add marker at playhead";
-"info.title" = "File Information";
-"info.codec" = "Codec";
-"info.sampleRate" = "Sample rate";
-"info.channels" = "Channels";
-"info.bitDepth" = "Bit depth";
-"info.bitrate" = "Bitrate";
-"info.duration" = "Duration";
-"info.fileSize" = "File size";
-"info.mono" = "Mono";
-"info.stereo" = "Stereo";
+"button.fileInfo" = "फ़ाइल जानकारी";
+"button.markers" = "मार्कर";
+"button.addMarker" = "प्लेहेड पर मार्कर जोड़ें";
+"info.title" = "फ़ाइल जानकारी";
+"info.codec" = "कोडेक";
+"info.sampleRate" = "सैंपल दर";
+"info.channels" = "चैनल";
+"info.bitDepth" = "बिट गहराई";
+"info.bitrate" = "बिटरेट";
+"info.duration" = "अवधि";
+"info.fileSize" = "फ़ाइल आकार";
+"info.mono" = "मोनो";
+"info.stereo" = "स्टीरियो";
 
 /* Markers */
-"markers.title" = "Markers";
-"markers.empty" = "No markers yet. Press M to add one at the playhead.";
-"markers.clear" = "Clear All";
-"markers.defaultLabel" = "Marker %d";
-"marker.placeholder" = "Label";
+"markers.title" = "मार्कर";
+"markers.empty" = "अभी कोई मार्कर नहीं। प्लेहेड पर एक जोड़ने के लिए M दबाएँ।";
+"markers.clear" = "सभी साफ़ करें";
+"markers.defaultLabel" = "मार्कर %d";
+"marker.placeholder" = "लेबल";
+
+/* Overlay toggles */
+"toggle.waveform" = "तरंगरूप अवलोकन";
+"toggle.harmonics" = "हार्मोनिक कर्सर (अधिस्वर)";
+"toggle.measure" = "क्षेत्र मापें (चुनने के लिए खींचें)";
+
+/* Measurement panel */
+"measure.title" = "मापन";
+"measure.deltaTime" = "Δ समय";
+"measure.deltaFreq" = "Δ आवृत्ति";
+"measure.interval" = "अंतराल";
+"measure.rate" = "1 / Δt";
+"measure.peakFreq" = "शिखर आवृत्ति";
+"measure.peakLevel" = "शिखर स्तर";
+"measure.rms" = "RMS";
+"measure.peak" = "शिखर";
+"measure.truePeak" = "ट्रू पीक";
+"measure.lufs" = "प्रबलता";
+"measure.analyzing" = "विश्लेषण हो रहा है…";
+"unit.dbfs" = "%.1f dBFS";
+"unit.dbtp" = "%.1f dBTP";
+"unit.lufs" = "%.1f LUFS";
+
+/* Spectrum slice (double-click a time point) */
+"slice.title" = "स्पेक्ट्रम स्लाइस";
+"slice.close" = "बंद करें";
 
 /* Recent files / view */
-"menu.recentFiles" = "Open Recent";
-"menu.noRecents" = "No Recent Files";
-"menu.clearRecents" = "Clear Menu";
-"menu.zoomIn" = "Zoom In";
-"menu.zoomOut" = "Zoom Out";
-"menu.zoomReset" = "Fit Width";
+"menu.recentFiles" = "हाल की फ़ाइल खोलें";
+"menu.noRecents" = "कोई हाल की फ़ाइल नहीं";
+"menu.clearRecents" = "मेन्यू साफ़ करें";
+"menu.zoomIn" = "ज़ूम इन";
+"menu.zoomOut" = "ज़ूम आउट";
+"menu.zoomReset" = "चौड़ाई में फ़िट करें";
+
+/* Export dialog */
+"export.title" = "स्पेक्ट्रोग्राम निर्यात करें";
+"export.export" = "निर्यात करें";
+"export.cancel" = "रद्द करें";
+"export.format" = "प्रारूप";
+"export.format.csv" = "CSV — dB मैट्रिक्स";
+"export.format.json" = "JSON — डेटा + मेटाडेटा";
+"export.format.png" = "PNG — छवि";
+"export.format.markers" = "मार्कर — CSV";
+"export.png.axes" = "अक्ष शामिल करें";
+"export.png.axesHint" = "चालू: आवृत्ति और समय अक्ष सहित स्पेक्ट्रोग्राम। बंद: नेटिव रिज़ॉल्यूशन पर कच्ची छवि।";
+"export.dataSection" = "डेटा";
+"export.units" = "मान";
+"export.units.db" = "डेसिबल (dB)";
+"export.units.linear" = "रैखिक आयाम";
+"export.units.normalized" = "सामान्यीकृत 0–1";
+"export.maxColumns" = "अधिकतम समय स्तंभ";
+"export.maxBins" = "अधिकतम आवृत्ति बिन";
+"export.cellCount" = "कोशिकाएँ (स्तंभ × बिन)";
+"export.rangeSection" = "परास";
+"export.timeFrom" = "समय: से";
+"export.timeTo" = "तक";
+"export.freqFrom" = "आवृत्ति: से";
+"export.freqTo" = "तक";
+"export.resetRange" = "पूरी परास पर रीसेट करें";
+"export.numberSection" = "संख्या प्रारूप";
+"export.delimiter" = "विभाजक";
+"export.delimiter.comma" = "अल्पविराम ( , )";
+"export.delimiter.semicolon" = "अर्धविराम ( ; )";
+"export.delimiter.tab" = "टैब";
+"export.decimal" = "दशमलव चिह्न";
+"export.decimal.point" = "बिंदु ( . )";
+"export.decimal.comma" = "अल्पविराम ( , )";
+"export.precision" = "दशमलव स्थान";
+"export.headers" = "हेडर शामिल करें";
+"export.markersSection" = "मार्कर";
+"export.markersCount" = "निर्यात के लिए मार्कर";
 
 /* Units (file info) */
 "unit.khzPlain" = "%.1f kHz";
-"unit.bitDepth" = "%d-bit";
+"unit.bitDepth" = "%d-बिट";
 "unit.kbps" = "%.0f kbps";
-"unit.channels" = "%d channels";
-
-/* Overlay toggles */
-"toggle.waveform" = "Waveform overview";
-"toggle.harmonics" = "Harmonic cursor (overtones)";
+"unit.channels" = "%d चैनल";

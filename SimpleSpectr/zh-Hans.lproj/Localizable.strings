@@ -8,17 +8,33 @@
 
 /* Toolbar / buttons */
 "button.savePNG" = "保存 PNG";
+"button.export" = "导出…";
 "button.openAudio" = "打开音频文件";
 "button.chooseAnother" = "选择其他文件";
 "button.play" = "播放";
 "button.pause" = "暂停";
 "button.mute" = "静音";
 "button.unmute" = "取消静音";
+"button.record" = "录制";
+"button.stopRecording" = "停止";
+"button.saveRecording" = "保存录音…";
+"button.openSettings" = "打开系统设置";
 
 /* Drop prompt */
 "prompt.title" = "音频频谱图";
 "prompt.subtitle" = "将音频文件拖到此处\n或点击下方按钮";
 "prompt.formats" = "FLAC · AAC · MP3 · WAV · AIFF · ALAC 等更多格式";
+
+/* Audio source / recording */
+"source.file" = "文件";
+"source.microphone" = "麦克风";
+"record.prompt.title" = "从麦克风录制";
+"record.prompt.subtitle" = "实时采集音频，观看其频谱图\n随录制逐渐生成";
+"record.codecNote" = "FLAC · 无损";
+"record.recording" = "录制中";
+"record.waiting" = "正在等待音频…";
+"record.permissionDenied" = "麦克风访问被拒绝。请在系统设置中允许以进行录制。";
+"record.error.noInput" = "没有可用的音频输入设备。";
 
 /* Loading status */
 "status.loading" = "正在分析 %@…";
@@ -66,41 +82,101 @@
 "lang.system" = "跟随系统";
 
 /* File info */
-"button.fileInfo" = "File Info";
-"button.markers" = "Markers";
-"button.addMarker" = "Add marker at playhead";
-"info.title" = "File Information";
-"info.codec" = "Codec";
-"info.sampleRate" = "Sample rate";
-"info.channels" = "Channels";
-"info.bitDepth" = "Bit depth";
-"info.bitrate" = "Bitrate";
-"info.duration" = "Duration";
-"info.fileSize" = "File size";
-"info.mono" = "Mono";
-"info.stereo" = "Stereo";
+"button.fileInfo" = "文件信息";
+"button.markers" = "标记";
+"button.addMarker" = "在播放头处添加标记";
+"info.title" = "文件信息";
+"info.codec" = "编解码器";
+"info.sampleRate" = "采样率";
+"info.channels" = "声道";
+"info.bitDepth" = "位深度";
+"info.bitrate" = "比特率";
+"info.duration" = "时长";
+"info.fileSize" = "文件大小";
+"info.mono" = "单声道";
+"info.stereo" = "立体声";
 
 /* Markers */
-"markers.title" = "Markers";
-"markers.empty" = "No markers yet. Press M to add one at the playhead.";
-"markers.clear" = "Clear All";
-"markers.defaultLabel" = "Marker %d";
-"marker.placeholder" = "Label";
+"markers.title" = "标记";
+"markers.empty" = "暂无标记。按 M 在播放头处添加一个。";
+"markers.clear" = "全部清除";
+"markers.defaultLabel" = "标记 %d";
+"marker.placeholder" = "标签";
+
+/* Overlay toggles */
+"toggle.waveform" = "波形概览";
+"toggle.harmonics" = "谐波光标（泛音）";
+"toggle.measure" = "测量区域（拖动以选择）";
+
+/* Measurement panel */
+"measure.title" = "测量";
+"measure.deltaTime" = "Δ 时间";
+"measure.deltaFreq" = "Δ 频率";
+"measure.interval" = "音程";
+"measure.rate" = "1 / Δt";
+"measure.peakFreq" = "峰值频率";
+"measure.peakLevel" = "峰值电平";
+"measure.rms" = "RMS";
+"measure.peak" = "峰值";
+"measure.truePeak" = "真峰值";
+"measure.lufs" = "响度";
+"measure.analyzing" = "正在分析…";
+"unit.dbfs" = "%.1f dBFS";
+"unit.dbtp" = "%.1f dBTP";
+"unit.lufs" = "%.1f LUFS";
+
+/* Spectrum slice (double-click a time point) */
+"slice.title" = "频谱切片";
+"slice.close" = "关闭";
 
 /* Recent files / view */
-"menu.recentFiles" = "Open Recent";
-"menu.noRecents" = "No Recent Files";
-"menu.clearRecents" = "Clear Menu";
-"menu.zoomIn" = "Zoom In";
-"menu.zoomOut" = "Zoom Out";
-"menu.zoomReset" = "Fit Width";
+"menu.recentFiles" = "打开最近使用";
+"menu.noRecents" = "没有最近使用的文件";
+"menu.clearRecents" = "清除菜单";
+"menu.zoomIn" = "放大";
+"menu.zoomOut" = "缩小";
+"menu.zoomReset" = "适应宽度";
+
+/* Export dialog */
+"export.title" = "导出频谱图";
+"export.export" = "导出";
+"export.cancel" = "取消";
+"export.format" = "格式";
+"export.format.csv" = "CSV — dB 矩阵";
+"export.format.json" = "JSON — 数据 + 元数据";
+"export.format.png" = "PNG — 图像";
+"export.format.markers" = "标记 — CSV";
+"export.png.axes" = "包含坐标轴";
+"export.png.axesHint" = "开启：带频率和时间坐标轴的频谱图。关闭：原始分辨率的原图。";
+"export.dataSection" = "数据";
+"export.units" = "数值";
+"export.units.db" = "分贝 (dB)";
+"export.units.linear" = "线性幅度";
+"export.units.normalized" = "归一化 0–1";
+"export.maxColumns" = "最大时间列数";
+"export.maxBins" = "最大频率箱数";
+"export.cellCount" = "单元格（列 × 箱）";
+"export.rangeSection" = "范围";
+"export.timeFrom" = "时间从";
+"export.timeTo" = "到";
+"export.freqFrom" = "频率从";
+"export.freqTo" = "到";
+"export.resetRange" = "重置为完整范围";
+"export.numberSection" = "数字格式";
+"export.delimiter" = "分隔符";
+"export.delimiter.comma" = "逗号 ( , )";
+"export.delimiter.semicolon" = "分号 ( ; )";
+"export.delimiter.tab" = "制表符";
+"export.decimal" = "小数点符号";
+"export.decimal.point" = "点 ( . )";
+"export.decimal.comma" = "逗号 ( , )";
+"export.precision" = "小数位数";
+"export.headers" = "包含表头";
+"export.markersSection" = "标记";
+"export.markersCount" = "要导出的标记";
 
 /* Units (file info) */
 "unit.khzPlain" = "%.1f kHz";
-"unit.bitDepth" = "%d-bit";
+"unit.bitDepth" = "%d 位";
 "unit.kbps" = "%.0f kbps";
-"unit.channels" = "%d channels";
-
-/* Overlay toggles */
-"toggle.waveform" = "Waveform overview";
-"toggle.harmonics" = "Harmonic cursor (overtones)";
+"unit.channels" = "%d 声道";

@@ -8,17 +8,33 @@
 
 /* Toolbar / buttons */
 "button.savePNG" = "حفظ PNG";
+"button.export" = "تصدير…";
 "button.openAudio" = "فتح ملف صوتي";
 "button.chooseAnother" = "اختيار ملف آخر";
 "button.play" = "تشغيل";
 "button.pause" = "إيقاف مؤقت";
 "button.mute" = "كتم الصوت";
 "button.unmute" = "إلغاء الكتم";
+"button.record" = "تسجيل";
+"button.stopRecording" = "إيقاف";
+"button.saveRecording" = "حفظ التسجيل…";
+"button.openSettings" = "فتح إعدادات النظام";
 
 /* Drop prompt */
 "prompt.title" = "طيف صوتي";
 "prompt.subtitle" = "اسحب ملفًا صوتيًا إلى هنا\nأو انقر على الزر بالأسفل";
 "prompt.formats" = "FLAC · AAC · MP3 · WAV · AIFF · ALAC والمزيد";
+
+/* Audio source / recording */
+"source.file" = "ملف";
+"source.microphone" = "ميكروفون";
+"record.prompt.title" = "التسجيل من الميكروفون";
+"record.prompt.subtitle" = "سجّل الصوت مباشرةً وشاهد طيفه\nيُبنى أثناء التسجيل";
+"record.codecNote" = "FLAC · بدون فقدان";
+"record.recording" = "جارٍ التسجيل";
+"record.waiting" = "في انتظار الصوت…";
+"record.permissionDenied" = "الوصول إلى الميكروفون مرفوض. اسمح به في إعدادات النظام لتتمكن من التسجيل.";
+"record.error.noInput" = "لا يوجد جهاز إدخال صوتي متاح.";
 
 /* Loading status */
 "status.loading" = "جارٍ تحليل %@…";
@@ -66,41 +82,101 @@
 "lang.system" = "النظام";
 
 /* File info */
-"button.fileInfo" = "File Info";
-"button.markers" = "Markers";
-"button.addMarker" = "Add marker at playhead";
-"info.title" = "File Information";
-"info.codec" = "Codec";
-"info.sampleRate" = "Sample rate";
-"info.channels" = "Channels";
-"info.bitDepth" = "Bit depth";
-"info.bitrate" = "Bitrate";
-"info.duration" = "Duration";
-"info.fileSize" = "File size";
-"info.mono" = "Mono";
-"info.stereo" = "Stereo";
+"button.fileInfo" = "معلومات الملف";
+"button.markers" = "العلامات";
+"button.addMarker" = "إضافة علامة عند رأس التشغيل";
+"info.title" = "معلومات الملف";
+"info.codec" = "المرمّز";
+"info.sampleRate" = "معدل العيّنات";
+"info.channels" = "القنوات";
+"info.bitDepth" = "عمق البت";
+"info.bitrate" = "معدل البت";
+"info.duration" = "المدة";
+"info.fileSize" = "حجم الملف";
+"info.mono" = "أحادي";
+"info.stereo" = "ستيريو";
 
 /* Markers */
-"markers.title" = "Markers";
-"markers.empty" = "No markers yet. Press M to add one at the playhead.";
-"markers.clear" = "Clear All";
-"markers.defaultLabel" = "Marker %d";
-"marker.placeholder" = "Label";
+"markers.title" = "العلامات";
+"markers.empty" = "لا توجد علامات بعد. اضغط M لإضافة واحدة عند رأس التشغيل.";
+"markers.clear" = "مسح الكل";
+"markers.defaultLabel" = "علامة %d";
+"marker.placeholder" = "التسمية";
+
+/* Overlay toggles */
+"toggle.waveform" = "نظرة عامة على الموجة";
+"toggle.harmonics" = "المؤشر التوافقي (التوافقيات)";
+"toggle.measure" = "قياس منطقة (اسحب للتحديد)";
+
+/* Measurement panel */
+"measure.title" = "القياس";
+"measure.deltaTime" = "Δ الوقت";
+"measure.deltaFreq" = "Δ التردد";
+"measure.interval" = "الفاصل";
+"measure.rate" = "1 / Δt";
+"measure.peakFreq" = "تردد الذروة";
+"measure.peakLevel" = "مستوى الذروة";
+"measure.rms" = "RMS";
+"measure.peak" = "الذروة";
+"measure.truePeak" = "الذروة الحقيقية";
+"measure.lufs" = "الجهارة";
+"measure.analyzing" = "جارٍ التحليل…";
+"unit.dbfs" = "%.1f dBFS";
+"unit.dbtp" = "%.1f dBTP";
+"unit.lufs" = "%.1f LUFS";
+
+/* Spectrum slice (double-click a time point) */
+"slice.title" = "مقطع طيفي";
+"slice.close" = "إغلاق";
 
 /* Recent files / view */
-"menu.recentFiles" = "Open Recent";
-"menu.noRecents" = "No Recent Files";
-"menu.clearRecents" = "Clear Menu";
-"menu.zoomIn" = "Zoom In";
-"menu.zoomOut" = "Zoom Out";
-"menu.zoomReset" = "Fit Width";
+"menu.recentFiles" = "فتح العناصر الأخيرة";
+"menu.noRecents" = "لا توجد ملفات حديثة";
+"menu.clearRecents" = "مسح القائمة";
+"menu.zoomIn" = "تكبير";
+"menu.zoomOut" = "تصغير";
+"menu.zoomReset" = "ملاءمة العرض";
+
+/* Export dialog */
+"export.title" = "تصدير الطيف الصوتي";
+"export.export" = "تصدير";
+"export.cancel" = "إلغاء";
+"export.format" = "التنسيق";
+"export.format.csv" = "CSV — مصفوفة dB";
+"export.format.json" = "JSON — بيانات + بيانات وصفية";
+"export.format.png" = "PNG — صورة";
+"export.format.markers" = "العلامات — CSV";
+"export.png.axes" = "تضمين المحاور";
+"export.png.axesHint" = "تشغيل: طيف بمحوري التردد والوقت. إيقاف: صورة خام بالدقة الأصلية.";
+"export.dataSection" = "البيانات";
+"export.units" = "القيم";
+"export.units.db" = "ديسيبل (dB)";
+"export.units.linear" = "سعة خطية";
+"export.units.normalized" = "مُطبَّعة 0–1";
+"export.maxColumns" = "أقصى عدد أعمدة الوقت";
+"export.maxBins" = "أقصى عدد حزم التردد";
+"export.cellCount" = "الخلايا (أعمدة × حزم)";
+"export.rangeSection" = "النطاق";
+"export.timeFrom" = "الوقت من";
+"export.timeTo" = "إلى";
+"export.freqFrom" = "التردد من";
+"export.freqTo" = "إلى";
+"export.resetRange" = "إعادة التعيين إلى النطاق الكامل";
+"export.numberSection" = "تنسيق الأرقام";
+"export.delimiter" = "الفاصل";
+"export.delimiter.comma" = "فاصلة ( , )";
+"export.delimiter.semicolon" = "فاصلة منقوطة ( ; )";
+"export.delimiter.tab" = "علامة جدولة";
+"export.decimal" = "العلامة العشرية";
+"export.decimal.point" = "نقطة ( . )";
+"export.decimal.comma" = "فاصلة ( , )";
+"export.precision" = "المنازل العشرية";
+"export.headers" = "تضمين العناوين";
+"export.markersSection" = "العلامات";
+"export.markersCount" = "العلامات المراد تصديرها";
 
 /* Units (file info) */
 "unit.khzPlain" = "%.1f kHz";
-"unit.bitDepth" = "%d-bit";
+"unit.bitDepth" = "%d بت";
 "unit.kbps" = "%.0f kbps";
-"unit.channels" = "%d channels";
-
-/* Overlay toggles */
-"toggle.waveform" = "Waveform overview";
-"toggle.harmonics" = "Harmonic cursor (overtones)";
+"unit.channels" = "%d قنوات";

@@ -175,7 +175,7 @@ enum SpectrogramEngine {
 
         // Decode on the fly through a sequential mono source so the whole file is
         // never materialized in memory.
-        var source = MonoSource(file: file, channelCount: channelCount)
+        var source = try MonoSource(file: file, channelCount: channelCount)
         var windowSamples = [Float](repeating: 0, count: fftSize)
         _ = try source.fill(into: &windowSamples, offset: 0, count: fftSize)
 
@@ -381,11 +381,16 @@ nonisolated private struct MonoSource {
     private var pendingOffset = 0
     private var eof = false
 
-    init(file: AVAudioFile, channelCount: Int) {
+    init(file: AVAudioFile, channelCount: Int) throws {
         self.file = file
         self.channelCount = channelCount
         self.chunkFrames = 1 << 18 // 262144 frames per read
-        self.buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: 1 << 18)!
+        // Allocation can fail (invalid format / out of memory); fail loudly with a
+        // recoverable error rather than trapping mid-decode.
+        guard let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: 1 << 18) else {
+            throw SpectrogramError.cannotOpen("Could not allocate decode buffer")
+        }
+        self.buffer = buffer
     }
 
     /// Copy up to `count` samples into `dst[offset..<]`. Returns the number copied.

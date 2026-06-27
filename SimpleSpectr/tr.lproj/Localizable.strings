@@ -8,17 +8,33 @@
 
 /* Toolbar / buttons */
 "button.savePNG" = "PNG Kaydet";
+"button.export" = "Dışa Aktar…";
 "button.openAudio" = "Ses Dosyası Aç";
 "button.chooseAnother" = "Başka Dosya Seç";
 "button.play" = "Oynat";
 "button.pause" = "Duraklat";
 "button.mute" = "Sesi Kıs";
 "button.unmute" = "Sesi Aç";
+"button.record" = "Kaydet";
+"button.stopRecording" = "Durdur";
+"button.saveRecording" = "Kaydı Kaydet…";
+"button.openSettings" = "Sistem Ayarlarını Aç";
 
 /* Drop prompt */
 "prompt.title" = "Ses Spektrogramı";
 "prompt.subtitle" = "Buraya bir ses dosyası sürükleyin\nveya aşağıdaki düğmeye tıklayın";
 "prompt.formats" = "FLAC · AAC · MP3 · WAV · AIFF · ALAC ve daha fazlası";
+
+/* Audio source / recording */
+"source.file" = "Dosya";
+"source.microphone" = "Mikrofon";
+"record.prompt.title" = "Mikrofondan kaydet";
+"record.prompt.subtitle" = "Sesi canlı yakalayın ve spektrogramının\noluşmasını izleyin";
+"record.codecNote" = "FLAC · kayıpsız";
+"record.recording" = "Kaydediliyor";
+"record.waiting" = "Ses bekleniyor…";
+"record.permissionDenied" = "Mikrofon erişimi reddedildi. Kayıt yapmak için Sistem Ayarları'ndan izin verin.";
+"record.error.noInput" = "Kullanılabilir ses giriş aygıtı yok.";
 
 /* Loading status */
 "status.loading" = "%@ analiz ediliyor…";
@@ -66,41 +82,101 @@
 "lang.system" = "Sistem";
 
 /* File info */
-"button.fileInfo" = "File Info";
-"button.markers" = "Markers";
-"button.addMarker" = "Add marker at playhead";
-"info.title" = "File Information";
-"info.codec" = "Codec";
-"info.sampleRate" = "Sample rate";
-"info.channels" = "Channels";
-"info.bitDepth" = "Bit depth";
-"info.bitrate" = "Bitrate";
-"info.duration" = "Duration";
-"info.fileSize" = "File size";
+"button.fileInfo" = "Dosya Bilgisi";
+"button.markers" = "İşaretler";
+"button.addMarker" = "Oynatma başlığına işaret ekle";
+"info.title" = "Dosya Bilgileri";
+"info.codec" = "Kodek";
+"info.sampleRate" = "Örnekleme hızı";
+"info.channels" = "Kanallar";
+"info.bitDepth" = "Bit derinliği";
+"info.bitrate" = "Bit hızı";
+"info.duration" = "Süre";
+"info.fileSize" = "Dosya boyutu";
 "info.mono" = "Mono";
 "info.stereo" = "Stereo";
 
 /* Markers */
-"markers.title" = "Markers";
-"markers.empty" = "No markers yet. Press M to add one at the playhead.";
-"markers.clear" = "Clear All";
-"markers.defaultLabel" = "Marker %d";
-"marker.placeholder" = "Label";
+"markers.title" = "İşaretler";
+"markers.empty" = "Henüz işaret yok. Oynatma başlığına bir tane eklemek için M tuşuna basın.";
+"markers.clear" = "Tümünü Temizle";
+"markers.defaultLabel" = "İşaret %d";
+"marker.placeholder" = "Etiket";
+
+/* Overlay toggles */
+"toggle.waveform" = "Dalga biçimi genel görünümü";
+"toggle.harmonics" = "Harmonik imleç (üst tonlar)";
+"toggle.measure" = "Bölge ölç (seçmek için sürükleyin)";
+
+/* Measurement panel */
+"measure.title" = "Ölçüm";
+"measure.deltaTime" = "Δ süre";
+"measure.deltaFreq" = "Δ frekans";
+"measure.interval" = "Aralık";
+"measure.rate" = "1 / Δt";
+"measure.peakFreq" = "Tepe frekansı";
+"measure.peakLevel" = "Tepe seviyesi";
+"measure.rms" = "RMS";
+"measure.peak" = "Tepe";
+"measure.truePeak" = "Gerçek tepe";
+"measure.lufs" = "Ses yüksekliği";
+"measure.analyzing" = "Analiz ediliyor…";
+"unit.dbfs" = "%.1f dBFS";
+"unit.dbtp" = "%.1f dBTP";
+"unit.lufs" = "%.1f LUFS";
+
+/* Spectrum slice (double-click a time point) */
+"slice.title" = "Spektrum kesiti";
+"slice.close" = "Kapat";
 
 /* Recent files / view */
-"menu.recentFiles" = "Open Recent";
-"menu.noRecents" = "No Recent Files";
-"menu.clearRecents" = "Clear Menu";
-"menu.zoomIn" = "Zoom In";
-"menu.zoomOut" = "Zoom Out";
-"menu.zoomReset" = "Fit Width";
+"menu.recentFiles" = "Son Kullanılanı Aç";
+"menu.noRecents" = "Son Kullanılan Dosya Yok";
+"menu.clearRecents" = "Menüyü Temizle";
+"menu.zoomIn" = "Yakınlaştır";
+"menu.zoomOut" = "Uzaklaştır";
+"menu.zoomReset" = "Genişliğe Sığdır";
+
+/* Export dialog */
+"export.title" = "Spektrogramı Dışa Aktar";
+"export.export" = "Dışa Aktar";
+"export.cancel" = "İptal";
+"export.format" = "Biçim";
+"export.format.csv" = "CSV — dB matrisi";
+"export.format.json" = "JSON — veri + meta veri";
+"export.format.png" = "PNG — görüntü";
+"export.format.markers" = "İşaretler — CSV";
+"export.png.axes" = "Eksenleri dahil et";
+"export.png.axesHint" = "Açık: frekans ve zaman eksenli spektrogram. Kapalı: doğal çözünürlükte ham görüntü.";
+"export.dataSection" = "Veri";
+"export.units" = "Değerler";
+"export.units.db" = "Desibel (dB)";
+"export.units.linear" = "Doğrusal genlik";
+"export.units.normalized" = "Normalize 0–1";
+"export.maxColumns" = "Maks. zaman sütunu";
+"export.maxBins" = "Maks. frekans bandı";
+"export.cellCount" = "Hücreler (sütun × bant)";
+"export.rangeSection" = "Aralık";
+"export.timeFrom" = "Süre: başlangıç";
+"export.timeTo" = "bitiş";
+"export.freqFrom" = "Frekans: başlangıç";
+"export.freqTo" = "bitiş";
+"export.resetRange" = "Tam aralığa sıfırla";
+"export.numberSection" = "Sayı biçimi";
+"export.delimiter" = "Ayırıcı";
+"export.delimiter.comma" = "Virgül ( , )";
+"export.delimiter.semicolon" = "Noktalı virgül ( ; )";
+"export.delimiter.tab" = "Sekme";
+"export.decimal" = "Ondalık işareti";
+"export.decimal.point" = "Nokta ( . )";
+"export.decimal.comma" = "Virgül ( , )";
+"export.precision" = "Ondalık basamak";
+"export.headers" = "Başlıkları dahil et";
+"export.markersSection" = "İşaretler";
+"export.markersCount" = "Dışa aktarılacak işaretler";
 
 /* Units (file info) */
 "unit.khzPlain" = "%.1f kHz";
-"unit.bitDepth" = "%d-bit";
+"unit.bitDepth" = "%d bit";
 "unit.kbps" = "%.0f kbps";
-"unit.channels" = "%d channels";
-
-/* Overlay toggles */
-"toggle.waveform" = "Waveform overview";
-"toggle.harmonics" = "Harmonic cursor (overtones)";
+"unit.channels" = "%d kanal";
