@@ -18,6 +18,8 @@ nonisolated enum Palette: String, CaseIterable, Identifiable, Sendable {
     case plasma
     case turbo
     case cividis
+    case jet
+    case hot
     case grayscale
 
     var id: String { rawValue }
@@ -34,6 +36,8 @@ nonisolated enum Palette: String, CaseIterable, Identifiable, Sendable {
         case .plasma:    return "Plasma"
         case .turbo:     return "Turbo"
         case .cividis:   return "Cividis"
+        case .jet:       return "Jet"
+        case .hot:       return "Hot"
         case .grayscale: return L("palette.grayscale")
         }
     }
@@ -102,14 +106,49 @@ nonisolated enum Palette: String, CaseIterable, Identifiable, Sendable {
                 (122, 4,   3),
             ]
         case .cividis:
+            // Evenly sampled from matplotlib's _cividis_data so the high end
+            // is the proper saturated yellow, not a washed-out cream.
             return [
-                (0,   32,  76),
-                (45,  75,  122),
-                (92,  121, 153),
-                (137, 160, 175),
-                (194, 196, 181),
-                (237, 234, 193),
-                (255, 253, 219),
+                (0,   34,  78),
+                (18,  53,  112),
+                (67,  78,  108),
+                (139, 135, 120),
+                (192, 177, 106),
+                (229, 211, 79),
+                (247, 225, 56),
+                (254, 230, 54),
+                (254, 232, 56),
+            ]
+        case .jet:
+            // Classic MATLAB rainbow, the historical spectrogram colormap.
+            // Sampled at even intervals from matplotlib's piecewise `jet`.
+            return [
+                (0,   0,   128),
+                (0,   0,   243),
+                (0,   77,  255),
+                (0,   179, 255),
+                (41,  255, 206),
+                (123, 255, 123),
+                (206, 255, 41),
+                (255, 198, 0),
+                (255, 104, 0),
+                (243, 9,   0),
+                (128, 0,   0),
+            ]
+        case .hot:
+            // Black → red → yellow → white (matplotlib `hot`), sampled evenly.
+            return [
+                (0,   0,   0),
+                (70,  0,   0),
+                (140, 0,   0),
+                (210, 0,   0),
+                (255, 23,  0),
+                (255, 90,  0),
+                (255, 157, 0),
+                (255, 224, 0),
+                (255, 255, 54),
+                (255, 255, 155),
+                (255, 255, 255),
             ]
         case .grayscale:
             return [
