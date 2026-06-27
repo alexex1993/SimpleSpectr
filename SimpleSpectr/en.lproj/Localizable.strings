@@ -8,6 +8,7 @@
 
 /* Toolbar / buttons */
 "button.savePNG" = "Save PNG";
+"button.export" = "Export…";
 "button.openAudio" = "Open Audio File";
 "button.chooseAnother" = "Choose Another File";
 "button.play" = "Play";
@@ -120,6 +121,44 @@
 "menu.zoomIn" = "Zoom In";
 "menu.zoomOut" = "Zoom Out";
 "menu.zoomReset" = "Fit Width";
+
+/* Export dialog */
+"export.title" = "Export Spectrogram";
+"export.export" = "Export";
+"export.cancel" = "Cancel";
+"export.format" = "Format";
+"export.format.csv" = "CSV — dB matrix";
+"export.format.json" = "JSON — data + metadata";
+"export.format.png" = "PNG — image";
+"export.format.markers" = "Markers — CSV";
+"export.png.axes" = "Include axes";
+"export.png.axesHint" = "On: spectrogram with frequency and time axes. Off: raw image at native resolution.";
+"export.dataSection" = "Data";
+"export.units" = "Values";
+"export.units.db" = "Decibels (dB)";
+"export.units.linear" = "Linear amplitude";
+"export.units.normalized" = "Normalized 0–1";
+"export.maxColumns" = "Max time columns";
+"export.maxBins" = "Max frequency bins";
+"export.cellCount" = "Cells (cols × bins)";
+"export.rangeSection" = "Range";
+"export.timeFrom" = "Time from";
+"export.timeTo" = "to";
+"export.freqFrom" = "Freq. from";
+"export.freqTo" = "to";
+"export.resetRange" = "Reset to full range";
+"export.numberSection" = "Number format";
+"export.delimiter" = "Delimiter";
+"export.delimiter.comma" = "Comma ( , )";
+"export.delimiter.semicolon" = "Semicolon ( ; )";
+"export.delimiter.tab" = "Tab";
+"export.decimal" = "Decimal mark";
+"export.decimal.point" = "Point ( . )";
+"export.decimal.comma" = "Comma ( , )";
+"export.precision" = "Decimal places";
+"export.headers" = "Include headers";
+"export.markersSection" = "Markers";
+"export.markersCount" = "Markers to export";
 
 /* Units (file info) */
 "unit.khzPlain" = "%.1f kHz";

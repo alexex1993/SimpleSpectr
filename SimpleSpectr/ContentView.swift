@@ -76,7 +76,7 @@ struct ContentView: View {
                 Button {
                     showExporter = true
                 } label: {
-                    Label(L("button.savePNG"), systemImage: "square.and.arrow.down")
+                    Label(L("button.export"), systemImage: "square.and.arrow.down")
                 }
                 .disabled(loaded == nil)
             }
@@ -95,12 +95,16 @@ struct ContentView: View {
                 model.load(url: url)
             }
         }
-        .fileExporter(isPresented: $showExporter,
-                      document: loaded.map {
-                          PNGDocument(image: PNGDocument.compositeImage(for: $0.result) ?? $0.result.image)
-                      },
-                      contentType: .png,
-                      defaultFilename: exportFilename) { _ in }
+        .sheet(isPresented: $showExporter) {
+            if let loaded {
+                ExportDialog(sourceName: loaded.name,
+                             result: loaded.result,
+                             markers: markers.markers.map { (time: $0.time, label: $0.label) },
+                             windowFunction: RenderPreferences.shared.windowFunction.displayName,
+                             overlapPercent: RenderPreferences.shared.overlapPercent,
+                             onClose: { showExporter = false })
+            }
+        }
         .onDrop(of: [.fileURL], isTargeted: $isTargetedForDrop) { providers in
             handleDrop(providers)
         }
@@ -121,11 +125,6 @@ struct ContentView: View {
             }
         }
         .onDisappear { player.stop() }
-    }
-
-    private var exportFilename: String {
-        guard let name = loaded?.name else { return "spectrogram" }
-        return (name as NSString).deletingPathExtension + "-spectrogram"
     }
 
     private func handleDrop(_ providers: [NSItemProvider]) -> Bool {

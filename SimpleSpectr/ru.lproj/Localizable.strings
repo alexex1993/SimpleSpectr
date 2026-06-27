@@ -8,6 +8,7 @@
 
 /* Toolbar / buttons */
 "button.savePNG" = "Сохранить PNG";
+"button.export" = "Экспорт…";
 "button.openAudio" = "Открыть аудиофайл";
 "button.chooseAnother" = "Выбрать другой файл";
 "button.play" = "Воспроизвести";
@@ -120,6 +121,44 @@
 "menu.zoomIn" = "Увеличить";
 "menu.zoomOut" = "Уменьшить";
 "menu.zoomReset" = "По ширине";
+
+/* Export dialog */
+"export.title" = "Экспорт спектрограммы";
+"export.export" = "Экспортировать";
+"export.cancel" = "Отмена";
+"export.format" = "Формат";
+"export.format.csv" = "CSV — матрица дБ";
+"export.format.json" = "JSON — данные + метаданные";
+"export.format.png" = "PNG — изображение";
+"export.format.markers" = "Маркеры — CSV";
+"export.png.axes" = "С осями";
+"export.png.axesHint" = "Вкл.: спектрограмма с осями частоты и времени. Выкл.: чистое изображение в нативном разрешении.";
+"export.dataSection" = "Данные";
+"export.units" = "Значения";
+"export.units.db" = "Децибелы (дБ)";
+"export.units.linear" = "Линейная амплитуда";
+"export.units.normalized" = "Нормированные 0–1";
+"export.maxColumns" = "Макс. столбцов (время)";
+"export.maxBins" = "Макс. бинов (частота)";
+"export.cellCount" = "Ячейки (столбцы × бины)";
+"export.rangeSection" = "Диапазон";
+"export.timeFrom" = "Время от";
+"export.timeTo" = "до";
+"export.freqFrom" = "Частота от";
+"export.freqTo" = "до";
+"export.resetRange" = "Сбросить на весь диапазон";
+"export.numberSection" = "Формат чисел";
+"export.delimiter" = "Разделитель";
+"export.delimiter.comma" = "Запятая ( , )";
+"export.delimiter.semicolon" = "Точка с запятой ( ; )";
+"export.delimiter.tab" = "Табуляция";
+"export.decimal" = "Десятичный знак";
+"export.decimal.point" = "Точка ( . )";
+"export.decimal.comma" = "Запятая ( , )";
+"export.precision" = "Знаков после запятой";
+"export.headers" = "С заголовками";
+"export.markersSection" = "Маркеры";
+"export.markersCount" = "Маркеров к экспорту";
 
 /* Units (file info) */
 "unit.khzPlain" = "%.1f кГц";
