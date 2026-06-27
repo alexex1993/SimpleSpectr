@@ -46,6 +46,13 @@ Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). Free for non
 
 ## Changelog
 
+### 2.0.3
+
+- **Microphone input / live spectrogram** — alongside opening a file, the start screen now lets you record from the microphone. A full-screen live spectrogram grows left → right in real time while you record, with a pulsing indicator and elapsed timer; stop it and the captured audio (FLAC) is reopened through the normal analysis path, so you immediately get the full axes, hover readout, crosshair, and playback on what you just recorded. The recording can then be saved out as a file. Mic-permission-denied and failure states are handled in-app with a shortcut to System Settings.
+- **Data export (CSV / JSON) & unified export dialog** — the old one-shot "Save PNG" panel has been replaced by a single export sheet where you pick the format — **CSV**, **JSON**, **PNG**, or **Markers** — and tune the relevant options: time/frequency range, units, column decimation, number format, and axes. The numeric formats dump the actual STFT magnitudes (per time column × frequency bin) so you can pull the raw spectral data into a spreadsheet or script; the Markers format exports your session annotations. PNG remains for image export with its existing controls.
+- **Colormap pipeline refactor** — the palette internals were reworked for cleaner interpolation and easier extension, with no visible regression to the existing Inferno/Viridis/Magma/Plasma/Turbo/Cividis/Grayscale gradients.
+- **Localizations refreshed** — all new strings (microphone, export) were translated across every existing language (Arabic, Bengali, German, Spanish, French, Hindi, Italian, Japanese, Korean, Portuguese (Brazil), Turkish, Chinese (Simplified), plus Russian/English).
+
 ### 1.9.6
 
 - **Waveform overview** — a time-domain amplitude lane sits above the spectrogram and stays locked to the same time axis (and time zoom), so you can see the track's overall dynamics — quiet passages, hits, fades — at a glance and relate them to what's happening in the frequency view below. Toggle it on or off; it's on by default.
