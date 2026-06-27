@@ -9,9 +9,23 @@ A simple macOS app that displays the spectrogram of an audio file.
 
 - **Open from the app** — click the toolbar button or drag-and-drop an audio file onto the window.
 - **Open from Finder** — right-click a file → *Open With* → *SimpleSpectr* renders the spectrogram immediately.
+- **Microphone input / live spectrogram** — record from the microphone and watch a full-screen live spectrogram grow in real time; the captured FLAC is reopened through the normal analysis path, so you get axes, hover readout, crosshair, and playback on what you just recorded.
 - **Wide format support** — anything Core Audio can decode: WAV, MP3, AAC/M4A, FLAC, AIFF, ALAC, and more.
 - **Hover readout** — move the cursor over the spectrogram to read the exact time, frequency, and signal level (dB) at that point, with a crosshair.
-- **PNG export** — save the rendered spectrogram to a PNG file.
+- **Waveform overview** — a time-domain amplitude lane sits above the spectrogram, locked to the same time axis and zoom, so you can see the track's overall dynamics and relate them to the frequency view below.
+- **Harmonic cursor** — switch on the overlay and hovering paints faint guide lines at the overtone series (2×, 3×, 4×… the frequency under the cursor), making it easy to tell pitched harmonic content from inharmonic noise.
+- **Measure region** — drag a rectangle across the spectrogram for an instant measurement panel: Δtime, Δfrequency, the musical interval, the loudest cell, and true amplitude statistics (RMS, sample peak dBFS, 4× oversampled true peak dBTP, and ITU-R BS.1770 integrated loudness LUFS) computed from the raw samples.
+- **Spectrum slice** — double-click any point in time to pop open a 1-D amplitude-vs-frequency plot of that exact STFT column, useful for reading peak frequencies and the spectral shape at a single instant.
+- **Audio playback** — a player at the bottom of the window plays the file shown in the spectrogram, with a Play/Pause button and a seek slider showing current and total time; a Mute toggle works as a spectrogram-only mode.
+- **Synced cursor** — a vertical playhead line moves across the spectrogram in sync with the sound; clicking and dragging on the spectrogram seeks through the file.
+- **Horizontal time zoom** — stretch the spectrogram along the time axis with **+ / −** (or the zoom controls), with the frequency axis pinned on the left while the plot scrolls.
+- **Markers / annotations** — drop labelled markers on the time axis (press **M** or use the Markers popover), then rename or delete them; markers live for the current session.
+- **File info panel** — a toolbar button shows the source file's codec, sample rate, channels, bit depth, bitrate, duration, and size.
+- **Data export** — a single export sheet lets you pick the format — **CSV**, **JSON**, **PNG**, or **Markers** — and tune options (time/frequency range, units, column decimation, number format, axes). CSV/JSON dump the actual STFT magnitudes; Markers exports your annotations; PNG saves the rendered image.
+- **Colormap picker** — choose the spectrogram palette in Settings (Inferno, Viridis, Magma, Plasma, Turbo, Cividis, Grayscale) with live gradient previews; the selection persists across launches.
+- **Recent files** — *File → Open Recent* reopens recently analyzed files across launches via security-scoped bookmarks.
+- **Keyboard shortcuts** — **Space** play/pause, **← / →** seek ±5 s, **+ / −** zoom, **M** add marker.
+- **Localization** — 14 languages (Arabic, Bengali, German, Spanish, French, Hindi, Italian, Japanese, Korean, Portuguese (Brazil), Turkish, Chinese (Simplified), Russian, English) with automatic detection and a Settings override.
 
 ## Download
 
