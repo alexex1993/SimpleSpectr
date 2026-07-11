@@ -26,8 +26,11 @@ audio-file spectrogram. No SPM/CocoaPods, no test target, no CI.
   without the GUI, compile the engine standalone — the entry file **must** be
   named `main.swift`:
   ```sh
-  xcrun swiftc SimpleSpectr/SpectrogramEngine.swift SimpleSpectr/Colormap.swift main.swift -o /tmp/tool
+  xcrun swiftc SimpleSpectr/SpectrogramEngine.swift SimpleSpectr/SpectrogramDSP.swift \
+    SimpleSpectr/Colormap.swift main.swift -o /tmp/tool
   ```
+  `SpectrogramDSP.swift` is required — `SpectrogramEngine` references `FrequencyScale`/
+  `FrequencyAxis`/`WindowFunction` from it; omitting it fails to compile.
 
 ## Repo-specific gotchas (these bite)
 
@@ -37,16 +40,20 @@ audio-file spectrogram. No SPM/CocoaPods, no test target, no CI.
   `PBXFileSystemSynchronizedBuildFileExceptionSet` (otherwise it'd be
   double-copied as a resource). Never hand-edit the pbxproj to add sources.
 - **`SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`** is set at the target level, so
-  every type is main-isolated by default. `SpectrogramEngine`, `Colormap`, and
-  the private `MonoSource` are explicitly `nonisolated` to keep the STFT off the
-  MainActor — **do not remove that annotation**, it blocks the UI.
+  every type is main-isolated by default. The off-main work is explicitly marked
+  `nonisolated`: `SpectrogramEngine` + private `MonoSource`, `SpectrogramDSP`
+  types (`WindowFunction`/`FrequencyScale`/`FrequencyAxis`/`MusicNotes`),
+  `Colormap.Palette`, `AudioStatsAnalyzer`, and `SpectrogramExporter` + its
+  option enums. **Do not remove those annotations** — they keep the STFT, stats,
+  and export off the MainActor; pinning them blocks the UI.
 - **`AVAudioFile.read(into:frameCount:)` throws at EOF** rather than returning 0
   frames. The decode loop in `MonoSource` is driven by `framePosition < length`
   reading `min(chunk, remaining)`. Switching to a `while true` + break-on-zero
   loop **crashes**.
 - **Sandbox + security scope.** The app is sandboxed
-  (`ENABLE_USER_SELECTED_FILES = readwrite`). Both engine and player wrap file
-  access in `url.startAccessingSecurityScopedResource()`, balanced in `defer`.
+  (`ENABLE_USER_SELECTED_FILES = readwrite`). Engine, player, stats analyzer,
+  `AudioFileInfo`, and `RecentFilesStore` all wrap file access in
+  `url.startAccessingSecurityScopedResource()`, balanced in `defer`.
 - **Engine and player use different memory models — intentionally.** The engine
   streams + down-mixes to mono (`MonoSource`), never holding the whole file. The
   player *does* materialize the whole file (`AVAudioPlayer(data:)`) for instant
