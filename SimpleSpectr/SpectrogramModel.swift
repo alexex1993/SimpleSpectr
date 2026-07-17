@@ -58,14 +58,20 @@ final class SpectrogramModel: ObservableObject {
     /// value. `.receive(on: RunLoop.main)` defers the sink to the next runloop
     /// turn — by then `didSet` has run and the stored value is current.
     private func setupReactiveBindings() {
-        // Display: palette + frequency scale → cheap re-render from cache.
-        displayCancellable = Publishers.CombineLatest(
-            ColormapPreferences.shared.$palette,
-            RenderPreferences.shared.$frequencyScale
+        // Display: palette, frequency scale, and the dB color window / reference
+        // level → cheap re-render from the cached grid (no audio re-decode).
+        let render = RenderPreferences.shared
+        let levels = Publishers.CombineLatest3(
+            render.$dbFloor, render.$dbCeiling, render.$referenceLevel
+        ).map { _, _, _ in () }
+        displayCancellable = Publishers.CombineLatest3(
+            ColormapPreferences.shared.$palette.map { _ in () },
+            render.$frequencyScale.map { _ in () },
+            levels
         )
         .dropFirst()
         .receive(on: RunLoop.main)
-        .sink { [weak self] _, _ in self?.rerenderFromCache() }
+        .sink { [weak self] _, _, _ in self?.rerenderFromCache() }
 
         // Analysis: FFT size / overlap / window → full re-decode of current file.
         RenderPreferences.shared.$fftSize
@@ -102,6 +108,7 @@ final class SpectrogramModel: ObservableObject {
         let overlapPercent = render.overlapPercent
         let windowFunction = render.windowFunction
         let frequencyScale = render.frequencyScale
+        let window = render.colorWindow
         loadToken += 1
         let token = loadToken
         state = .loading(name: name)
@@ -114,7 +121,9 @@ final class SpectrogramModel: ObservableObject {
                     overlapPercent: overlapPercent,
                     windowFunction: windowFunction,
                     frequencyScale: frequencyScale,
-                    palette: palette)
+                    palette: palette,
+                    minDB: window.min,
+                    maxDB: window.max)
                 guard !Task.isCancelled else { return }
                 let info = AudioFileInfo.load(url: url)
                 await self.finish(token: token, name: name, url: url, info: info, result: .success(result))
@@ -146,6 +155,7 @@ final class SpectrogramModel: ObservableObject {
         }
         let palette = ColormapPreferences.shared.palette
         let scale = RenderPreferences.shared.frequencyScale
+        let window = RenderPreferences.shared.colorWindow
         let token = loadToken
         let axis = FrequencyAxis.make(scale: scale,
                                       sampleRate: result.sampleRate,
@@ -157,8 +167,8 @@ final class SpectrogramModel: ObservableObject {
                     magnitudes: result.magnitudes,
                     columns: result.columns,
                     bins: result.bins,
-                    minDB: Float(result.minDB),
-                    maxDB: Float(result.maxDB),
+                    minDB: window.min,
+                    maxDB: window.max,
                     palette: palette,
                     frequencyAxis: axis)
                 guard !Task.isCancelled else { return }
@@ -168,7 +178,9 @@ final class SpectrogramModel: ObservableObject {
                                           base: result,
                                           image: image,
                                           scale: scale,
-                                          minFrequency: axis.minFrequency)
+                                          minFrequency: axis.minFrequency,
+                                          minDB: Double(window.min),
+                                          maxDB: Double(window.max))
             } catch is CancellationError {
                 return
             } catch {
@@ -201,11 +213,15 @@ final class SpectrogramModel: ObservableObject {
                                 base: SpectrogramResult,
                                 image: CGImage,
                                 scale: FrequencyScale,
-                                minFrequency: Double) {
+                                minFrequency: Double,
+                                minDB: Double,
+                                maxDB: Double) {
         guard token == loadToken else { return }
         state = .loaded(name: name, url: url,
                         result: base.rerendered(image: image,
                                                 scale: scale,
-                                                minDisplayedFrequency: minFrequency))
+                                                minDisplayedFrequency: minFrequency,
+                                                minDB: minDB,
+                                                maxDB: maxDB))
     }
 }

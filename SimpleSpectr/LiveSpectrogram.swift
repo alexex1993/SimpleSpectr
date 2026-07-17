@@ -202,7 +202,7 @@ final class LiveSpectrogram: @unchecked Sendable {
     /// Render the current preview to a `CGImage`. Orientation matches
     /// `SpectrogramEngine`: high freq at top, time left→right. Cheap and bounded:
     /// width ≤ `maxWidth`, one output column per preview column.
-    func snapshotImage(palette: Palette, scale: FrequencyScale) -> CGImage? {
+    func snapshotImage(palette: Palette, scale: FrequencyScale, minDB: Float, maxDB: Float) -> CGImage? {
         lock.lock()
         // Include the in-progress bucket so the leading edge feels live.
         let width = previewCols + (pendingInBucket > 0 ? 1 : 0)
@@ -213,10 +213,10 @@ final class LiveSpectrogram: @unchecked Sendable {
         guard width > 0, bins > 0 else { return nil }
 
         let height = bins
-        let dynamicRange: Float = 90
-        let maxDB = snapMax.isFinite ? snapMax : 0
-        let minDB = maxDB - dynamicRange
-        let invRange = 1.0 / max(1e-6, (maxDB - minDB))
+        _ = snapMax // running peak retained for tooling; the color window is user-set
+        let lo = min(minDB, maxDB)
+        let hi = max(lo + 1, max(minDB, maxDB))
+        let invRange = 1.0 / max(1e-6, (hi - lo))
         let lut = palette.lut
 
         let axis = FrequencyAxis.make(scale: scale, sampleRate: sampleRate, fftSize: fftSize, bins: bins)
@@ -237,7 +237,7 @@ final class LiveSpectrogram: @unchecked Sendable {
                     } else {
                         db = grid[colBase + (bins - 1 - row)]
                     }
-                    var t = (db - minDB) * invRange
+                    var t = (db - lo) * invRange
                     if !t.isFinite { t = 0 }
                     if t < 0 { t = 0 } else if t > 1 { t = 1 }
                     let (r, g, b) = lut[Int(t * 255)]

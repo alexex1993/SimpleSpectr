@@ -78,6 +78,27 @@ struct SettingsView: View {
             }
 
             Section {
+                levelSlider(L("settings.dbCeiling"),
+                            value: $render.dbCeiling,
+                            range: RenderPreferences.dbCeilingRange)
+                levelSlider(L("settings.dbFloor"),
+                            value: $render.dbFloor,
+                            range: RenderPreferences.dbFloorRange)
+                levelSlider(L("settings.referenceLevel"),
+                            value: $render.referenceLevel,
+                            range: RenderPreferences.referenceLevelRange)
+
+                Text(L("settings.levelsHint"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Button(L("settings.resetLevels")) { render.resetLevels() }
+                    .controlSize(.small)
+            } header: {
+                Text(L("settings.levels"))
+            }
+
+            Section {
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 10),
                                     GridItem(.flexible(), spacing: 10)],
                           spacing: 10) {
@@ -101,6 +122,23 @@ struct SettingsView: View {
         .padding(20)
         .frame(width: 440)
         .navigationTitle(L("settings.title"))
+    }
+
+    /// A labeled dB slider with a live numeric readout on the right.
+    @ViewBuilder
+    private func levelSlider(_ title: String,
+                             value: Binding<Double>,
+                             range: ClosedRange<Double>) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            HStack {
+                Text(title)
+                Spacer()
+                Text(String(format: "%+.0f dB", value.wrappedValue))
+                    .font(.caption.monospacedDigit())
+                    .foregroundStyle(.secondary)
+            }
+            Slider(value: value, in: range, step: 1)
+        }
     }
 
     /// "2048" or "2048 — Default" for the factory default size.

@@ -64,7 +64,9 @@ struct SpectrogramResult: @unchecked Sendable {
     /// axis (used when re-rendering with a new palette or a new frequency scale).
     func rerendered(image: CGImage,
                     scale: FrequencyScale? = nil,
-                    minDisplayedFrequency: Double? = nil) -> SpectrogramResult {
+                    minDisplayedFrequency: Double? = nil,
+                    minDB: Double? = nil,
+                    maxDB: Double? = nil) -> SpectrogramResult {
         SpectrogramResult(image: image,
                           duration: duration,
                           sampleRate: sampleRate,
@@ -72,8 +74,8 @@ struct SpectrogramResult: @unchecked Sendable {
                           fftSize: fftSize,
                           columns: columns,
                           bins: bins,
-                          minDB: minDB,
-                          maxDB: maxDB,
+                          minDB: minDB ?? self.minDB,
+                          maxDB: maxDB ?? self.maxDB,
                           magnitudes: magnitudes,
                           frequencyScale: scale ?? frequencyScale,
                           minDisplayedFrequency: minDisplayedFrequency ?? self.minDisplayedFrequency,
@@ -111,13 +113,17 @@ enum SpectrogramEngine {
     ///   - frequencyScale: presentation of the rendered image's frequency axis.
     ///   - maxColumns: upper bound on the number of time columns (bounds compute/memory).
     ///   - palette: colormap used to map dB → color.
+    ///   - minDB / maxDB: color-mapping window in dBFS. The grid dB mapped to the
+    ///     darkest / brightest color. Defaults span a 90 dB range up to full scale.
     nonisolated static func generate(url: URL,
                                      fftSize: Int = 2048,
                                      overlapPercent: Double = 75,
                                      windowFunction: WindowFunction = .hann,
                                      frequencyScale: FrequencyScale = .linear,
                                      maxColumns: Int = 2000,
-                                     palette: Palette = .inferno) throws -> SpectrogramResult {
+                                     palette: Palette = .inferno,
+                                     minDB: Float = -90,
+                                     maxDB: Float = 0) throws -> SpectrogramResult {
         let scoped = url.startAccessingSecurityScopedResource()
         defer { if scoped { url.stopAccessingSecurityScopedResource() } }
 
@@ -243,11 +249,10 @@ enum SpectrogramEngine {
             }
         }
 
-        // 3. Map dB → color. Use a fixed dynamic range below the peak.
-        let dynamicRange: Float = 90
-        let peak = globalMax.isFinite ? globalMax : 0
-        let maxDB = peak
-        let minDB = peak - dynamicRange
+        // 3. Map dB → color using the caller's window (guard against inversion).
+        _ = globalMax // peak is no longer used for the range; kept for potential tooling
+        let lo = min(minDB, maxDB)
+        let hi = max(lo + 1, max(minDB, maxDB))
         let axis = FrequencyAxis.make(scale: frequencyScale,
                                       sampleRate: sampleRate,
                                       fftSize: fftSize,
@@ -255,8 +260,8 @@ enum SpectrogramEngine {
         let image = try renderImage(magnitudes: magnitudes,
                                     columns: columns,
                                     bins: bins,
-                                    minDB: minDB,
-                                    maxDB: maxDB,
+                                    minDB: lo,
+                                    maxDB: hi,
                                     palette: palette,
                                     frequencyAxis: axis)
 
@@ -267,8 +272,8 @@ enum SpectrogramEngine {
                                  fftSize: fftSize,
                                  columns: columns,
                                  bins: bins,
-                                 minDB: Double(minDB),
-                                 maxDB: Double(maxDB),
+                                 minDB: Double(lo),
+                                 maxDB: Double(hi),
                                  magnitudes: magnitudes,
                                  frequencyScale: frequencyScale,
                                  minDisplayedFrequency: axis.minFrequency,

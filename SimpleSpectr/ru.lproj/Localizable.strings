@@ -71,6 +71,12 @@
 "settings.freqAxis" = "Ось частот";
 "settings.scale" = "Шкала";
 "settings.scaleHint" = "Логарифмическая шкала равномерно располагает ноты и подписывает их (A4 = 440 Гц).";
+"settings.levels" = "Уровни";
+"settings.dbCeiling" = "Макс. дБ (ярче всего)";
+"settings.dbFloor" = "Мин. дБ (темнее всего)";
+"settings.referenceLevel" = "Опорный уровень";
+"settings.levelsHint" = "Окно цвета в дБFS. Опорный уровень — усиление, подсвечивающее тихий материал. Изменения применяются мгновенно, без пересчёта.";
+"settings.resetLevels" = "Сбросить уровни";
 "scale.linear" = "Линейная";
 "scale.logarithmic" = "Логарифмическая";
 "window.hann.hint" = "Ханн — баланс времени и частоты, универсальный вариант по умолчанию.";

@@ -71,6 +71,12 @@
 "settings.freqAxis" = "Frequency axis";
 "settings.scale" = "Scale";
 "settings.scaleHint" = "Logarithmic scale spreads musical pitch evenly and shows note names (A4 = 440 Hz).";
+"settings.levels" = "Levels";
+"settings.dbCeiling" = "Max dB (brightest)";
+"settings.dbFloor" = "Min dB (darkest)";
+"settings.referenceLevel" = "Reference level";
+"settings.levelsHint" = "The color window in dBFS. Reference level is a gain that brightens quiet material. Changes re-render instantly — no re-analysis.";
+"settings.resetLevels" = "Reset levels";
 "scale.linear" = "Linear";
 "scale.logarithmic" = "Logarithmic";
 "window.hann.hint" = "Hann — balanced time/frequency, the general-purpose default.";

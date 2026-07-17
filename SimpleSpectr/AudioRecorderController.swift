@@ -189,7 +189,9 @@ final class AudioRecorderController: ObservableObject {
     private func tick() {
         if let startDate { elapsed = Date().timeIntervalSince(startDate) }
         if let live {
-            liveImage = live.snapshotImage(palette: palette, scale: scale)
+            let window = RenderPreferences.shared.colorWindow
+            liveImage = live.snapshotImage(palette: palette, scale: scale,
+                                           minDB: window.min, maxDB: window.max)
         }
     }
 

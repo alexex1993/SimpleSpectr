@@ -24,6 +24,9 @@ final class RenderPreferences: ObservableObject {
         static let frequencyScale = "spectrogramFrequencyScale"
         static let showWaveform = "spectrogramShowWaveform"
         static let showHarmonics = "spectrogramShowHarmonics"
+        static let dbFloor = "spectrogramDBFloor"
+        static let dbCeiling = "spectrogramDBCeiling"
+        static let referenceLevel = "spectrogramReferenceLevel"
     }
 
     /// Selectable FFT window sizes (powers of two).
@@ -37,6 +40,18 @@ final class RenderPreferences: ObservableObject {
     static let defaultWindow: WindowFunction = .hann
     static let defaultScale: FrequencyScale = .linear
 
+    // Color-mapping window (dBFS). `dbFloor` maps to the darkest color, `dbCeiling`
+    // to the brightest; `referenceLevel` is a gain (dB) added to the grid before
+    // mapping, so positive values brighten quiet material without touching the
+    // window's shape. All three are display-only — `SpectrogramModel` re-renders
+    // from the cached dB grid, no audio re-decode.
+    static let defaultDBFloor: Double = -90
+    static let defaultDBCeiling: Double = 0
+    static let defaultReferenceLevel: Double = 0
+    static let dbFloorRange: ClosedRange<Double> = -120 ... -20
+    static let dbCeilingRange: ClosedRange<Double> = -60 ... 6
+    static let referenceLevelRange: ClosedRange<Double> = -40 ... 40
+
     @Published var fftSize: Int {
         didSet { UserDefaults.standard.set(fftSize, forKey: Keys.fftSize) }
     }
@@ -48,6 +63,34 @@ final class RenderPreferences: ObservableObject {
     }
     @Published var frequencyScale: FrequencyScale {
         didSet { UserDefaults.standard.set(frequencyScale.rawValue, forKey: Keys.frequencyScale) }
+    }
+
+    // Color-mapping window / gain (display-only). Clamped to their ranges.
+    @Published var dbFloor: Double {
+        didSet { UserDefaults.standard.set(dbFloor, forKey: Keys.dbFloor) }
+    }
+    @Published var dbCeiling: Double {
+        didSet { UserDefaults.standard.set(dbCeiling, forKey: Keys.dbCeiling) }
+    }
+    @Published var referenceLevel: Double {
+        didSet { UserDefaults.standard.set(referenceLevel, forKey: Keys.referenceLevel) }
+    }
+
+    /// Effective color-mapping window on the *grid* dB values, folding the
+    /// reference-level gain into the floor/ceiling. A positive reference slides
+    /// the window down so quieter grid values land higher on the color scale
+    /// (i.e. the image brightens). Guaranteed `max > min`.
+    var colorWindow: (min: Float, max: Float) {
+        let lo = dbFloor - referenceLevel
+        let hi = dbCeiling - referenceLevel
+        return (Float(lo), Float(max(lo + 1, hi)))
+    }
+
+    /// Restore the color window and reference level to their factory values.
+    func resetLevels() {
+        dbFloor = Self.defaultDBFloor
+        dbCeiling = Self.defaultDBCeiling
+        referenceLevel = Self.defaultReferenceLevel
     }
 
     // Display-only overlay toggles. These don't re-analyze the file — the
@@ -77,5 +120,18 @@ final class RenderPreferences: ObservableObject {
         // Waveform lane on by default; pitch / harmonic overlays off until asked.
         showWaveform = defaults.object(forKey: Keys.showWaveform) as? Bool ?? true
         showHarmonics = defaults.object(forKey: Keys.showHarmonics) as? Bool ?? false
+
+        let savedFloor = defaults.object(forKey: Keys.dbFloor) as? Double ?? Self.defaultDBFloor
+        dbFloor = savedFloor.clamped(to: Self.dbFloorRange)
+        let savedCeiling = defaults.object(forKey: Keys.dbCeiling) as? Double ?? Self.defaultDBCeiling
+        dbCeiling = savedCeiling.clamped(to: Self.dbCeilingRange)
+        let savedRef = defaults.object(forKey: Keys.referenceLevel) as? Double ?? Self.defaultReferenceLevel
+        referenceLevel = savedRef.clamped(to: Self.referenceLevelRange)
+    }
+}
+
+private extension Comparable {
+    func clamped(to range: ClosedRange<Self>) -> Self {
+        min(max(self, range.lowerBound), range.upperBound)
     }
 }
