@@ -29,6 +29,10 @@ struct SpectrogramScene: View {
     @State private var measureMode = false
     @State private var selection: PlotSelection?
     @State private var slice: SpectrumSlice?
+    /// Programmatic scroll control + last-read horizontal offset, used to keep the
+    /// playhead in view during playback (see `followPlayheadIfNeeded`).
+    @State private var scrollPosition = ScrollPosition(edge: .leading)
+    @State private var scrollOffsetX: CGFloat = 0
     @FocusState private var focused: Bool
 
     static let minZoom: CGFloat = 1
@@ -129,6 +133,20 @@ struct SpectrogramScene: View {
                                     showSlice(at: value.location, content: content)
                                 }
                         )
+                    }
+                    .scrollPosition($scrollPosition)
+                    .onScrollGeometryChange(for: CGFloat.self) { geometry in
+                        geometry.contentOffset.x
+                    } action: { _, newValue in
+                        scrollOffsetX = newValue
+                    }
+                    // The playhead ticks ~60 fps during playback; keep it in view.
+                    .onChange(of: playhead.time) {
+                        followPlayheadIfNeeded(contentWidth: contentWidth, visibleWidth: visibleWidth)
+                    }
+                    // Re-center immediately when the feature is switched on mid-play.
+                    .onChange(of: render.followPlayhead) { _, on in
+                        if on { followPlayheadIfNeeded(contentWidth: contentWidth, visibleWidth: visibleWidth) }
                     }
                 }
                 .overlay(alignment: .bottomTrailing) {
@@ -233,6 +251,38 @@ struct SpectrogramScene: View {
         let fx = point.x / content.width
         let t = Double(min(max(fx, 0), 1)) * result.duration
         player.seek(to: t)
+    }
+
+    // MARK: - Follow playhead
+
+    /// Auto-scroll the (zoomed) plot so the playhead stays visible during
+    /// playback. When the playhead reaches the right margin the content scrolls to
+    /// keep it pinned there; a backward seek that pushes it off the left edge
+    /// scrolls back too. No-op when the plot fits without scrolling (zoom == 1) or
+    /// the feature is off. Only follows while playing, so the user can freely
+    /// scroll a paused file.
+    private func followPlayheadIfNeeded(contentWidth: CGFloat, visibleWidth: CGFloat) {
+        guard render.followPlayhead, player.isReady, player.isPlaying,
+              result.duration > 0, contentWidth > visibleWidth + 1 else { return }
+
+        let frac = min(max(player.currentTime / result.duration, 0), 1)
+        let x = CGFloat(frac) * contentWidth
+        let maxOffset = contentWidth - visibleWidth
+        // Keep a small margin so the playhead pins just inside the edge, not on it.
+        let margin = min(120, visibleWidth * 0.15)
+
+        var target = scrollOffsetX
+        if x > scrollOffsetX + visibleWidth - margin {
+            target = x - (visibleWidth - margin)
+        } else if x < scrollOffsetX + margin {
+            target = x - margin
+        }
+        target = min(max(target, 0), maxOffset)
+
+        // Avoid redundant sets (and a feedback loop with onScrollGeometryChange).
+        if abs(target - scrollOffsetX) > 0.5 {
+            scrollPosition.scrollTo(x: target)
+        }
     }
 
     // MARK: - Spectrum slice
@@ -340,6 +390,9 @@ struct SpectrogramScene: View {
             toggleButton(systemImage: "lines.measurement.horizontal",
                          isOn: render.showHarmonics,
                          help: L("toggle.harmonics")) { render.showHarmonics.toggle() }
+            toggleButton(systemImage: "arrow.right.to.line",
+                         isOn: render.followPlayhead,
+                         help: L("toggle.followPlayhead")) { render.followPlayhead.toggle() }
             toggleButton(systemImage: "rectangle.dashed",
                          isOn: measureMode,
                          help: L("toggle.measure")) { measureMode.toggle() }

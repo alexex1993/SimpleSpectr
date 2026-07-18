@@ -209,7 +209,12 @@ struct ContentView: View {
             }
         }
         .onDisappear {
-            player.stop()
+            // Minimizing the window to the Dock fires `.onDisappear` on macOS.
+            // Use `pause()` (not `stop()`): `AVAudioPlayer.stop()` undoes the
+            // `prepareToPlay()` setup and resets position, which left playback
+            // unusable after restore until the file was reloaded. `pause()`
+            // keeps the prepared player and playhead, so play resumes cleanly.
+            player.pause()
             recorder.cancel()
         }
     }
@@ -452,17 +457,27 @@ private struct FileInfoPopover: View {
             Text(L("info.title")).font(.headline)
             Divider()
             Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 16, verticalSpacing: 6) {
-                row(L("info.codec"), info.codec)
-                row(L("info.sampleRate"), L("unit.khzPlain", info.sampleRate / 1000))
-                row(L("info.channels"), channelsText)
-                if let bd = info.bitDepth { row(L("info.bitDepth"), L("unit.bitDepth", bd)) }
-                if let br = info.bitrate { row(L("info.bitrate"), L("unit.kbps", br / 1000)) }
-                row(L("info.duration"), durationText)
-                if let size = info.fileSize { row(L("info.fileSize"), sizeText(size)) }
+                Group {
+                    row(L("info.codec"), info.codec)
+                    if let container = info.container { row(L("info.container"), container) }
+                    row(L("info.compression"), info.isLossless ? L("info.lossless") : L("info.lossy"))
+                    if let fmt = sampleFormatText { row(L("info.sampleFormat"), fmt) }
+                    row(L("info.sampleRate"), L("unit.khzPlain", info.sampleRate / 1000))
+                    row(L("info.nyquist"), L("unit.khzPlain", info.nyquist / 1000))
+                    row(L("info.channels"), channelsText)
+                }
+                Group {
+                    if let bd = info.bitDepth { row(L("info.bitDepth"), L("unit.bitDepth", bd)) }
+                    if let br = info.bitrate { row(L("info.bitrate"), L("unit.kbps", br / 1000)) }
+                    if let fpp = info.framesPerPacket { row(L("info.framesPerPacket"), L("unit.frames", fpp)) }
+                    row(L("info.duration"), durationText)
+                    row(L("info.totalFrames"), frameCountText)
+                    if let size = info.fileSize { row(L("info.fileSize"), sizeText(size)) }
+                }
             }
         }
         .padding(16)
-        .frame(width: 280, alignment: .leading)
+        .frame(width: 300, alignment: .leading)
     }
 
     private func row(_ label: String, _ value: String) -> some View {
@@ -484,6 +499,20 @@ private struct FileInfoPopover: View {
     private var durationText: String {
         let total = Int(info.duration.rounded())
         return String(format: "%d:%02d", total / 60, total % 60)
+    }
+
+    /// Localized PCM encoding description, e.g. "Float · 32-bit · LE".
+    /// Nil for compressed codecs, which have no raw sample format.
+    private var sampleFormatText: String? {
+        guard let isFloat = info.pcmIsFloat, let bits = info.bitDepth else { return nil }
+        let type = isFloat ? L("info.pcmFloat") : L("info.pcmInteger")
+        let endian = info.pcmBigEndian ? "BE" : "LE"
+        return "\(type) · \(bits)-bit · \(endian)"
+    }
+
+    private var frameCountText: String {
+        let n = NSNumber(value: info.frameCount)
+        return NumberFormatter.localizedString(from: n, number: .decimal)
     }
 
     private func sizeText(_ bytes: Int64) -> String {

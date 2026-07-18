@@ -26,6 +26,7 @@ final class RenderPreferences: ObservableObject {
         static let channelMode = "spectrogramChannelMode"
         static let showWaveform = "spectrogramShowWaveform"
         static let showHarmonics = "spectrogramShowHarmonics"
+        static let followPlayhead = "spectrogramFollowPlayhead"
         static let dbFloor = "spectrogramDBFloor"
         static let dbCeiling = "spectrogramDBCeiling"
         static let referenceLevel = "spectrogramReferenceLevel"
@@ -119,6 +120,13 @@ final class RenderPreferences: ObservableObject {
         didSet { UserDefaults.standard.set(showHarmonics, forKey: Keys.showHarmonics) }
     }
 
+    /// When on, the plot auto-scrolls during playback to keep the playhead in
+    /// view: once the playhead reaches the right edge, the spectrogram scrolls so
+    /// it stays visible. Display-only — never re-analyzes the file.
+    @Published var followPlayhead: Bool {
+        didSet { UserDefaults.standard.set(followPlayhead, forKey: Keys.followPlayhead) }
+    }
+
     private init() {
         let savedFFT = UserDefaults.standard.object(forKey: Keys.fftSize) as? Int
         fftSize = Self.fftSizeOptions.contains(savedFFT ?? 0) ? savedFFT! : Self.defaultFFTSize
@@ -142,6 +150,8 @@ final class RenderPreferences: ObservableObject {
         // Waveform lane on by default; pitch / harmonic overlays off until asked.
         showWaveform = defaults.object(forKey: Keys.showWaveform) as? Bool ?? true
         showHarmonics = defaults.object(forKey: Keys.showHarmonics) as? Bool ?? false
+        // Auto-follow the playhead by default so playback stays visible when zoomed.
+        followPlayhead = defaults.object(forKey: Keys.followPlayhead) as? Bool ?? true
 
         let savedFloor = defaults.object(forKey: Keys.dbFloor) as? Double ?? Self.defaultDBFloor
         dbFloor = savedFloor.clamped(to: Self.dbFloorRange)

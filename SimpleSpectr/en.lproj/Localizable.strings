@@ -126,6 +126,16 @@
 "info.fileSize" = "File size";
 "info.mono" = "Mono";
 "info.stereo" = "Stereo";
+"info.container" = "Container";
+"info.compression" = "Compression";
+"info.lossless" = "Lossless";
+"info.lossy" = "Lossy";
+"info.sampleFormat" = "Sample format";
+"info.pcmFloat" = "Float";
+"info.pcmInteger" = "Integer";
+"info.nyquist" = "Nyquist freq.";
+"info.framesPerPacket" = "Frames per packet";
+"info.totalFrames" = "Total frames";
 
 /* Markers */
 "markers.title" = "Markers";
@@ -138,6 +148,7 @@
 "toggle.waveform" = "Waveform overview";
 "toggle.harmonics" = "Harmonic cursor (overtones)";
 "toggle.measure" = "Measure region (drag to select)";
+"toggle.followPlayhead" = "Follow playhead (auto-scroll during playback)";
 
 /* Measurement panel */
 "measure.title" = "Measurement";
@@ -211,3 +222,4 @@
 "unit.bitDepth" = "%d-bit";
 "unit.kbps" = "%.0f kbps";
 "unit.channels" = "%d channels";
+"unit.frames" = "%d frames";

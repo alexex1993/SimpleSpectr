@@ -21,6 +21,20 @@ struct AudioFileInfo: Sendable {
     var fileSize: Int64?        // bytes
     var duration: Double        // seconds
 
+    var container: String?      // container/extension (e.g. "WAV", "M4A"), uppercased
+    var frameCount: Int64       // total sample frames (per channel)
+    var framesPerPacket: Int?   // encoder frame size (>1 only for packetized/compressed codecs)
+    var isLossless: Bool        // true for uncompressed / lossless codecs
+
+    // Raw PCM numeric-encoding flags (nil when the source isn't Linear PCM).
+    // Kept as raw data so the popover can localize the description on the
+    // MainActor — `load` runs off-main and must not touch localization.
+    var pcmIsFloat: Bool?       // true = floating point, false = signed/unsigned integer
+    var pcmBigEndian: Bool      // byte order of PCM samples
+
+    /// Nyquist frequency — the highest representable frequency (sampleRate / 2).
+    var nyquist: Double { sampleRate / 2 }
+
     /// Read metadata for the file at `url`. Performs its own security-scoped
     /// access (the app is sandboxed), so it is safe to call independently of the
     /// spectrogram engine. Returns `nil` if the file cannot be opened.
@@ -52,13 +66,46 @@ struct AudioFileInfo: Sendable {
             return nil
         }()
 
+        // Container from the file extension (WAV, M4A, FLAC, …). Falls back to nil
+        // when the URL has no extension.
+        let ext = url.pathExtension
+        let container = ext.isEmpty ? nil : ext.uppercased()
+
+        // Frames per packet is only interesting for packetized/compressed codecs
+        // (PCM is 1 frame per packet — not worth showing).
+        let fpp = Int(asbd.mFramesPerPacket)
+        let framesPerPacket: Int? = fpp > 1 ? fpp : nil
+
+        // Raw PCM encoding flags — only meaningful for Linear PCM.
+        let isPCM = asbd.mFormatID == kAudioFormatLinearPCM && asbd.mBitsPerChannel > 0
+        let pcmIsFloat: Bool? = isPCM ? (asbd.mFormatFlags & kAudioFormatFlagIsFloat != 0) : nil
+        let pcmBigEndian = asbd.mFormatFlags & kAudioFormatFlagIsBigEndian != 0
+
         return AudioFileInfo(sampleRate: sampleRate,
                              channels: channels,
                              bitDepth: bitDepth,
                              codec: codecName(formatID: asbd.mFormatID),
                              bitrate: bitrate,
                              fileSize: fileSize,
-                             duration: duration)
+                             duration: duration,
+                             container: container,
+                             frameCount: frames,
+                             framesPerPacket: framesPerPacket,
+                             isLossless: isLosslessFormat(asbd.mFormatID),
+                             pcmIsFloat: pcmIsFloat,
+                             pcmBigEndian: pcmBigEndian)
+    }
+
+    /// Whether a codec preserves the signal exactly (uncompressed or lossless).
+    private static func isLosslessFormat(_ formatID: AudioFormatID) -> Bool {
+        switch formatID {
+        case kAudioFormatLinearPCM,
+             kAudioFormatAppleLossless,
+             kAudioFormatFLAC:
+            return true
+        default:
+            return false
+        }
     }
 
     /// Maps a Core Audio format ID to a short readable codec name.

@@ -126,6 +126,16 @@
 "info.fileSize" = "Размер файла";
 "info.mono" = "Моно";
 "info.stereo" = "Стерео";
+"info.container" = "Контейнер";
+"info.compression" = "Сжатие";
+"info.lossless" = "Без потерь";
+"info.lossy" = "С потерями";
+"info.sampleFormat" = "Формат отсчётов";
+"info.pcmFloat" = "С плав. точкой";
+"info.pcmInteger" = "Целочисленный";
+"info.nyquist" = "Частота Найквиста";
+"info.framesPerPacket" = "Кадров в пакете";
+"info.totalFrames" = "Всего отсчётов";
 
 /* Markers */
 "markers.title" = "Маркеры";
@@ -138,6 +148,7 @@
 "toggle.waveform" = "Обзор волны";
 "toggle.harmonics" = "Гармонический курсор (обертоны)";
 "toggle.measure" = "Измерить область (выделите перетаскиванием)";
+"toggle.followPlayhead" = "Следовать за ползунком (автопрокрутка при воспроизведении)";
 
 /* Measurement panel */
 "measure.title" = "Измерение";
@@ -211,3 +222,4 @@
 "unit.bitDepth" = "%d бит";
 "unit.kbps" = "%.0f кбит/с";
 "unit.channels" = "%d канала";
+"unit.frames" = "%d отсчётов";
