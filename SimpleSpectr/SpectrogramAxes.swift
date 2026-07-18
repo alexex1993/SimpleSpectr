@@ -56,8 +56,9 @@ struct FrequencyAxisContent: View {
 
     var body: some View {
         switch result.frequencyScale {
-        case .linear:      linearAxis
-        case .logarithmic: logAxis
+        case .linear:               linearAxis
+        case .logarithmic:          logAxis
+        case .mel, .bark, .erb:     perceptualAxis
         }
     }
 
@@ -70,6 +71,35 @@ struct FrequencyAxisContent: View {
                 let frac = Double(i) / Double(ticks)
                 let y = plot.maxY - CGFloat(frac) * plot.height
                 let hz = frac * result.maxFrequency
+                Text(AxisFormatting.hz(hz))
+                    .font(.system(size: SpectrogramPlot.tickFontSize))
+                    .foregroundStyle(SpectrogramPlot.axisColor)
+                    .frame(width: SpectrogramPlot.leftInset - 8, alignment: .trailing)
+                    .position(x: (SpectrogramPlot.leftInset - 8) / 2, y: y)
+            }
+        }
+    }
+
+    /// Perceptual scales (Mel/Bark/ERB): ticks evenly spaced in the warped axis
+    /// (so equal screen distance = equal perceptual distance), each labelled with
+    /// the real frequency at that height, plus faint gridlines.
+    private var perceptualAxis: some View {
+        let axis = result.frequencyAxis
+        let ticks = SpectrogramPlot.tickCount
+        return ForEach(0...ticks, id: \.self) { i in
+            let frac = Double(i) / Double(ticks)
+            let y = plot.maxY - CGFloat(frac) * plot.height
+            let hz = axis.frequency(forFraction: frac)
+
+            if showGridlines && i > 0 && i < ticks {
+                Path { p in
+                    p.move(to: CGPoint(x: plot.minX, y: y))
+                    p.addLine(to: CGPoint(x: plot.maxX, y: y))
+                }
+                .stroke(Color.white.opacity(0.08), lineWidth: 0.5)
+            }
+
+            if showLabels {
                 Text(AxisFormatting.hz(hz))
                     .font(.system(size: SpectrogramPlot.tickFontSize))
                     .foregroundStyle(SpectrogramPlot.axisColor)

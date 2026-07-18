@@ -11,7 +11,11 @@ struct ContentView: View {
     enum Source: Hashable { case file, microphone }
 
     @ObservedObject var model: SpectrogramModel
+    /// Visibility of the trailing settings inspector (owned by the app so the
+    /// View-menu command and the toolbar toggle share one source of truth).
+    @Binding var showInspector: Bool
     @ObservedObject private var l10n = LocalizationManager.shared
+    @ObservedObject private var render = RenderPreferences.shared
     @StateObject private var player = AudioPlayerController()
     @StateObject private var markers = MarkersStore()
     @StateObject private var recorder = AudioRecorderController()
@@ -52,9 +56,9 @@ struct ContentView: View {
             case .loaded(let name, let url, let result):
                 VStack(spacing: 0) {
                     SpectrogramScene(name: name, url: url, result: result, player: player,
-                                     markers: markers, zoom: $zoom)
+                                     playhead: player.playhead, markers: markers, zoom: $zoom)
                     Divider().overlay(Color.white.opacity(0.08))
-                    PlayerBar(player: player)
+                    PlayerBar(player: player, playhead: player.playhead)
                 }
             case .failed(let message):
                 FailureView(message: message) { showImporter = true }
@@ -68,7 +72,29 @@ struct ContentView: View {
             content
         }
         .frame(minWidth: 640, minHeight: 420)
+        .inspector(isPresented: $showInspector) {
+            SettingsView()
+                .inspectorColumnWidth(min: 300, ideal: 360, max: 480)
+        }
         .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Menu {
+                    Picker(L("settings.channel"), selection: $render.channelMode) {
+                        ForEach(ChannelMode.allCases) { c in
+                            Text(c.displayName).tag(c)
+                        }
+                    }
+                    Picker(L("settings.magnitude"), selection: $render.magnitudeScale) {
+                        ForEach(MagnitudeScale.allCases) { m in
+                            Text(m.displayName).tag(m)
+                        }
+                    }
+                } label: {
+                    Label(L("button.viewOptions"), systemImage: "slider.horizontal.3")
+                }
+                .disabled(loaded == nil)
+                .help(L("button.viewOptions"))
+            }
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     showInfo = true
@@ -129,6 +155,14 @@ struct ContentView: View {
                 }
                 .disabled(recorder.phase == .recording)
             }
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showInspector.toggle()
+                } label: {
+                    Label(L("settings.title"), systemImage: "sidebar.right")
+                }
+                .help(L("settings.title"))
+            }
         }
         .fileImporter(isPresented: $showImporter,
                       allowedContentTypes: [.audio],
@@ -160,8 +194,12 @@ struct ContentView: View {
                 model.openRequested = false
             }
         }
-        .onChange(of: loaded?.url) { _, newURL in
-            // A different file: reset per-file UI state (markers, zoom).
+        .onChange(of: model.lastURL) { _, newURL in
+            // Keyed off `lastURL` (not `loaded?.url`) so it fires only when a
+            // genuinely different file is opened — not during a re-analysis,
+            // where `state` briefly leaves `.loaded`. That keeps the player,
+            // markers, and zoom intact when the user changes channel / FFT /
+            // window while a file is playing.
             markers.clear()
             zoom = 1
             if let url = newURL {
@@ -342,6 +380,9 @@ private struct FailureView: View {
 
 private struct PlayerBar: View {
     @ObservedObject var player: AudioPlayerController
+    /// Observed so the readout/scrubber follow the live playhead (the controller
+    /// itself no longer publishes time).
+    @ObservedObject var playhead: PlayheadClock
     @ObservedObject private var l10n = LocalizationManager.shared
 
     var body: some View {

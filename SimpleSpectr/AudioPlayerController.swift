@@ -10,14 +10,35 @@ import Foundation
 import AVFoundation
 import Combine
 
+/// Playhead position published on its own object so the ~60 fps ticks during
+/// playback only invalidate views that actually draw the playhead (spectrogram
+/// scene, player bar) — not every view that holds the controller. Previously the
+/// controller published `currentTime` directly, so each tick re-rendered
+/// `ContentView`, rebuilding its toolbar and tearing down the open view-options
+/// menu; its pickers couldn't be used while audio was playing.
+@MainActor
+final class PlayheadClock: ObservableObject {
+    @Published var time: Double = 0
+}
+
 @MainActor
 final class AudioPlayerController: ObservableObject {
 
     @Published private(set) var isReady = false
     @Published private(set) var isPlaying = false
     @Published var isMuted = false
-    @Published private(set) var currentTime: Double = 0
     @Published private(set) var duration: Double = 0
+
+    /// The playhead clock. Views that need the live position observe this
+    /// directly; the controller itself only publishes low-frequency state.
+    let playhead = PlayheadClock()
+
+    /// Current playhead position (seconds), backed by `playhead` so updating it
+    /// doesn't fire the controller's own `objectWillChange`.
+    var currentTime: Double {
+        get { playhead.time }
+        set { playhead.time = newValue }
+    }
 
     private var player: AVAudioPlayer?
     private var audioData: Data?

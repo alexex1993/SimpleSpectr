@@ -220,7 +220,7 @@ final class LiveSpectrogram: @unchecked Sendable {
         let lut = palette.lut
 
         let axis = FrequencyAxis.make(scale: scale, sampleRate: sampleRate, fftSize: fftSize, bins: bins)
-        let logScale = scale == .logarithmic
+        let warpScale = scale.isWarped
 
         var pixels = Data(count: width * height * 4)
         pixels.withUnsafeMutableBytes { raw in
@@ -229,7 +229,7 @@ final class LiveSpectrogram: @unchecked Sendable {
                 let colBase = col * bins
                 for row in 0..<height {
                     let db: Float
-                    if logScale, height > 1 {
+                    if warpScale, height > 1 {
                         let fracY = Double(height - 1 - row) / Double(height - 1)
                         let freq = axis.frequency(forFraction: fracY)
                         let fbin = freq * Double(fftSize) / sampleRate

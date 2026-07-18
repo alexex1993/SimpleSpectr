@@ -13,11 +13,15 @@ struct SimpleSpectrApp: App {
     @ObservedObject private var l10n = LocalizationManager.shared
     @ObservedObject private var recents = RecentFilesStore.shared
 
+    /// Trailing settings-inspector visibility, shared by the View-menu command
+    /// (⌥⌘I) and the toolbar toggle in `ContentView`.
+    @State private var showInspector = false
+
     static let repositoryURL = URL(string: "https://github.com/alexex1993/SimpleSpectr")!
 
     var body: some Scene {
         WindowGroup {
-            ContentView(model: model)
+            ContentView(model: model, showInspector: $showInspector)
                 // Handle files opened from Finder ("Open With…").
                 .onOpenURL { url in
                     model.load(url: url)
@@ -25,6 +29,12 @@ struct SimpleSpectrApp: App {
                 .handlesExternalEvents(preferring: ["*"], allowing: ["*"])
         }
         .commands {
+            CommandGroup(after: .sidebar) {
+                Button(L("settings.title")) {
+                    showInspector.toggle()
+                }
+                .keyboardShortcut("i", modifiers: [.command, .option])
+            }
             CommandGroup(replacing: .appInfo) {
                 Button(L("menu.about")) { showAboutPanel() }
             }
@@ -49,9 +59,6 @@ struct SimpleSpectrApp: App {
             CommandGroup(replacing: .help) {
                 Link(L("menu.github"), destination: Self.repositoryURL)
             }
-        }
-        Settings {
-            SettingsView()
         }
     }
 

@@ -22,6 +22,8 @@ final class RenderPreferences: ObservableObject {
         static let overlapPercent = "spectrogramOverlap"
         static let windowFunction = "spectrogramWindow"
         static let frequencyScale = "spectrogramFrequencyScale"
+        static let magnitudeScale = "spectrogramMagnitudeScale"
+        static let channelMode = "spectrogramChannelMode"
         static let showWaveform = "spectrogramShowWaveform"
         static let showHarmonics = "spectrogramShowHarmonics"
         static let dbFloor = "spectrogramDBFloor"
@@ -39,6 +41,8 @@ final class RenderPreferences: ObservableObject {
     static let defaultOverlap: Double = 75
     static let defaultWindow: WindowFunction = .hann
     static let defaultScale: FrequencyScale = .linear
+    static let defaultMagnitudeScale: MagnitudeScale = .logarithmic
+    static let defaultChannelMode: ChannelMode = .mix
 
     // Color-mapping window (dBFS). `dbFloor` maps to the darkest color, `dbCeiling`
     // to the brightest; `referenceLevel` is a gain (dB) added to the grid before
@@ -63,6 +67,18 @@ final class RenderPreferences: ObservableObject {
     }
     @Published var frequencyScale: FrequencyScale {
         didSet { UserDefaults.standard.set(frequencyScale.rawValue, forKey: Keys.frequencyScale) }
+    }
+
+    /// Magnitude mapping (dB vs linear amplitude). Display-only — re-colors from
+    /// the cached grid, no re-decode.
+    @Published var magnitudeScale: MagnitudeScale {
+        didSet { UserDefaults.standard.set(magnitudeScale.rawValue, forKey: Keys.magnitudeScale) }
+    }
+
+    /// Which channel/derivation of a multi-channel file the STFT analyzes.
+    /// Analysis setting — changing it re-decodes the file.
+    @Published var channelMode: ChannelMode {
+        didSet { UserDefaults.standard.set(channelMode.rawValue, forKey: Keys.channelMode) }
     }
 
     // Color-mapping window / gain (display-only). Clamped to their ranges.
@@ -115,6 +131,12 @@ final class RenderPreferences: ObservableObject {
 
         let savedScaleRaw = UserDefaults.standard.string(forKey: Keys.frequencyScale)
         frequencyScale = FrequencyScale(rawValue: savedScaleRaw ?? "") ?? Self.defaultScale
+
+        let savedMagRaw = UserDefaults.standard.string(forKey: Keys.magnitudeScale)
+        magnitudeScale = MagnitudeScale(rawValue: savedMagRaw ?? "") ?? Self.defaultMagnitudeScale
+
+        let savedChannelRaw = UserDefaults.standard.string(forKey: Keys.channelMode)
+        channelMode = ChannelMode(rawValue: savedChannelRaw ?? "") ?? Self.defaultChannelMode
 
         let defaults = UserDefaults.standard
         // Waveform lane on by default; pitch / harmonic overlays off until asked.

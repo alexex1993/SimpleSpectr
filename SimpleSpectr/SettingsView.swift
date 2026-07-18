@@ -2,7 +2,9 @@
 //  SettingsView.swift
 //  SimpleSpectr
 //
-//  Settings window with an in-app language selector and colormap picker.
+//  Settings form (language, analysis, render, palette) hosted in the main
+//  window's trailing `.inspector` panel. Sizing/chrome is owned by the host
+//  (ContentView) so this view stays layout-agnostic.
 //
 
 import SwiftUI
@@ -55,6 +57,17 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
+                Picker(L("settings.channel"), selection: $render.channelMode) {
+                    ForEach(ChannelMode.allCases) { c in
+                        Text(c.displayName).tag(c)
+                    }
+                }
+                .pickerStyle(.menu)
+
+                Text(L("settings.channelHint"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
                 Text(L("settings.analysisHint"))
                     .font(.caption)
                     .foregroundStyle(.tertiary)
@@ -68,9 +81,20 @@ struct SettingsView: View {
                         Text(s.displayName).tag(s)
                     }
                 }
-                .pickerStyle(.segmented)
+                .pickerStyle(.menu)
 
                 Text(L("settings.scaleHint"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Picker(L("settings.magnitude"), selection: $render.magnitudeScale) {
+                    ForEach(MagnitudeScale.allCases) { m in
+                        Text(m.displayName).tag(m)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                Text(L("settings.magnitudeHint"))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } header: {
@@ -119,9 +143,6 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .padding(20)
-        .frame(width: 440)
-        .navigationTitle(L("settings.title"))
     }
 
     /// A labeled dB slider with a live numeric readout on the right.

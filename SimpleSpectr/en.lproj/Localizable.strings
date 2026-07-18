@@ -77,8 +77,33 @@
 "settings.referenceLevel" = "Reference level";
 "settings.levelsHint" = "The color window in dBFS. Reference level is a gain that brightens quiet material. Changes re-render instantly — no re-analysis.";
 "settings.resetLevels" = "Reset levels";
+"settings.smoothing" = "Smoothing";
+"settings.timeSmoothing" = "Time";
+"settings.freqSmoothing" = "Frequency";
+"settings.smoothingHint" = "Averages the log-magnitude of the STFT grid over neighbouring time columns and frequency bins. Re-renders instantly — measurements stay exact.";
+"smoothing.off" = "Off";
 "scale.linear" = "Linear";
 "scale.logarithmic" = "Logarithmic";
+"scale.mel" = "Mel";
+"scale.bark" = "Bark";
+"scale.erb" = "ERB";
+
+"settings.magnitude" = "Magnitude";
+"settings.magnitudeHint" = "Logarithmic maps decibels; Linear maps raw amplitude (crushes quiet detail). Re-renders instantly — no re-analysis.";
+"magnitude.logarithmic" = "Log (dB)";
+"magnitude.linear" = "Linear";
+
+"settings.channel" = "Channel";
+"settings.channelHint" = "Which channel of a stereo file to analyze: Mix (mono), Left, Right, or the Mid/Side (M/S) sum and difference. Re-analyzes the file.";
+"channel.mix" = "Mix";
+"channel.left" = "Left";
+"channel.right" = "Right";
+"channel.mid" = "Mid (M)";
+"channel.side" = "Side (S)";
+
+"settings.smoothingEnabled" = "Enable smoothing";
+"button.smooth" = "Smooth";
+"button.viewOptions" = "Channel & magnitude";
 "window.hann.hint" = "Hann — balanced time/frequency, the general-purpose default.";
 "window.blackmanHarris.hint" = "Blackman-Harris — strong sidelobe suppression, wider main lobe.";
 "window.kaiser.hint" = "Kaiser (β=8.6) — steep rolloff, good frequency separation.";

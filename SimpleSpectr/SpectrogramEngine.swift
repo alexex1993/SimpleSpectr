@@ -123,7 +123,9 @@ enum SpectrogramEngine {
                                      maxColumns: Int = 2000,
                                      palette: Palette = .inferno,
                                      minDB: Float = -90,
-                                     maxDB: Float = 0) throws -> SpectrogramResult {
+                                     maxDB: Float = 0,
+                                     channelMode: ChannelMode = .mix,
+                                     magnitudeScale: MagnitudeScale = .logarithmic) throws -> SpectrogramResult {
         let scoped = url.startAccessingSecurityScopedResource()
         defer { if scoped { url.stopAccessingSecurityScopedResource() } }
 
@@ -181,7 +183,7 @@ enum SpectrogramEngine {
 
         // Decode on the fly through a sequential mono source so the whole file is
         // never materialized in memory.
-        var source = try MonoSource(file: file, channelCount: channelCount)
+        var source = try MonoSource(file: file, channelCount: channelCount, channelMode: channelMode)
         var windowSamples = [Float](repeating: 0, count: fftSize)
         _ = try source.fill(into: &windowSamples, offset: 0, count: fftSize)
 
@@ -263,7 +265,8 @@ enum SpectrogramEngine {
                                     minDB: lo,
                                     maxDB: hi,
                                     palette: palette,
-                                    frequencyAxis: axis)
+                                    frequencyAxis: axis,
+                                    magnitudeScale: magnitudeScale)
 
         return SpectrogramResult(image: image,
                                  duration: Double(total) / sampleRate,
@@ -297,12 +300,21 @@ enum SpectrogramEngine {
                                         minDB: Float,
                                         maxDB: Float,
                                         palette: Palette = .inferno,
-                                        frequencyAxis: FrequencyAxis? = nil) throws -> CGImage {
+                                        frequencyAxis: FrequencyAxis? = nil,
+                                        magnitudeScale: MagnitudeScale = .logarithmic) throws -> CGImage {
         let width = columns
         let height = bins
         let invRange = 1.0 / max(1e-6, (maxDB - minDB))
         let lut = palette.lut
-        let logScale = frequencyAxis?.scale == .logarithmic
+        // Any non-linear axis (log/mel/bark/erb) warps each output row onto a
+        // fractional bin; the linear axis keeps the fast 1:1 mapping.
+        let warpScale = frequencyAxis?.scale.isWarped ?? false
+        // For linear-magnitude mapping, precompute the amplitude window that the
+        // dB floor/ceiling correspond to (10^(dB/20)) and map amplitude linearly.
+        let linearMagnitude = magnitudeScale == .linear
+        let ampMin = powf(10, minDB / 20)
+        let ampMax = powf(10, maxDB / 20)
+        let invAmpRange = 1.0 / max(1e-12, (ampMax - ampMin))
 
         var pixels = Data(count: width * height * 4)
         pixels.withUnsafeMutableBytes { raw in
@@ -312,7 +324,7 @@ enum SpectrogramEngine {
                 for row in 0..<height {
                     // row 0 = top = highest frequency → fraction 1 at top, 0 at bottom.
                     let db: Float
-                    if logScale, let axis = frequencyAxis, height > 1 {
+                    if warpScale, let axis = frequencyAxis, height > 1 {
                         let fracY = Double(height - 1 - row) / Double(height - 1)
                         let freq = axis.frequency(forFraction: fracY)
                         let fbin = freq * Double(axis.fftSize) / axis.sampleRate
@@ -322,7 +334,14 @@ enum SpectrogramEngine {
                         let bin = bins - 1 - row
                         db = magnitudes[colBase + bin]
                     }
-                    var t = (db - minDB) * invRange
+                    // Map to 0…1 either through the dB window (log) or the
+                    // equivalent amplitude window (linear magnitude).
+                    var t: Float
+                    if linearMagnitude {
+                        t = (powf(10, db / 20) - ampMin) * invAmpRange
+                    } else {
+                        t = (db - minDB) * invRange
+                    }
                     if !t.isFinite { t = 0 }
                     if t < 0 { t = 0 } else if t > 1 { t = 1 }
                     let (r, g, b) = lut[Int(t * 255)]
@@ -379,6 +398,7 @@ enum SpectrogramEngine {
 nonisolated private struct MonoSource {
     private let file: AVAudioFile
     private let channelCount: Int
+    private let channelMode: ChannelMode
     private let chunkFrames: AVAudioFrameCount
     private let buffer: AVAudioPCMBuffer
 
@@ -386,9 +406,10 @@ nonisolated private struct MonoSource {
     private var pendingOffset = 0
     private var eof = false
 
-    init(file: AVAudioFile, channelCount: Int) throws {
+    init(file: AVAudioFile, channelCount: Int, channelMode: ChannelMode = .mix) throws {
         self.file = file
         self.channelCount = channelCount
+        self.channelMode = channelMode
         self.chunkFrames = 1 << 18 // 262144 frames per read
         // Allocation can fail (invalid format / out of memory); fail loudly with a
         // recoverable error rather than trapping mid-decode.
@@ -456,17 +477,45 @@ nonisolated private struct MonoSource {
 
         pending.removeAll(keepingCapacity: true)
         pendingOffset = 0
+
+        // Mono files (or a source with a single channel) collapse every mode to
+        // the one available channel.
         if channelCount == 1 {
             let p = channels[0]
             pending.append(contentsOf: UnsafeBufferPointer(start: p, count: frames))
-        } else {
-            let inv = 1.0 / Float(channelCount)
-            pending = [Float](repeating: 0, count: frames)
+            return
+        }
+
+        let left = channels[0]
+        let right = channels[1]   // channelCount >= 2 here
+        pending = [Float](repeating: 0, count: frames)
+
+        switch channelMode {
+        case .left:
+            pending.withUnsafeMutableBufferPointer { dst in
+                dst.baseAddress!.update(from: left, count: frames)
+            }
+        case .right:
+            pending.withUnsafeMutableBufferPointer { dst in
+                dst.baseAddress!.update(from: right, count: frames)
+            }
+        case .mid:
+            // Mid = (L + R) / 2.
+            vDSP_vadd(left, 1, right, 1, &pending, 1, vDSP_Length(frames))
+            var half: Float = 0.5
+            vDSP_vsmul(pending, 1, &half, &pending, 1, vDSP_Length(frames))
+        case .side:
+            // Side = (L - R) / 2.
+            vDSP_vsub(right, 1, left, 1, &pending, 1, vDSP_Length(frames)) // L - R
+            var half: Float = 0.5
+            vDSP_vsmul(pending, 1, &half, &pending, 1, vDSP_Length(frames))
+        case .mix:
+            // Average of every channel (down-mix to mono).
             for ch in 0..<channelCount {
                 vDSP_vadd(pending, 1, channels[ch], 1, &pending, 1, vDSP_Length(frames))
             }
-            var s = inv
-            vDSP_vsmul(pending, 1, &s, &pending, 1, vDSP_Length(frames))
+            var inv = 1.0 / Float(channelCount)
+            vDSP_vsmul(pending, 1, &inv, &pending, 1, vDSP_Length(frames))
         }
     }
 }

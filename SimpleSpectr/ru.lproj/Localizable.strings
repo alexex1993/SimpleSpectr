@@ -77,8 +77,33 @@
 "settings.referenceLevel" = "Опорный уровень";
 "settings.levelsHint" = "Окно цвета в дБFS. Опорный уровень — усиление, подсвечивающее тихий материал. Изменения применяются мгновенно, без пересчёта.";
 "settings.resetLevels" = "Сбросить уровни";
+"settings.smoothing" = "Сглаживание";
+"settings.timeSmoothing" = "По времени";
+"settings.freqSmoothing" = "По частоте";
+"settings.smoothingHint" = "Усредняет лог-магнитуду сетки STFT по соседним столбцам (время) и бинам (частота). Перерисовка мгновенная — измерения остаются точными.";
+"smoothing.off" = "Выкл";
 "scale.linear" = "Линейная";
 "scale.logarithmic" = "Логарифмическая";
+"scale.mel" = "Мел";
+"scale.bark" = "Барк";
+"scale.erb" = "ERB";
+
+"settings.magnitude" = "Магнитуда";
+"settings.magnitudeHint" = "Логарифмическая отображает децибелы; линейная — исходную амплитуду (подавляет тихие детали). Перерисовка мгновенная, без пересчёта.";
+"magnitude.logarithmic" = "Лог (дБ)";
+"magnitude.linear" = "Линейная";
+
+"settings.channel" = "Канал";
+"settings.channelHint" = "Какой канал стереофайла анализировать: Микс (моно), Левый, Правый или сумму/разность Mid/Side (M/S). Файл анализируется заново.";
+"channel.mix" = "Микс";
+"channel.left" = "Левый";
+"channel.right" = "Правый";
+"channel.mid" = "Mid (M)";
+"channel.side" = "Side (S)";
+
+"settings.smoothingEnabled" = "Включить сглаживание";
+"button.smooth" = "Сглаживание";
+"button.viewOptions" = "Канал и магнитуда";
 "window.hann.hint" = "Ханн — баланс времени и частоты, универсальный вариант по умолчанию.";
 "window.blackmanHarris.hint" = "Блэкмен-Харрис — сильное подавление боковых лепестков, шире главный лепесток.";
 "window.kaiser.hint" = "Кайзер (β=8,6) — крутой спад, хорошее частотное разделение.";

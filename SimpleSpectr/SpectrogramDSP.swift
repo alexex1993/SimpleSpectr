@@ -97,10 +97,16 @@ nonisolated enum WindowFunction: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
-/// Frequency-axis presentation mode for the spectrogram.
+/// Frequency-axis presentation mode for the spectrogram. `linear` and
+/// `logarithmic` are the classic axes; `mel`, `bark` and `erb` are perceptual
+/// scales that compress the highs the way human hearing does (Mel = 2595·log₁₀,
+/// Bark = critical-band rate, ERB = equivalent-rectangular-bandwidth rate).
 nonisolated enum FrequencyScale: String, CaseIterable, Identifiable, Sendable {
     case linear
     case logarithmic
+    case mel
+    case bark
+    case erb
 
     var id: String { rawValue }
 
@@ -108,10 +114,69 @@ nonisolated enum FrequencyScale: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .linear:       return L("scale.linear")
         case .logarithmic:  return L("scale.logarithmic")
+        case .mel:          return L("scale.mel")
+        case .bark:         return L("scale.bark")
+        case .erb:          return L("scale.erb")
         }
     }
 
     var isDefault: Bool { self == .linear }
+
+    /// `true` for any scale whose image rows are not a 1:1 map onto the linear
+    /// FFT bins (i.e. everything except `.linear`), so the renderer resamples.
+    var isWarped: Bool { self != .linear }
+
+    /// `true` only for the logarithmic scale, which draws musical-note labels and
+    /// octave gridlines instead of plain Hz ticks.
+    var usesNoteLabels: Bool { self == .logarithmic }
+}
+
+/// Magnitude-mapping mode: how the STFT amplitude drives the colormap.
+/// `logarithmic` maps decibels (the calibrated dBFS grid, default); `linear`
+/// maps raw amplitude, which crushes quiet detail but shows relative energy.
+/// Display-only — the cached dB grid is untouched, so a change re-colors from
+/// cache without re-decoding audio.
+nonisolated enum MagnitudeScale: String, CaseIterable, Identifiable, Sendable {
+    case logarithmic
+    case linear
+
+    var id: String { rawValue }
+
+    @MainActor var displayName: String {
+        switch self {
+        case .logarithmic: return L("magnitude.logarithmic")
+        case .linear:      return L("magnitude.linear")
+        }
+    }
+
+    var isDefault: Bool { self == .logarithmic }
+}
+
+/// Which signal the mono STFT source analyzes from a multi-channel file.
+/// `mix` averages every channel (the classic behavior); `left`/`right` pick a
+/// single channel; `mid`/`side` form the M/S sum and difference. An analysis
+/// setting — changing it re-decodes the file. On mono files every mode collapses
+/// to the single available channel.
+nonisolated enum ChannelMode: String, CaseIterable, Identifiable, Sendable {
+    case mix
+    case left
+    case right
+    case mid
+    case side
+
+    var id: String { rawValue }
+
+    @MainActor var displayName: String {
+        switch self {
+        case .mix:   return L("channel.mix")
+        case .left:  return L("channel.left")
+        case .right: return L("channel.right")
+        case .mid:   return L("channel.mid")
+        case .side:  return L("channel.side")
+        }
+    }
+
+    var isDefault: Bool { self == .mix }
 }
 
 /// Maps a 0…1 vertical fraction (bottom…top of the plot) to/from a physical
@@ -133,8 +198,10 @@ nonisolated struct FrequencyAxis: Sendable {
         let maxF = sampleRate / 2
         let minF: Double
         switch scale {
-        case .linear:      minF = 0
         case .logarithmic: minF = min(Self.logMin, maxF / 2) // ensure ≥ 1 octave
+        // Linear and the perceptual scales (mel/bark/erb) are all well-defined at
+        // 0 Hz, so they anchor the bottom of the plot at DC.
+        case .linear, .mel, .bark, .erb: minF = 0
         }
         return FrequencyAxis(scale: scale,
                              sampleRate: sampleRate,
@@ -147,26 +214,46 @@ nonisolated struct FrequencyAxis: Sendable {
     /// Bottom anchor for the log axis: A0 (27.5 Hz) — the piano's lowest key.
     static let logMin: Double = 27.5
 
-    /// Fraction (0…1, bottom…top) → frequency (Hz).
+    /// Fraction (0…1, bottom…top) → frequency (Hz). Every scale is expressed as a
+    /// monotonic `warp`/`unwarp` pair, and the fraction interpolates linearly
+    /// between the warped end-points, so the image rows and axis labels agree.
     func frequency(forFraction f: Double) -> Double {
         let f = min(max(f, 0), 1)
-        switch scale {
-        case .linear:
-            return f * maxFrequency
-        case .logarithmic:
-            return minFrequency * pow(maxFrequency / minFrequency, f)
-        }
+        let wLo = Self.warp(minFrequency, scale: scale)
+        let wHi = Self.warp(maxFrequency, scale: scale)
+        return Self.unwarp(wLo + f * (wHi - wLo), scale: scale)
     }
 
     /// Frequency (Hz) → fraction (0…1, bottom…top). May fall outside [0,1].
     func fraction(forFrequency freq: Double) -> Double {
+        let wLo = Self.warp(minFrequency, scale: scale)
+        let wHi = Self.warp(maxFrequency, scale: scale)
+        guard wHi > wLo else { return 0 }
+        return (Self.warp(freq, scale: scale) - wLo) / (wHi - wLo)
+    }
+
+    // MARK: - Scale warps
+
+    /// Hz → warped axis units (monotonic increasing). The fraction↔frequency
+    /// mapping normalizes by the warped end-points, so only the *shape* matters.
+    private static func warp(_ f: Double, scale: FrequencyScale) -> Double {
         switch scale {
-        case .linear:
-            guard maxFrequency > 0 else { return 0 }
-            return freq / maxFrequency
-        case .logarithmic:
-            guard minFrequency > 0, maxFrequency > minFrequency else { return 0 }
-            return log(freq / minFrequency) / log(maxFrequency / minFrequency)
+        case .linear:      return f
+        case .logarithmic: return f > 0 ? log(f) : log(1e-6)
+        case .mel:         return 2595.0 * log10(1.0 + f / 700.0)
+        case .bark:        return 26.81 * f / (1960.0 + f) - 0.53   // Traunmüller
+        case .erb:         return 21.4 * log10(1.0 + 0.00437 * f)   // Glasberg-Moore
+        }
+    }
+
+    /// Inverse of `warp` — warped axis units → Hz.
+    private static func unwarp(_ w: Double, scale: FrequencyScale) -> Double {
+        switch scale {
+        case .linear:      return w
+        case .logarithmic: return exp(w)
+        case .mel:         return 700.0 * (pow(10.0, w / 2595.0) - 1.0)
+        case .bark:        return 1960.0 * (w + 0.53) / (26.28 - w)
+        case .erb:         return (pow(10.0, w / 21.4) - 1.0) / 0.00437
         }
     }
 

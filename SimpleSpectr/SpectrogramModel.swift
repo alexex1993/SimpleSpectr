@@ -38,7 +38,15 @@ final class SpectrogramModel: ObservableObject {
     /// URL of the file currently being analyzed (or last analyzed), tracked
     /// independently of `state` so a settings change can trigger a reload even
     /// while a load is in flight (state == .loading).
-    private var lastURL: URL?
+    ///
+    /// Published so the view can drive per-file setup (player, markers, zoom)
+    /// off a signal that stays *constant across a re-analysis*. Keying that
+    /// setup off `state`'s URL breaks playback: an analysis change (channel,
+    /// FFT size, …) flips `state` to `.loading` and back to `.loaded`, so the
+    /// derived URL momentarily goes url → nil → url, which would tear down and
+    /// reload the player (resetting the playhead). `lastURL` only changes when
+    /// a genuinely different file is opened.
+    @Published private(set) var lastURL: URL?
 
     /// Set when a display setting (palette / scale) changes during a load; the
     /// in-flight `generate` already captured the old display values, so once it
@@ -64,16 +72,26 @@ final class SpectrogramModel: ObservableObject {
         let levels = Publishers.CombineLatest3(
             render.$dbFloor, render.$dbCeiling, render.$referenceLevel
         ).map { _, _, _ in () }
+        // Frequency scale and magnitude scale are both cheap re-presentations of
+        // the cached grid.
+        let presentation = Publishers.CombineLatest(
+            render.$frequencyScale, render.$magnitudeScale
+        ).map { _, _ in () }
         displayCancellable = Publishers.CombineLatest3(
             ColormapPreferences.shared.$palette.map { _ in () },
-            render.$frequencyScale.map { _ in () },
+            presentation,
             levels
         )
         .dropFirst()
         .receive(on: RunLoop.main)
         .sink { [weak self] _, _, _ in self?.rerenderFromCache() }
 
-        // Analysis: FFT size / overlap / window → full re-decode of current file.
+        // Analysis: FFT size / overlap / window / channel → full re-decode.
+        RenderPreferences.shared.$channelMode
+            .dropFirst()
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.reloadCurrent() }
+            .store(in: &analysisCancellables)
         RenderPreferences.shared.$fftSize
             .dropFirst()
             .receive(on: RunLoop.main)
@@ -108,6 +126,8 @@ final class SpectrogramModel: ObservableObject {
         let overlapPercent = render.overlapPercent
         let windowFunction = render.windowFunction
         let frequencyScale = render.frequencyScale
+        let magnitudeScale = render.magnitudeScale
+        let channelMode = render.channelMode
         let window = render.colorWindow
         loadToken += 1
         let token = loadToken
@@ -123,7 +143,9 @@ final class SpectrogramModel: ObservableObject {
                     frequencyScale: frequencyScale,
                     palette: palette,
                     minDB: window.min,
-                    maxDB: window.max)
+                    maxDB: window.max,
+                    channelMode: channelMode,
+                    magnitudeScale: magnitudeScale)
                 guard !Task.isCancelled else { return }
                 let info = AudioFileInfo.load(url: url)
                 await self.finish(token: token, name: name, url: url, info: info, result: .success(result))
@@ -155,6 +177,7 @@ final class SpectrogramModel: ObservableObject {
         }
         let palette = ColormapPreferences.shared.palette
         let scale = RenderPreferences.shared.frequencyScale
+        let magnitudeScale = RenderPreferences.shared.magnitudeScale
         let window = RenderPreferences.shared.colorWindow
         let token = loadToken
         let axis = FrequencyAxis.make(scale: scale,
@@ -170,7 +193,8 @@ final class SpectrogramModel: ObservableObject {
                     minDB: window.min,
                     maxDB: window.max,
                     palette: palette,
-                    frequencyAxis: axis)
+                    frequencyAxis: axis,
+                    magnitudeScale: magnitudeScale)
                 guard !Task.isCancelled else { return }
                 await self.commitRerender(token: token,
                                           name: name,

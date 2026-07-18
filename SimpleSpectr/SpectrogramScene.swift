@@ -15,6 +15,9 @@ struct SpectrogramScene: View {
     let url: URL
     let result: SpectrogramResult
     @ObservedObject var player: AudioPlayerController
+    /// Observed so the playhead overlay follows the live position (the controller
+    /// itself no longer publishes time — see `PlayheadClock`).
+    @ObservedObject var playhead: PlayheadClock
     @ObservedObject var markers: MarkersStore
     @Binding var zoom: CGFloat
 

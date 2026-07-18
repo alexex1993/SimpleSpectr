@@ -275,6 +275,9 @@ struct SpectrumSliceView: View {
                 f *= 4   // two octaves apart so labels don't crowd
             }
             return out
+        case .mel, .bark, .erb:
+            // Even spacing in the warped axis so labels don't crowd the lows.
+            return (0...4).map { axis.frequency(forFraction: Double($0) / 4) }
         }
     }
 
