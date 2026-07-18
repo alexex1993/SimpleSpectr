@@ -41,11 +41,26 @@ jobs:
       - name: Ad-hoc sign the app
         run: |
           APP_PATH="build/Build/Products/Release/SimpleSpectr.app"
-          # Ad-hoc подпись (без Apple Developer аккаунта): убирает сообщение
-          # «приложение повреждено» на Apple Silicon. Предупреждение о
-          # неизвестном разработчике остаётся — карантин снимается вручную.
-          codesign --force --deep --sign - "$APP_PATH"
+          # Сборка идёт с CODE_SIGNING_ALLOWED=NO, поэтому .app выходит вообще
+          # без подписи. На Apple Silicon macOS отказывается запускать
+          # неподписанный бандл и показывает «приложение повреждено».
+          # Здесь воспроизводим ровно то, что делал Xcode при локальной сборке
+          # с макбука: ad-hoc подпись с реальным identifier и entitlements
+          # (sandbox / микрофон / доступ к файлам).
+
+          # 1) Убираем расширенные атрибуты — иначе codesign падает с
+          #    «resource fork, Finder information, or similar detritus not allowed».
+          xattr -cr "$APP_PATH"
+
+          # 2) Ad-hoc подпись (--sign -) с entitlements и оригинальным identifier.
+          codesign --force --deep --sign - \
+            --identifier Alexex.SimpleSpectr \
+            --entitlements SimpleSpectr.entitlements \
+            "$APP_PATH"
+
+          # 3) Проверяем, что подпись валидна и entitlements на месте.
           codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+          codesign -d --entitlements - "$APP_PATH"
 
       - name: Make .dmg
         run: |
