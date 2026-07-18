@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SimpleSpectr — бесплатная программа для просмотра спектрограмм звука на macOS</title>
+  <meta name="description" content="Бесплатная программа с открытым исходным кодом для просмотра спектрограмм аудио на macOS. Анализ БПФ в реальном времени, 5 шкал частот, режимы каналов, запись с микрофона, экспорт CSV/JSON, 14 языков. Скачать для Mac.">
+  <meta name="keywords" content="спектрограмма аудио, просмотр спектрограммы, бесплатная спектрограмма, спектрограмма macOS, анализатор спектра, БПФ анализатор, STFT визуализация, частотный анализ звука, открытый исходный код, сонограмма">
+  <meta name="author" content="Alex New">
+  <meta name="theme-color" content="#0c0d12">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <link rel="canonical" href="https://simplespectr.alexnew.ru/ru/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SimpleSpectr">
+  <meta property="og:title" content="SimpleSpectr — бесплатная программа для просмотра спектрограмм звука на macOS">
+  <meta property="og:description" content="Бесплатное приложение с открытым кодом для macOS: превращает любой аудиофайл в красивую измеримую спектрограмму. Анализ БПФ, запись с микрофона, 14 языков.">
+  <meta property="og:url" content="https://simplespectr.alexnew.ru/ru/">
+  <meta property="og:locale" content="ru">
+  <meta property="og:image" content="https://simplespectr.alexnew.ru/img/og-image.webp">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SimpleSpectr — бесплатная спектрограмма звука для macOS">
+  <meta name="twitter:description" content="Бесплатное приложение с открытым кодом для macOS: превращает любой аудиофайл в красивую измеримую спектрограмму.">
+  <meta name="twitter:image" content="https://simplespectr.alexnew.ru/img/og-image.webp">
+
+  <link rel="alternate" hreflang="en" href="https://simplespectr.alexnew.ru/">
+  <link rel="alternate" hreflang="ru" href="https://simplespectr.alexnew.ru/ru/">
+  <link rel="alternate" hreflang="de" href="https://simplespectr.alexnew.ru/de/">
+  <link rel="alternate" hreflang="es" href="https://simplespectr.alexnew.ru/es/">
+  <link rel="alternate" hreflang="fr" href="https://simplespectr.alexnew.ru/fr/">
+  <link rel="alternate" hreflang="it" href="https://simplespectr.alexnew.ru/it/">
+  <link rel="alternate" hreflang="ja" href="https://simplespectr.alexnew.ru/ja/">
+  <link rel="alternate" hreflang="ko" href="https://simplespectr.alexnew.ru/ko/">
+  <link rel="alternate" hreflang="zh-Hans" href="https://simplespectr.alexnew.ru/zh-Hans/">
+  <link rel="alternate" hreflang="pt-BR" href="https://simplespectr.alexnew.ru/pt-BR/">
+  <link rel="alternate" hreflang="hi" href="https://simplespectr.alexnew.ru/hi/">
+  <link rel="alternate" hreflang="ar" href="https://simplespectr.alexnew.ru/ar/">
+  <link rel="alternate" hreflang="bn" href="https://simplespectr.alexnew.ru/bn/">
+  <link rel="alternate" hreflang="tr" href="https://simplespectr.alexnew.ru/tr/">
+  <link rel="alternate" hreflang="x-default" href="https://simplespectr.alexnew.ru/">
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%238c2981'/%3E%3Cstop offset='0.5' stop-color='%23de4968'/%3E%3Cstop offset='1' stop-color='%23fe9f6d'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../assets/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "SimpleSpectr",
+    "operatingSystem": "macOS 13+",
+    "applicationCategory": "MultimediaApplication",
+    "description": "Бесплатная программа с открытым исходным кодом для просмотра спектрограмм аудио на macOS. Анализ БПФ в реальном времени, несколько шкал частот, запись с микрофона и экспорт данных в CSV/JSON/PNG.",
+    "url": "https://simplespectr.alexnew.ru/ru/",
+    "downloadUrl": "https://github.com/alexex1993/SimpleSpectr/releases",
+    "screenshot": "https://simplespectr.alexnew.ru/img/screenshot-1.webp",
+    "inLanguage": ["ru","en","de","es","fr","it","ja","ko","zh-Hans","pt-BR","hi","ar","bn","tr"],
+    "author": { "@type": "Person", "name": "Alex New", "url": "https://github.com/alexex1993" },
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="brand" href="../" aria-label="SimpleSpectr — главная">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>SimpleSpectr</span>
+    </a>
+    <div class="header-actions">
+      <details class="lang-switch">
+        <summary>🌐 Русский <span aria-hidden="true">▾</span></summary>
+        <div class="menu">
+          <a href="../" lang="en" hreflang="en">English</a>
+          <a class="current" href="../ru/" lang="ru" hreflang="ru">Русский</a>
+          <a href="../de/" lang="de" hreflang="de">Deutsch</a>
+          <a href="../es/" lang="es" hreflang="es">Español</a>
+          <a href="../fr/" lang="fr" hreflang="fr">Français</a>
+          <a href="../it/" lang="it" hreflang="it">Italiano</a>
+          <a href="../ja/" lang="ja" hreflang="ja">日本語</a>
+          <a href="../ko/" lang="ko" hreflang="ko">한국어</a>
+          <a href="../zh-Hans/" lang="zh-Hans" hreflang="zh-Hans">简体中文</a>
+          <a href="../pt-BR/" lang="pt-BR" hreflang="pt-BR">Português (BR)</a>
+          <a href="../hi/" lang="hi" hreflang="hi">हिन्दी</a>
+          <a href="../ar/" lang="ar" hreflang="ar" dir="rtl">العربية</a>
+          <a href="../bn/" lang="bn" hreflang="bn">বাংলা</a>
+          <a href="../tr/" lang="tr" hreflang="tr">Türkçe</a>
+        </div>
+      </details>
+      <a class="btn btn-primary btn-sm" href="https://github.com/alexex1993/SimpleSpectr/releases">⬇ Скачать</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow"><span class="dot"></span> Бесплатно · открытый код · macOS</span>
+      <h1>Спектрограмма аудио <span class="grad">для macOS</span></h1>
+      <p class="lead">Бесплатное приложение для просмотра, измерения и экспорта спектрограмм.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="https://github.com/alexex1993/SimpleSpectr/releases">⬇ Скачать для macOS</a>
+        <a class="btn btn-ghost" href="https://sourceforge.net/projects/simplespectr/">SourceForge</a>
+      </div>
+      <div class="hero-badges">
+        <span><span class="pip">●</span> Полностью бесплатно</span>
+        <span><span class="pip">●</span> Открытый код на GitHub</span>
+        <span><span class="pip">●</span> Нативное приложение macOS</span>
+        <span><span class="pip">●</span> 14 языков</span>
+        <span><span class="pip">●</span> WAV · MP3 · FLAC · AAC · AIFF · ALAC</span>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="Скриншоты">
+    <div class="container">
+      <div class="shots">
+        <figure class="shot">
+          <picture>
+            <source type="image/webp" srcset="../img/screenshot-1.webp">
+            <img src="../img/screenshot-1.png" alt="Главное окно SimpleSpectr с разноцветной спектрограммой аудио, шкалой частот слева, шкалой времени внизу, дорожкой волновой формы и синхронизированным курсором воспроизведения." loading="eager" width="1600" height="915">
+          </picture>
+          <figcaption>Главное окно: спектрограмма с дорожкой волновой формы, перекрестием при наведении и курсором воспроизведения, синхронизированным с панелью внизу.</figcaption>
+        </figure>
+        <figure class="shot">
+          <picture>
+            <source type="image/webp" srcset="../img/screenshot-2.webp">
+            <img src="../img/screenshot-2.png" alt="SimpleSpectr с выделенной областью измерения, открытым сечением спектра и инспектором настроек со шкалой частот, масштабом величины и окном цвета." loading="lazy" width="1600" height="915">
+          </picture>
+          <figcaption>Выделите прямоугольник, чтобы измерить область «время × частота», дважды кликните для мгновенного сечения спектра и настраивайте всё в боковом инспекторе.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" aria-label="Возможности">
+    <div class="container">
+      <div class="section-head">
+        <h2>Всё, чтобы прочитать спектрограмму</h2>
+        <p>Инструменты профессионального уровня — бесплатно, в нативном приложении для Mac.</p>
+      </div>
+      <div class="features">
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🎚️</div>
+          <h3>Точный анализ БПФ</h3>
+          <p>Кратковременное преобразование Фурье с окном Ханна и нормировкой амплитуды, вычисляется через Accelerate (<span class="inline-code">vDSP</span>) от Apple. Наведение показывает истинные значения dBFS.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🎹</div>
+          <h3>5 шкал частот</h3>
+          <p>Линейная, логарифмическая (с названиями нот, A4 = 440 Гц), Mel, Bark и ERB. Каждая перцептивная шкала искривляет строки так, что подписи и изображение всегда совпадают.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🔈</div>
+          <h3>Режимы каналов</h3>
+          <p>Анализ стерео как Mix (моно-микс), Left, Right или сумма/разность Mid/Side (M/S), рассчитанные через <span class="inline-code">vDSP</span>.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🎙️</div>
+          <h3>Запись с микрофона</h3>
+          <p>Записывайте звук с микрофона и наблюдайте, как спектрограмма растёт в реальном времени на весь экран. Захваченный FLAC открывается в полном аналитическом режиме.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">📐</div>
+          <h3>Измерение области</h3>
+          <p>Выделите прямоугольник для мгновенных Δ-времени, Δ-частоты, музыкального интервала и истинных амплитудных характеристик: RMS, пиковой dBFS, true peak dBTP с 4-кратной передискретизацией и BS.1770 LUFS.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">📊</div>
+          <h3>Сечение спектра</h3>
+          <p>Двойной клик в любой момент открывает одномерный график «амплитуда-частота» для этого столбца STFT — удобно для чтения пиков и формы спектра.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🎯</div>
+          <h3>Гармонический курсор</h3>
+          <p>Наложите тонкие направляющие линии обертонов (2×, 3×, 4×…) над частотой под курсором, чтобы отличать тональный сигнал от шума.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🌊</div>
+          <h3>Дорожка волновой формы</h3>
+          <p>Дорожка амплитуды во временной области над спектрограммой, синхронизированная с той же осью времени и масштабом, чтобы видеть динамику рядом с частотами.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🔍</div>
+          <h3>Перекрестие при наведении</h3>
+          <p>Ведите курсор куда угодно и читайте точное время, частоту и уровень сигнала (дБ) в этой точке, без перечитывания пикселей.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">⬇️</div>
+          <h3>Экспорт данных</h3>
+          <p>Экспортируйте сами величины STFT в <strong>CSV</strong> или <strong>JSON</strong>, сохраняйте изображение как <strong>PNG</strong> или выгружайте <strong>маркеры</strong> — с настройками диапазона и формата.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🎨</div>
+          <h3>7 перцептивных цветовых карт</h3>
+          <p>Inferno, Viridis, Magma, Plasma, Turbo, Cividis и Grayscale — интерполируются в пространстве Oklab, с живым предпросмотром и настраиваемым окном в дБ.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">▶️</div>
+          <h3>Воспроизведение и синхронизация</h3>
+          <p>Нижняя панель проигрывает файл, курсор движется по спектрограмме синхронно, клик и перетаскивание перемещаются по файлу, а вид авто-прокручивается за воспроизведением.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">⏱️</div>
+          <h3>Маркеры и масштаб</h3>
+          <p>Расставляйте подписанные маркеры на таймлайне, растягивайте график по горизонтали масштабом времени и открывайте недавние файлы между запусками.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">💾</div>
+          <h3>Бережно к памяти</h3>
+          <p>Аудио декодируется и анализируется потоком, не удерживаясь целиком — поэтому даже очень длинные файлы строятся без нехватки памяти.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🌍</div>
+          <h3>14 языков</h3>
+          <p>Английский, русский, немецкий, испанский, французский, итальянский, японский, корейский, китайский (упрощённый), португальский (Бразилия), хинди, арабский, бенгальский и турецкий.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="Как это работает">
+    <div class="container">
+      <div class="section-head">
+        <h2>Как это работает</h2>
+      </div>
+      <div class="howto">
+        <p>Аудио декодируется через Core Audio и <strong>пропускается потоком</strong> через анализатор, поэтому длинные файлы никогда не лежат в памяти целиком. Сигнал сводится в моно и преобразуется кратковременным преобразованием Фурье (окно Ханна + вещественное БПФ) через <span class="inline-code">vDSP</span> из Accelerate. Односторонний спектр нормируется по амплитуде и корректируется с учётом окна, величины переводятся в дБ и отображаются через перцептивную цветовую карту — низкие частоты внизу, высокие вверху, время идёт слева направо.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div>© <span id="year">2026</span> Alex New · SimpleSpectr — бесплатная программа для просмотра спектрограмм звука на macOS</div>
+    <div class="footer-links">
+      <a href="../sitemap.xml">Sitemap</a>
+      <a href="https://github.com/alexex1993/SimpleSpectr">GitHub</a>
+      <a href="https://github.com/alexex1993/SimpleSpectr/releases">Релизы</a>
+      <a href="https://sourceforge.net/projects/simplespectr/">SourceForge</a>
+    </div>
+  </div>
+</footer>
+
+<script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+</body>
+</html>

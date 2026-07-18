@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SimpleSpectr — macOS용 무료 오디오 스펙트로그램 뷰어</title>
+  <meta name="description" content="macOS용 무료 오픈소스 오디오 스펙트로그램 뷰어. 실시간 FFT 분석, 5가지 주파수 스케일, 채널 모드, 라이브 마이크 입력, CSV/JSON 내보내기, 14개 언어 지원. Mac용 다운로드.">
+  <meta name="keywords" content="오디오 스펙트로그램 뷰어, 무료 스펙트로그램, macOS 스펙트로그램, 스펙트럼 분석기 mac, FFT 분석기, STFT 시각화, 오디오 주파수 분석, 소노그램, 스펙트로그램 소프트웨어">
+  <meta name="author" content="Alex New">
+  <meta name="theme-color" content="#0c0d12">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <link rel="canonical" href="https://simplespectr.alexnew.ru/ko/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SimpleSpectr">
+  <meta property="og:title" content="SimpleSpectr — macOS용 무료 오디오 스펙트로그램 뷰어">
+  <meta property="og:description" content="모든 오디오 파일을 아름답고 측정 가능한 스펙트로그램으로 바꿔주는 무료 오픈소스 macOS 앱. FFT 분석, 라이브 마이크, 14개 언어 지원.">
+  <meta property="og:url" content="https://simplespectr.alexnew.ru/ko/">
+  <meta property="og:locale" content="ko">
+  <meta property="og:image" content="https://simplespectr.alexnew.ru/img/og-image.webp">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SimpleSpectr — macOS용 무료 오디오 스펙트로그램 뷰어">
+  <meta name="twitter:description" content="모든 오디오 파일을 아름답고 측정 가능한 스펙트로그램으로 바꿔주는 무료 오픈소스 macOS 앱. FFT 분석, 라이브 마이크, 14개 언어 지원.">
+  <meta name="twitter:image" content="https://simplespectr.alexnew.ru/img/og-image.webp">
+
+  <link rel="alternate" hreflang="en" href="https://simplespectr.alexnew.ru/">
+  <link rel="alternate" hreflang="ru" href="https://simplespectr.alexnew.ru/ru/">
+  <link rel="alternate" hreflang="de" href="https://simplespectr.alexnew.ru/de/">
+  <link rel="alternate" hreflang="es" href="https://simplespectr.alexnew.ru/es/">
+  <link rel="alternate" hreflang="fr" href="https://simplespectr.alexnew.ru/fr/">
+  <link rel="alternate" hreflang="it" href="https://simplespectr.alexnew.ru/it/">
+  <link rel="alternate" hreflang="ja" href="https://simplespectr.alexnew.ru/ja/">
+  <link rel="alternate" hreflang="ko" href="https://simplespectr.alexnew.ru/ko/">
+  <link rel="alternate" hreflang="zh-Hans" href="https://simplespectr.alexnew.ru/zh-Hans/">
+  <link rel="alternate" hreflang="pt-BR" href="https://simplespectr.alexnew.ru/pt-BR/">
+  <link rel="alternate" hreflang="hi" href="https://simplespectr.alexnew.ru/hi/">
+  <link rel="alternate" hreflang="ar" href="https://simplespectr.alexnew.ru/ar/">
+  <link rel="alternate" hreflang="bn" href="https://simplespectr.alexnew.ru/bn/">
+  <link rel="alternate" hreflang="tr" href="https://simplespectr.alexnew.ru/tr/">
+  <link rel="alternate" hreflang="x-default" href="https://simplespectr.alexnew.ru/">
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%238c2981'/%3E%3Cstop offset='0.5' stop-color='%23de4968'/%3E%3Cstop offset='1' stop-color='%23fe9f6d'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../assets/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "SimpleSpectr",
+    "operatingSystem": "macOS 13+",
+    "applicationCategory": "MultimediaApplication",
+    "description": "macOS용 무료 오픈소스 오디오 스펙트로그램 뷰어. 실시간 FFT 분석, 여러 주파수 스케일, 라이브 마이크 입력 및 CSV/JSON/PNG 데이터 내보내기 지원.",
+    "url": "https://simplespectr.alexnew.ru/ko/",
+    "downloadUrl": "https://github.com/alexex1993/SimpleSpectr/releases",
+    "screenshot": "https://simplespectr.alexnew.ru/img/screenshot-1.webp",
+    "inLanguage": ["ko","en","ru","de","es","fr","it","ja","ko","zh-Hans","pt-BR","hi","ar","bn","tr"],
+    "author": { "@type": "Person", "name": "Alex New", "url": "https://github.com/alexex1993" },
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="brand" href="../" aria-label="SimpleSpectr">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>SimpleSpectr</span>
+    </a>
+    <div class="header-actions">
+      <details class="lang-switch">
+        <summary>🌐 한국어 <span aria-hidden="true">▾</span></summary>
+        <div class="menu">
+          <a href="../" lang="en" hreflang="en">English</a>
+          <a href="../ru/" lang="ru" hreflang="ru">Русский</a>
+          <a href="../de/" lang="de" hreflang="de">Deutsch</a>
+          <a href="../es/" lang="es" hreflang="es">Español</a>
+          <a href="../fr/" lang="fr" hreflang="fr">Français</a>
+          <a href="../it/" lang="it" hreflang="it">Italiano</a>
+          <a href="../ja/" lang="ja" hreflang="ja">日本語</a>
+          <a class="current" href="../ko/" lang="ko" hreflang="ko">한국어</a>
+          <a href="../zh-Hans/" lang="zh-Hans" hreflang="zh-Hans">简体中文</a>
+          <a href="../pt-BR/" lang="pt-BR" hreflang="pt-BR">Português (BR)</a>
+          <a href="../hi/" lang="hi" hreflang="hi">हिन्दी</a>
+          <a href="../ar/" lang="ar" hreflang="ar" dir="rtl">العربية</a>
+          <a href="../bn/" lang="bn" hreflang="bn">বাংলা</a>
+          <a href="../tr/" lang="tr" hreflang="tr">Türkçe</a>
+        </div>
+      </details>
+      <a class="btn btn-primary btn-sm" href="https://github.com/alexex1993/SimpleSpectr/releases">⬇ 다운로드</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow"><span class="dot"></span> 무료 · 오픈소스 · macOS</span>
+      <h1>오디오 스펙트로그램 <span class="grad">for macOS</span></h1>
+      <p class="lead">스펙트로그램을 보고, 측정하고, 내보낼 수 있는 무료 앱.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="https://github.com/alexex1993/SimpleSpectr/releases">⬇ macOS용 다운로드</a>
+        <a class="btn btn-ghost" href="https://sourceforge.net/projects/simplespectr/">SourceForge</a>
+      </div>
+      <div class="hero-badges">
+        <span><span class="pip">●</span> 100 % 무료</span>
+        <span><span class="pip">●</span> GitHub에서 오픈소스</span>
+        <span><span class="pip">●</span> macOS 네이티브 앱</span>
+        <span><span class="pip">●</span> 14개 언어</span>
+        <span><span class="pip">●</span> WAV · MP3 · FLAC · AAC · AIFF · ALAC</span>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="Screenshots">
+    <div class="container">
+      <div class="shots">
+        <figure class="shot">
+          <picture>
+            <source type="image/webp" srcset="../img/screenshot-1.webp">
+            <img src="../img/screenshot-1.png" alt="SimpleSpectr 메인 창. 색상이 풍부한 오디오 스펙트로그램, 왼쪽에 주파수 축, 아래에 시간 축, 파형 레인, 동기화된 재생 헤드가 표시됨." loading="eager" width="1600" height="915">
+          </picture>
+          <figcaption>메인 창: 파형 레인이 있는 완전한 스펙트로그램, 호버 십자선 판독, 하단 바와 동기화된 재생 헤드.</figcaption>
+        </figure>
+        <figure class="shot">
+          <picture>
+            <source type="image/webp" srcset="../img/screenshot-2.webp">
+            <img src="../img/screenshot-2.png" alt="SimpleSpectr에서 측정 영역을 선택하고 스펙트럼 슬라이스 패널을 열고 설정 인스펙터를 표시." loading="lazy" width="1600" height="915">
+          </picture>
+          <figcaption>사각형을 드래그해 시간 × 주파수 영역을 측정하고, 더블 클릭으로 즉시 스펙트럼 슬라이스를, 측면 인스펙터에서 모든 것을 조정하세요.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" aria-label="Features">
+    <div class="container">
+      <div class="section-head">
+        <h2>스펙트로그램을 읽는 데 필요한 모든 것</h2>
+        <p>프로페셔널급 도구 — Mac 네이티브 앱에서 무료로.</p>
+      </div>
+      <div class="features">
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🎚️</div>
+          <h3>정확한 FFT 분석</h3>
+          <p>Short-Time Fourier Transform with a Hann window and amplitude normalization, computed via Apple's Accelerate (<span class="inline-code">vDSP</span>). Hover reports true dBFS values.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🎹</div>
+          <h3>5가지 주파수 스케일</h3>
+          <p>Linear, Logarithmic (with note names, A4 = 440 Hz), Mel, Bark, and ERB. Each perceptual scale warps the rows so labels and image always agree.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🔈</div>
+          <h3>채널 모드</h3>
+          <p>Analyze stereo as Mix (mono down-mix), Left, Right, or Mid/Side (M/S) sum and difference — derived with <span class="inline-code">vDSP</span>.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🎙️</div>
+          <h3>라이브 마이크 입력</h3>
+          <p>Record from the mic and watch a full-screen spectrogram build in real time. The captured FLAC is reopened through the full analysis path.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">📐</div>
+          <h3>측정 영역</h3>
+          <p>Drag a rectangle for instant Δ-time, Δ-frequency, musical interval, and true-amplitude stats: RMS, sample peak dBFS, 4× oversampled true peak dBTP, and BS.1770 LUFS.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">📊</div>
+          <h3>스펙트럼 슬라이스</h3>
+          <p>Double-click any moment to pop a 1-D amplitude-vs-frequency plot of that exact STFT column — handy for reading peaks and spectral shape.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🎯</div>
+          <h3>배음 커서</h3>
+          <p>Overlay faint guide lines at the overtone series (2×, 3×, 4×…) above the frequency under the cursor to separate pitched content from noise.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🌊</div>
+          <h3>파형 개요</h3>
+          <p>A time-domain amplitude lane above the spectrogram, locked to the same time axis and zoom, so you can see dynamics alongside frequency.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🔍</div>
+          <h3>호버 십자선 판독</h3>
+          <p>Move the cursor anywhere to read the exact time, frequency, and signal level (dB) at that point, without re-reading pixels.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">⬇️</div>
+          <h3>데이터 내보내기</h3>
+          <p>Export the actual STFT magnitudes as <strong>CSV</strong> or <strong>JSON</strong>, save the rendered image as <strong>PNG</strong>, or dump your <strong>markers</strong> — with range and format options.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🎨</div>
+          <h3>7가지 지각적 컬러맵</h3>
+          <p>Inferno, Viridis, Magma, Plasma, Turbo, Cividis, and Grayscale — interpolated in Oklab space, with live previews and adjustable dB window.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">▶️</div>
+          <h3>재생과 동기화</h3>
+          <p>A bottom player plays the file, a synced playhead moves across the spectrogram, click-and-drag seeks, and the view auto-scrolls to follow playback.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">⏱️</div>
+          <h3>마커와 줌</h3>
+          <p>Drop labelled markers on the timeline, stretch the plot horizontally with time zoom, and reopen recent files across launches.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">💾</div>
+          <h3>메모리에 가벼움</h3>
+          <p>Audio is decoded and analyzed as a stream, never held in full — so even very long files render without running out of memory.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🌍</div>
+          <h3>14개 언어</h3>
+          <p>English, Russian, German, Spanish, French, Italian, Japanese, Korean, Chinese (Simplified), Portuguese (Brazil), Hindi, Arabic, Bengali, and Turkish.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="How it works">
+    <div class="container">
+      <div class="section-head">
+        <h2>작동 방식</h2>
+      </div>
+      <div class="howto">
+        <p>Audio is decoded with Core Audio and <strong>streamed</strong> through the analyzer, so long files never sit fully in memory. It's mixed down to mono and transformed via a short-time Fourier transform (Hann window + real FFT) using Accelerate's <span class="inline-code">vDSP</span>. The one-sided spectrum is amplitude-normalized and window-corrected, magnitudes are converted to dB, and mapped through a perceptual colormap into a crisp image — low frequencies at the bottom, high at the top, time advancing left to right.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div>© <span id="year">2026</span> Alex New · SimpleSpectr — macOS용 무료 오디오 스펙트로그램 뷰어</div>
+    <div class="footer-links">
+      <a href="../sitemap.xml">Sitemap</a>
+      <a href="https://github.com/alexex1993/SimpleSpectr">GitHub</a>
+      <a href="https://github.com/alexex1993/SimpleSpectr/releases">Releases</a>
+      <a href="https://sourceforge.net/projects/simplespectr/">SourceForge</a>
+    </div>
+  </div>
+</footer>
+
+<script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+</body>
+</html>

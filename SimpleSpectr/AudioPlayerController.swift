@@ -45,6 +45,9 @@ final class AudioPlayerController: ObservableObject {
     private var timer: Timer?
     private var volume: Float = 1.0
 
+    /// The volume to feed the player, accounting for the mute toggle.
+    private var effectiveVolume: Float { isMuted ? 0 : volume }
+
     /// Load `url` for playback, replacing any previous file.
     func load(url: URL) {
         stop()
@@ -54,7 +57,7 @@ final class AudioPlayerController: ObservableObject {
         do {
             let data = try Data(contentsOf: url)
             let p = try AVAudioPlayer(data: data)
-            p.volume = isMuted ? 0 : volume
+            p.volume = effectiveVolume
             p.prepareToPlay()
             newPlayer = p
             newData = data
@@ -66,15 +69,9 @@ final class AudioPlayerController: ObservableObject {
 
         player = newPlayer
         audioData = newData
-        if let p = newPlayer {
-            duration = p.duration
-            currentTime = 0
-            isReady = true
-        } else {
-            duration = 0
-            currentTime = 0
-            isReady = false
-        }
+        duration = newPlayer?.duration ?? 0
+        currentTime = 0
+        isReady = newPlayer != nil
     }
 
     /// Release everything (e.g. when the spectrogram is cleared).
@@ -113,10 +110,15 @@ final class AudioPlayerController: ObservableObject {
 
     func stop() {
         player?.stop()
-        player?.currentTime = 0
-        currentTime = 0
+        rewindToStart()
         isPlaying = false
         stopTimer()
+    }
+
+    /// Reset both the player and the published playhead back to the start.
+    private func rewindToStart() {
+        player?.currentTime = 0
+        currentTime = 0
     }
 
     /// Seek to an absolute time (seconds), clamped to the file duration.
@@ -129,7 +131,7 @@ final class AudioPlayerController: ObservableObject {
 
     func setMuted(_ muted: Bool) {
         isMuted = muted
-        player?.volume = muted ? 0 : volume
+        player?.volume = effectiveVolume
     }
 
     func toggleMute() {
@@ -159,8 +161,7 @@ final class AudioPlayerController: ObservableObject {
         if isPlaying, !p.isPlaying {
             isPlaying = false
             stopTimer()
-            currentTime = 0
-            p.currentTime = 0
+            rewindToStart()
             return
         }
         currentTime = p.currentTime

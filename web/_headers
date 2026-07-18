@@ -1,0 +1,15 @@
+# Cloudflare Pages headers for the SimpleSpectr landing site.
+# Docs: https://developers.cloudflare.com/pages/configuration/headers/
+#
+# Syntax: a URL path on its own line, then indented "Name: value" headers.
+
+# Long-lived immutable cache for static assets whose names never change.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/img/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# HTML can change on edits — short cache so updates ship quickly.
+/*.html
+  Cache-Control: public, max-age=3600, must-revalidate

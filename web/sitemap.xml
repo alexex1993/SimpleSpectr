@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <url>
+    <loc>https://simplespectr.alexnew.ru/</loc>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://simplespectr.alexnew.ru/"/>
+    <xhtml:link rel="alternate" hreflang="ru" href="https://simplespectr.alexnew.ru/ru/"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://simplespectr.alexnew.ru/de/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://simplespectr.alexnew.ru/es/"/>
+    <xhtml:link rel="alternate" hreflang="fr" href="https://simplespectr.alexnew.ru/fr/"/>
+    <xhtml:link rel="alternate" hreflang="it" href="https://simplespectr.alexnew.ru/it/"/>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://simplespectr.alexnew.ru/ja/"/>
+    <xhtml:link rel="alternate" hreflang="ko" href="https://simplespectr.alexnew.ru/ko/"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://simplespectr.alexnew.ru/zh-Hans/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://simplespectr.alexnew.ru/pt-BR/"/>
+    <xhtml:link rel="alternate" hreflang="hi" href="https://simplespectr.alexnew.ru/hi/"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://simplespectr.alexnew.ru/ar/"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://simplespectr.alexnew.ru/bn/"/>
+    <xhtml:link rel="alternate" hreflang="tr" href="https://simplespectr.alexnew.ru/tr/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://simplespectr.alexnew.ru/"/>
+  </url>
+
+  <url><loc>https://simplespectr.alexnew.ru/ru/</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://simplespectr.alexnew.ru/de/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://simplespectr.alexnew.ru/es/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://simplespectr.alexnew.ru/fr/</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://simplespectr.alexnew.ru/it/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://simplespectr.alexnew.ru/ja/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://simplespectr.alexnew.ru/ko/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://simplespectr.alexnew.ru/zh-Hans/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://simplespectr.alexnew.ru/pt-BR/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://simplespectr.alexnew.ru/hi/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://simplespectr.alexnew.ru/ar/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://simplespectr.alexnew.ru/bn/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://simplespectr.alexnew.ru/tr/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+
+</urlset>

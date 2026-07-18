@@ -1,0 +1,8 @@
+# robots.txt for SimpleSpectr — https://simplespectr.alexnew.ru/
+User-agent: *
+Allow: /
+
+# Block nothing — the whole site is meant to be indexed.
+
+Sitemap: https://simplespectr.alexnew.ru/sitemap.xml
+Host: https://simplespectr.alexnew.ru

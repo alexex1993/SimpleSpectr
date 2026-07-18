@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SimpleSpectr — macOS 免费音频频谱图查看器</title>
+  <meta name="description" content="macOS 免费开源的音频频谱图查看器。实时 FFT 分析、5 种频率刻度、声道模式、实时麦克风输入、CSV/JSON 导出、支持 14 种语言。下载 Mac 版。">
+  <meta name="keywords" content="音频频谱图查看器, 免费频谱图, macOS 频谱图, 频谱分析器 mac, FFT 分析器, STFT 可视化, 音频频谱分析, 声谱图, 频谱图软件">
+  <meta name="author" content="Alex New">
+  <meta name="theme-color" content="#0c0d12">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <link rel="canonical" href="https://simplespectr.alexnew.ru/zh-Hans/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SimpleSpectr">
+  <meta property="og:title" content="SimpleSpectr — macOS 免费音频频谱图查看器">
+  <meta property="og:description" content="一款免费开源的 macOS 应用，可将任意音频文件转换为美观且可测量的频谱图。FFT 分析、实时麦克风、支持 14 种语言。">
+  <meta property="og:url" content="https://simplespectr.alexnew.ru/zh-Hans/">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:image" content="https://simplespectr.alexnew.ru/img/og-image.webp">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SimpleSpectr — macOS 免费音频频谱图查看器">
+  <meta name="twitter:description" content="一款免费开源的 macOS 应用，可将任意音频文件转换为美观且可测量的频谱图。FFT 分析、实时麦克风、支持 14 种语言。">
+  <meta name="twitter:image" content="https://simplespectr.alexnew.ru/img/og-image.webp">
+
+  <link rel="alternate" hreflang="en" href="https://simplespectr.alexnew.ru/">
+  <link rel="alternate" hreflang="ru" href="https://simplespectr.alexnew.ru/ru/">
+  <link rel="alternate" hreflang="de" href="https://simplespectr.alexnew.ru/de/">
+  <link rel="alternate" hreflang="es" href="https://simplespectr.alexnew.ru/es/">
+  <link rel="alternate" hreflang="fr" href="https://simplespectr.alexnew.ru/fr/">
+  <link rel="alternate" hreflang="it" href="https://simplespectr.alexnew.ru/it/">
+  <link rel="alternate" hreflang="ja" href="https://simplespectr.alexnew.ru/ja/">
+  <link rel="alternate" hreflang="ko" href="https://simplespectr.alexnew.ru/ko/">
+  <link rel="alternate" hreflang="zh-Hans" href="https://simplespectr.alexnew.ru/zh-Hans/">
+  <link rel="alternate" hreflang="pt-BR" href="https://simplespectr.alexnew.ru/pt-BR/">
+  <link rel="alternate" hreflang="hi" href="https://simplespectr.alexnew.ru/hi/">
+  <link rel="alternate" hreflang="ar" href="https://simplespectr.alexnew.ru/ar/">
+  <link rel="alternate" hreflang="bn" href="https://simplespectr.alexnew.ru/bn/">
+  <link rel="alternate" hreflang="tr" href="https://simplespectr.alexnew.ru/tr/">
+  <link rel="alternate" hreflang="x-default" href="https://simplespectr.alexnew.ru/">
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%238c2981'/%3E%3Cstop offset='0.5' stop-color='%23de4968'/%3E%3Cstop offset='1' stop-color='%23fe9f6d'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../assets/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "SimpleSpectr",
+    "operatingSystem": "macOS 13+",
+    "applicationCategory": "MultimediaApplication",
+    "description": "macOS 免费开源的音频频谱图查看器。支持实时 FFT 分析、多种频率刻度、实时麦克风输入，以及 CSV/JSON/PNG 数据导出。",
+    "url": "https://simplespectr.alexnew.ru/zh-Hans/",
+    "downloadUrl": "https://github.com/alexex1993/SimpleSpectr/releases",
+    "screenshot": "https://simplespectr.alexnew.ru/img/screenshot-1.webp",
+    "inLanguage": ["zh-Hans","en","ru","de","es","fr","it","ja","ko","zh-Hans","pt-BR","hi","ar","bn","tr"],
+    "author": { "@type": "Person", "name": "Alex New", "url": "https://github.com/alexex1993" },
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="brand" href="../" aria-label="SimpleSpectr">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>SimpleSpectr</span>
+    </a>
+    <div class="header-actions">
+      <details class="lang-switch">
+        <summary>🌐 简体中文 <span aria-hidden="true">▾</span></summary>
+        <div class="menu">
+          <a href="../" lang="en" hreflang="en">English</a>
+          <a href="../ru/" lang="ru" hreflang="ru">Русский</a>
+          <a href="../de/" lang="de" hreflang="de">Deutsch</a>
+          <a href="../es/" lang="es" hreflang="es">Español</a>
+          <a href="../fr/" lang="fr" hreflang="fr">Français</a>
+          <a href="../it/" lang="it" hreflang="it">Italiano</a>
+          <a href="../ja/" lang="ja" hreflang="ja">日本語</a>
+          <a href="../ko/" lang="ko" hreflang="ko">한국어</a>
+          <a class="current" href="../zh-Hans/" lang="zh-Hans" hreflang="zh-Hans">简体中文</a>
+          <a href="../pt-BR/" lang="pt-BR" hreflang="pt-BR">Português (BR)</a>
+          <a href="../hi/" lang="hi" hreflang="hi">हिन्दी</a>
+          <a href="../ar/" lang="ar" hreflang="ar" dir="rtl">العربية</a>
+          <a href="../bn/" lang="bn" hreflang="bn">বাংলা</a>
+          <a href="../tr/" lang="tr" hreflang="tr">Türkçe</a>
+        </div>
+      </details>
+      <a class="btn btn-primary btn-sm" href="https://github.com/alexex1993/SimpleSpectr/releases">⬇ 下载</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow"><span class="dot"></span> 免费 · 开源 · macOS</span>
+      <h1>音频频谱图 <span class="grad">for macOS</span></h1>
+      <p class="lead">一款用于查看、测量和导出音频频谱图的免费应用。</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="https://github.com/alexex1993/SimpleSpectr/releases">⬇ 下载 macOS 版</a>
+        <a class="btn btn-ghost" href="https://sourceforge.net/projects/simplespectr/">SourceForge</a>
+      </div>
+      <div class="hero-badges">
+        <span><span class="pip">●</span> 100 % 免费</span>
+        <span><span class="pip">●</span> 在 GitHub 开源</span>
+        <span><span class="pip">●</span> macOS 原生应用</span>
+        <span><span class="pip">●</span> 14 种语言</span>
+        <span><span class="pip">●</span> WAV · MP3 · FLAC · AAC · AIFF · ALAC</span>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="Screenshots">
+    <div class="container">
+      <div class="shots">
+        <figure class="shot">
+          <picture>
+            <source type="image/webp" srcset="../img/screenshot-1.webp">
+            <img src="../img/screenshot-1.png" alt="SimpleSpectr 主窗口，显示彩色音频频谱图，左侧为频率轴、底部为时间轴、上方有波形轨道，以及同步的播放头。" loading="eager" width="1600" height="915">
+          </picture>
+          <figcaption>主窗口：带波形轨道的完整频谱图、悬停十字读数，以及与底部播放栏同步的播放头。</figcaption>
+        </figure>
+        <figure class="shot">
+          <picture>
+            <source type="image/webp" srcset="../img/screenshot-2.webp">
+            <img src="../img/screenshot-2.png" alt="SimpleSpectr 中已选择测量区域，打开了频谱切片面板，并显示设置检查器。" loading="lazy" width="1600" height="915">
+          </picture>
+          <figcaption>拖动矩形即可测量时间 × 频率区域，双击可即时查看频谱切片，并在侧边检查器中调整一切。</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" aria-label="Features">
+    <div class="container">
+      <div class="section-head">
+        <h2>阅读频谱图所需的一切</h2>
+        <p>专业级工具 —— 免费，就在一款原生 Mac 应用中。</p>
+      </div>
+      <div class="features">
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🎚️</div>
+          <h3>精确的 FFT 分析</h3>
+          <p>Short-Time Fourier Transform with a Hann window and amplitude normalization, computed via Apple's Accelerate (<span class="inline-code">vDSP</span>). Hover reports true dBFS values.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🎹</div>
+          <h3>5 种频率刻度</h3>
+          <p>Linear, Logarithmic (with note names, A4 = 440 Hz), Mel, Bark, and ERB. Each perceptual scale warps the rows so labels and image always agree.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🔈</div>
+          <h3>声道模式</h3>
+          <p>Analyze stereo as Mix (mono down-mix), Left, Right, or Mid/Side (M/S) sum and difference — derived with <span class="inline-code">vDSP</span>.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🎙️</div>
+          <h3>实时麦克风输入</h3>
+          <p>Record from the mic and watch a full-screen spectrogram build in real time. The captured FLAC is reopened through the full analysis path.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">📐</div>
+          <h3>测量区域</h3>
+          <p>Drag a rectangle for instant Δ-time, Δ-frequency, musical interval, and true-amplitude stats: RMS, sample peak dBFS, 4× oversampled true peak dBTP, and BS.1770 LUFS.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">📊</div>
+          <h3>频谱切片</h3>
+          <p>Double-click any moment to pop a 1-D amplitude-vs-frequency plot of that exact STFT column — handy for reading peaks and spectral shape.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🎯</div>
+          <h3>谐波光标</h3>
+          <p>Overlay faint guide lines at the overtone series (2×, 3×, 4×…) above the frequency under the cursor to separate pitched content from noise.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🌊</div>
+          <h3>波形概览</h3>
+          <p>A time-domain amplitude lane above the spectrogram, locked to the same time axis and zoom, so you can see dynamics alongside frequency.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🔍</div>
+          <h3>悬停十字读数</h3>
+          <p>Move the cursor anywhere to read the exact time, frequency, and signal level (dB) at that point, without re-reading pixels.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">⬇️</div>
+          <h3>数据导出</h3>
+          <p>Export the actual STFT magnitudes as <strong>CSV</strong> or <strong>JSON</strong>, save the rendered image as <strong>PNG</strong>, or dump your <strong>markers</strong> — with range and format options.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🎨</div>
+          <h3>7 种感知色彩映射</h3>
+          <p>Inferno, Viridis, Magma, Plasma, Turbo, Cividis, and Grayscale — interpolated in Oklab space, with live previews and adjustable dB window.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">▶️</div>
+          <h3>播放与同步</h3>
+          <p>A bottom player plays the file, a synced playhead moves across the spectrogram, click-and-drag seeks, and the view auto-scrolls to follow playback.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">⏱️</div>
+          <h3>标记与缩放</h3>
+          <p>Drop labelled markers on the timeline, stretch the plot horizontally with time zoom, and reopen recent files across launches.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">💾</div>
+          <h3>内存占用低</h3>
+          <p>Audio is decoded and analyzed as a stream, never held in full — so even very long files render without running out of memory.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🌍</div>
+          <h3>14 种语言</h3>
+          <p>English, Russian, German, Spanish, French, Italian, Japanese, Korean, Chinese (Simplified), Portuguese (Brazil), Hindi, Arabic, Bengali, and Turkish.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="How it works">
+    <div class="container">
+      <div class="section-head">
+        <h2>工作原理</h2>
+      </div>
+      <div class="howto">
+        <p>Audio is decoded with Core Audio and <strong>streamed</strong> through the analyzer, so long files never sit fully in memory. It's mixed down to mono and transformed via a short-time Fourier transform (Hann window + real FFT) using Accelerate's <span class="inline-code">vDSP</span>. The one-sided spectrum is amplitude-normalized and window-corrected, magnitudes are converted to dB, and mapped through a perceptual colormap into a crisp image — low frequencies at the bottom, high at the top, time advancing left to right.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div>© <span id="year">2026</span> Alex New · SimpleSpectr — macOS 免费音频频谱图查看器</div>
+    <div class="footer-links">
+      <a href="../sitemap.xml">Sitemap</a>
+      <a href="https://github.com/alexex1993/SimpleSpectr">GitHub</a>
+      <a href="https://github.com/alexex1993/SimpleSpectr/releases">Releases</a>
+      <a href="https://sourceforge.net/projects/simplespectr/">SourceForge</a>
+    </div>
+  </div>
+</footer>
+
+<script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+</body>
+</html>

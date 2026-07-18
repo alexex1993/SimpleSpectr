@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SimpleSpectr — Kostenlos audio spectrogram viewer für macOS</title>
+  <meta name="description" content="Kostenloses, quelloffenes audio spectrogram viewer für macOS. FFT-Analyse in Echtzeit, 5 Frequenzskalen, Kanalmodi, Live-Mikrofoneingang, CSV/JSON-Export, 14 Sprachen. Für Mac herunterladen.">
+  <meta name="keywords" content="audio spektrogramm viewer, kostenloses spektrogramm, macOS spektrogramm, spektrum analysator mac, FFT analysator, STFT visualisierung, frequenzanalyse audio, sonogramm, spektrogramm software">
+  <meta name="author" content="Alex New">
+  <meta name="theme-color" content="#0c0d12">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <link rel="canonical" href="https://simplespectr.alexnew.ru/de/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="SimpleSpectr">
+  <meta property="og:title" content="SimpleSpectr — Kostenlos audio spectrogram viewer für macOS">
+  <meta property="og:description" content="Eine kostenlose, quelloffene macOS-App, die jede Audiodatei in ein schönes, messbares Spektrogramm verwandelt. FFT-Analyse, Live-Mikrofon, 14 Sprachen.">
+  <meta property="og:url" content="https://simplespectr.alexnew.ru/de/">
+  <meta property="og:locale" content="de">
+  <meta property="og:image" content="https://simplespectr.alexnew.ru/img/og-image.webp">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="SimpleSpectr — Kostenlos audio spectrogram viewer für macOS">
+  <meta name="twitter:description" content="Eine kostenlose, quelloffene macOS-App für audio Spektrogramme.">
+  <meta name="twitter:image" content="https://simplespectr.alexnew.ru/img/og-image.webp">
+
+  <link rel="alternate" hreflang="en" href="https://simplespectr.alexnew.ru/">
+  <link rel="alternate" hreflang="ru" href="https://simplespectr.alexnew.ru/ru/">
+  <link rel="alternate" hreflang="de" href="https://simplespectr.alexnew.ru/de/">
+  <link rel="alternate" hreflang="es" href="https://simplespectr.alexnew.ru/es/">
+  <link rel="alternate" hreflang="fr" href="https://simplespectr.alexnew.ru/fr/">
+  <link rel="alternate" hreflang="it" href="https://simplespectr.alexnew.ru/it/">
+  <link rel="alternate" hreflang="ja" href="https://simplespectr.alexnew.ru/ja/">
+  <link rel="alternate" hreflang="ko" href="https://simplespectr.alexnew.ru/ko/">
+  <link rel="alternate" hreflang="zh-Hans" href="https://simplespectr.alexnew.ru/zh-Hans/">
+  <link rel="alternate" hreflang="pt-BR" href="https://simplespectr.alexnew.ru/pt-BR/">
+  <link rel="alternate" hreflang="hi" href="https://simplespectr.alexnew.ru/hi/">
+  <link rel="alternate" hreflang="ar" href="https://simplespectr.alexnew.ru/ar/">
+  <link rel="alternate" hreflang="bn" href="https://simplespectr.alexnew.ru/bn/">
+  <link rel="alternate" hreflang="tr" href="https://simplespectr.alexnew.ru/tr/">
+  <link rel="alternate" hreflang="x-default" href="https://simplespectr.alexnew.ru/">
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='0'%3E%3Cstop offset='0' stop-color='%238c2981'/%3E%3Cstop offset='0.5' stop-color='%23de4968'/%3E%3Cstop offset='1' stop-color='%23fe9f6d'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="../assets/style.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "SimpleSpectr",
+    "operatingSystem": "macOS 13+",
+    "applicationCategory": "MultimediaApplication",
+    "description": "Kostenlose, quelloffene audio spectrogram viewer für macOS. FFT-Analyse in Echtzeit, mehrere Frequenzskalen, Live-Mikrofoneingang und Datenexport in CSV/JSON/PNG.",
+    "url": "https://simplespectr.alexnew.ru/de/",
+    "downloadUrl": "https://github.com/alexex1993/SimpleSpectr/releases",
+    "screenshot": "https://simplespectr.alexnew.ru/img/screenshot-1.webp",
+    "inLanguage": ["de","en","ru","es","fr","it","ja","ko","zh-Hans","pt-BR","hi","ar","bn","tr"],
+    "author": { "@type": "Person", "name": "Alex New", "url": "https://github.com/alexex1993" },
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container">
+    <a class="brand" href="../" aria-label="SimpleSpectr Startseite">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>SimpleSpectr</span>
+    </a>
+    <div class="header-actions">
+      <details class="lang-switch">
+        <summary>🌐 Deutsch <span aria-hidden="true">▾</span></summary>
+        <div class="menu">
+          <a href="../" lang="en" hreflang="en">English</a>
+          <a href="../ru/" lang="ru" hreflang="ru">Русский</a>
+          <a class="current" href="../de/" lang="de" hreflang="de">Deutsch</a>
+          <a href="../es/" lang="es" hreflang="es">Español</a>
+          <a href="../fr/" lang="fr" hreflang="fr">Français</a>
+          <a href="../it/" lang="it" hreflang="it">Italiano</a>
+          <a href="../ja/" lang="ja" hreflang="ja">日本語</a>
+          <a href="../ko/" lang="ko" hreflang="ko">한국어</a>
+          <a href="../zh-Hans/" lang="zh-Hans" hreflang="zh-Hans">简体中文</a>
+          <a href="../pt-BR/" lang="pt-BR" hreflang="pt-BR">Português (BR)</a>
+          <a href="../hi/" lang="hi" hreflang="hi">हिन्दी</a>
+          <a href="../ar/" lang="ar" hreflang="ar" dir="rtl">العربية</a>
+          <a href="../bn/" lang="bn" hreflang="bn">বাংলা</a>
+          <a href="../tr/" lang="tr" hreflang="tr">Türkçe</a>
+        </div>
+      </details>
+      <a class="btn btn-primary btn-sm" href="https://github.com/alexex1993/SimpleSpectr/releases">⬇ Download</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="container">
+      <span class="eyebrow"><span class="dot"></span> Kostenlos &amp; quelloffen · macOS</span>
+      <h1>Audiospektrogramm <span class="grad">für macOS</span></h1>
+      <p class="lead">Eine kostenlose App zum Anzeigen, Messen und Exportieren von Audiospektrogrammen.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="https://github.com/alexex1993/SimpleSpectr/releases">⬇ Download für macOS</a>
+        <a class="btn btn-ghost" href="https://sourceforge.net/projects/simplespectr/">SourceForge</a>
+      </div>
+      <div class="hero-badges">
+        <span><span class="pip">●</span> 100 % kostenlos</span>
+        <span><span class="pip">●</span> Quelloffen auf GitHub</span>
+        <span><span class="pip">●</span> Native macOS-App</span>
+        <span><span class="pip">●</span> 14 Sprachen</span>
+        <span><span class="pip">●</span> WAV · MP3 · FLAC · AAC · AIFF · ALAC</span>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="Screenshots">
+    <div class="container">
+      <div class="shots">
+        <figure class="shot">
+          <picture>
+            <source type="image/webp" srcset="../img/screenshot-1.webp">
+            <img src="../img/screenshot-1.png" alt="SimpleSpectr-Hauptfenster mit einem farbigen Audiospektrogramm, Frequenzachse links, Zeitachse unten, Wellenform-Spur und synchronisierter Abspielposition." loading="eager" width="1600" height="915">
+          </picture>
+          <figcaption>Das Hauptfenster: volles Spektrogramm mit Wellenform-Spur, Hover-Fadenkreuz und einer Abspielposition, die mit der unteren Leiste synchronisiert ist.</figcaption>
+        </figure>
+        <figure class="shot">
+          <picture>
+            <source type="image/webp" srcset="../img/screenshot-2.webp">
+            <img src="../img/screenshot-2.png" alt="SimpleSpectr mit ausgewähltem Messbereich, geöffnetem Spektrum-Schnitt und Einstellungen-Inspektor." loading="lazy" width="1600" height="915">
+          </picture>
+          <figcaption>Ziehen Sie ein Rechteck für eine Zeit-×-Frequenz-Messung, Doppelklick für einen sofortigen Spektrum-Schnitt und passen Sie alles im seitlichen Inspektor an.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" aria-label="Features">
+    <div class="container">
+      <div class="section-head">
+        <h2>Alles, um ein Spektrogramm zu lesen</h2>
+        <p>Werkzeuge auf Profi-Niveau — kostenlos, in einer nativen Mac-App.</p>
+      </div>
+      <div class="features">
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🎚️</div>
+          <h3>Genaue FFT-Analyse</h3>
+          <p>Short-Time Fourier Transform mit Hann-Fenster und Amplitudennormierung, berechnet über Accelerate (<span class="inline-code">vDSP</span>) von Apple. Hover liefert echte dBFS-Werte.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🎹</div>
+          <h3>5 Frequenzskalen</h3>
+          <p>Linear, Logarithmisch (mit Notennamen, A4 = 440 Hz), Mel, Bark und ERB. Jede wahrnehmungsbasierte Skala verzerrt die Zeilen so, dass Beschriftung und Bild immer übereinstimmen.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🔈</div>
+          <h3>Kanalmodi</h3>
+          <p>Stereo analysieren als Mix (Mono-Downmix), Left, Right oder Mid/Side (M/S) Summe/Differenz — abgeleitet mit <span class="inline-code">vDSP</span>.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🎙️</div>
+          <h3>Live-Mikrofoneingang</h3>
+          <p>Nehmen Sie das Mikrofon auf und beobachten Sie, wie sich ein bildschirmfüllendes Spektrogramm in Echtzeit aufbaut. Die erfasste FLAC wird über den vollständigen Analysepfad erneut geöffnet.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">📐</div>
+          <h3>Messbereich</h3>
+          <p>Rechteck ziehen für sofortiges Δ-Zeit, Δ-Frequenz, musikalisches Intervall und echte Amplitudenstatistiken: RMS, Sample-Peak dBFS, 4× überabgetasteter True Peak dBTP und BS.1770 LUFS.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">📊</div>
+          <h3>Spektrum-Schnitt</h3>
+          <p>Doppelklick auf einen beliebigen Zeitpunkt öffnet eine 1-D-Amplituden-gegen-Frequenz-Kurve dieser exakten STFT-Spalte — praktisch zum Ablesen von Peaks und Spektralform.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🎯</div>
+          <h3>Harmonischer Cursor</h3>
+          <p>Blasse Führungslinien der Obertonreihe (2×, 3×, 4×…) über der Frequenz unter dem Cursor einblenden, um tonalen Inhalt von Rauschen zu trennen.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🌊</div>
+          <h3>Wellenform-Übersicht</h3>
+          <p>Eine Amplituden-Spur im Zeitbereich über dem Spektrogramm, auf derselben Zeitachse und Zoom wie die Frequenzdarstellung.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🔍</div>
+          <h3>Hover-Fadenkreuz</h3>
+          <p>Cursor beliebig bewegen, um exakte Zeit, Frequenz und Signalpegel (dB) an diesem Punkt zu lesen — ohne Pixel erneut auszulesen.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">⬇️</div>
+          <h3>Datenexport</h3>
+          <p>Exportieren Sie die tatsächlichen STFT-Magnituden als <strong>CSV</strong> oder <strong>JSON</strong>, speichern Sie das Bild als <strong>PNG</strong> oder exportieren Sie Ihre <strong>Marker</strong> — mit Bereichs- und Formatoptionen.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🎨</div>
+          <h3>7 wahrnehmungsbasierte Colormaps</h3>
+          <p>Inferno, Viridis, Magma, Plasma, Turbo, Cividis und Grayscale — im Oklab-Raum interpoliert, mit Live-Vorschau und einstellbarem dB-Fenster.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">▶️</div>
+          <h3>Wiedergabe &amp; Synchronisierung</h3>
+          <p>Ein unterer Player spielt die Datei, ein synchronisierter Cursor wandert über das Spektrogramm, Klicken und Ziehen sucht, und die Ansicht scrollt automatisch mit.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">⏱️</div>
+          <h3>Marker &amp; Zoom</h3>
+          <p>Beschriftete Marker auf der Zeitleiste setzen, den Plot horizontal per Zeit-Zoom dehnen und zuletzt geöffnete Dateien über Neustarts hinweg öffnen.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">💾</div>
+          <h3>Speicherschonend</h3>
+          <p>Audio wird gestreamt decodiert und analysiert, nie vollständig gehalten — sodass selbst sehr lange Dateien ohne Speichermangel gerendert werden.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🌍</div>
+          <h3>14 Sprachen</h3>
+          <p>Englisch, Russisch, Deutsch, Spanisch, Französisch, Italienisch, Japanisch, Koreanisch, Chinesisch (vereinfacht), Portugiesisch (Brasilien), Hindi, Arabisch, Bengali und Türkisch.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-label="How it works">
+    <div class="container">
+      <div class="section-head">
+        <h2>How it works</h2>
+      </div>
+      <div class="howto">
+        <p>Audio is decoded with Core Audio and <strong>streamed</strong> through the analyzer, so long files never sit fully in memory. It's mixed down to mono and transformed via a short-time Fourier transform (Hann window + real FFT) using Accelerate's <span class="inline-code">vDSP</span>. The one-sided spectrum is amplitude-normalized and window-corrected, magnitudes are converted to dB, and mapped through a perceptual colormap into a crisp image — low frequencies at the bottom, high at the top, time advancing left to right.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div>© <span id="year">2026</span> Alex New · SimpleSpectr — kostenloses audio spectrogram viewer für macOS</div>
+    <div class="footer-links">
+      <a href="../sitemap.xml">Sitemap</a>
+      <a href="https://github.com/alexex1993/SimpleSpectr">GitHub</a>
+      <a href="https://github.com/alexex1993/SimpleSpectr/releases">Releases</a>
+      <a href="https://sourceforge.net/projects/simplespectr/">SourceForge</a>
+    </div>
+  </div>
+</footer>
+
+<script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+</body>
+</html>
