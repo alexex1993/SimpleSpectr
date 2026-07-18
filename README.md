@@ -11,27 +11,34 @@ A simple macOS app that displays the spectrogram of an audio file.
 - **Open from Finder** — right-click a file → *Open With* → *SimpleSpectr* renders the spectrogram immediately.
 - **Microphone input / live spectrogram** — record from the microphone and watch a full-screen live spectrogram grow in real time; the captured FLAC is reopened through the normal analysis path, so you get axes, hover readout, crosshair, and playback on what you just recorded.
 - **Wide format support** — anything Core Audio can decode: WAV, MP3, AAC/M4A, FLAC, AIFF, ALAC, and more.
+- **Channel mode** — analyze a stereo file as **Mix** (mono down-mix), **Left**, **Right**, or the **Mid / Side** (M/S) sum and difference, derived with `vDSP`. Mono files collapse every mode to the single channel.
+- **Frequency scales** — five mappings for the frequency axis: **Linear**, **Logarithmic** (with note names, A4 = 440 Hz), **Mel**, **Bark**, and **ERB**. Each perceptual scale warps the rows so the labels and the image always agree.
+- **Magnitude scale** — map the spectrogram values in **log (dB)** (the readable default) or **Linear** amplitude.
+- **Color window & reference level** — set the min/max dB of the colormap and a reference-level gain that brightens quiet material. All three are display-only and re-render instantly without re-analyzing the file.
+- **Smoothing** — optional time- and frequency-axis smoothing of the log-magnitude grid that tames speckle while leaving measurements exact.
 - **Hover readout** — move the cursor over the spectrogram to read the exact time, frequency, and signal level (dB) at that point, with a crosshair.
 - **Waveform overview** — a time-domain amplitude lane sits above the spectrogram, locked to the same time axis and zoom, so you can see the track's overall dynamics and relate them to the frequency view below.
 - **Harmonic cursor** — switch on the overlay and hovering paints faint guide lines at the overtone series (2×, 3×, 4×… the frequency under the cursor), making it easy to tell pitched harmonic content from inharmonic noise.
 - **Measure region** — drag a rectangle across the spectrogram for an instant measurement panel: Δtime, Δfrequency, the musical interval, the loudest cell, and true amplitude statistics (RMS, sample peak dBFS, 4× oversampled true peak dBTP, and ITU-R BS.1770 integrated loudness LUFS) computed from the raw samples.
 - **Spectrum slice** — double-click any point in time to pop open a 1-D amplitude-vs-frequency plot of that exact STFT column, useful for reading peak frequencies and the spectral shape at a single instant.
 - **Audio playback** — a player at the bottom of the window plays the file shown in the spectrogram, with a Play/Pause button and a seek slider showing current and total time; a Mute toggle works as a spectrogram-only mode.
+- **Follow playhead** — during playback the plot auto-scrolls to keep the playhead in view once it reaches the edge; a backward seek scrolls back too. Toggle it off to scroll freely.
 - **Synced cursor** — a vertical playhead line moves across the spectrogram in sync with the sound; clicking and dragging on the spectrogram seeks through the file.
 - **Horizontal time zoom** — stretch the spectrogram along the time axis with **+ / −** (or the zoom controls), with the frequency axis pinned on the left while the plot scrolls.
 - **Markers / annotations** — drop labelled markers on the time axis (press **M** or use the Markers popover), then rename or delete them; markers live for the current session.
-- **File info panel** — a toolbar button shows the source file's codec, sample rate, channels, bit depth, bitrate, duration, and size.
+- **File info panel** — a toolbar button shows the source file's container, codec, lossless/lossy compression, PCM sample format, sample rate, Nyquist frequency, channels, bit depth, bitrate, frames per packet, duration, total frames, and size.
 - **Data export** — a single export sheet lets you pick the format — **CSV**, **JSON**, **PNG**, or **Markers** — and tune options (time/frequency range, units, column decimation, number format, axes). CSV/JSON dump the actual STFT magnitudes; Markers exports your annotations; PNG saves the rendered image.
 - **Colormap picker** — choose the spectrogram palette in Settings (Inferno, Viridis, Magma, Plasma, Turbo, Cividis, Grayscale) with live gradient previews; the selection persists across launches.
+- **Settings inspector** — analysis and display options live in a trailing inspector panel, toggled from the toolbar or with **⌥⌘I**. Channel and magnitude also get a quick picker in the toolbar.
 - **Recent files** — *File → Open Recent* reopens recently analyzed files across launches via security-scoped bookmarks.
-- **Keyboard shortcuts** — **Space** play/pause, **← / →** seek ±5 s, **+ / −** zoom, **M** add marker.
+- **Keyboard shortcuts** — **Space** play/pause, **← / →** seek ±5 s, **+ / −** zoom, **M** add marker, **⌥⌘I** toggle Settings.
 - **Localization** — 14 languages (Arabic, Bengali, German, Spanish, French, Hindi, Italian, Japanese, Korean, Portuguese (Brazil), Turkish, Chinese (Simplified), Russian, English) with automatic detection and a Settings override.
 
 ## Download
 
 Grab the latest build from the **[Releases page](https://github.com/alexex1993/SimpleSpectr/releases/latest)**.
 
-1. Download `SimpleSpectr-<version>-macos.zip`, unzip it, and move `SimpleSpectr.app` to `/Applications`.
+1. Download `SimpleSpectr-<version>-macos.dmg`, open it, and drag `SimpleSpectr.app` into the `Applications` folder shown beside it.
 2. The app is not signed with an Apple Developer ID, so Gatekeeper may warn you on first launch. Either right-click the app → *Open*, or clear the quarantine flag:
 
    ```sh
@@ -59,6 +66,19 @@ Audio is decoded with `AVAudioFile` (Core Audio) and **streamed** through the an
 Licensed under the [PolyForm Noncommercial License 1.0.0](LICENSE). Free for non-commercial use (personal, educational, research, hobby). Commercial use requires a separate license from the author.
 
 ## Changelog
+
+### 2.3.1
+
+- **Channel mode** — analyze a stereo file as **Mix** (mono down-mix), **Left**, **Right**, or the **Mid / Side** (M/S) sum and difference. The M/S derivations are computed with `vDSP`; mono files collapse every mode to the single channel. Changing the channel re-decodes the file. A quick picker also lives in the toolbar next to a magnitude picker.
+- **Frequency scales** — the frequency axis gained three perceptual mappings beyond the existing Linear / Logarithmic: **Mel**, **Bark**, and **ERB**. Each is a monotonic warp/unwarp pair, and the fraction↔frequency mapping normalizes by the warped end-points so image rows and axis labels always agree. The renderer resamples rows onto fractional bins for every non-linear scale.
+- **Magnitude scale** — a new display-only toggle maps the spectrogram in **Log (dB)** (default) or **Linear** amplitude.
+- **Color window & reference level** — the colormap now has an adjustable min/max dB window plus a reference-level gain that brightens quiet material without changing the window's shape. All three are display-only: `SpectrogramModel` re-renders from the cached dB grid with no re-decode. A *Reset levels* button restores the factory −90 / 0 / 0 dBFS.
+- **Smoothing** — optional time- and frequency-axis smoothing averages the log-magnitude STFT grid over neighbouring columns and bins to tame speckle. Re-renders instantly; amplitude statistics and the measurement panel stay exact.
+- **Follow playhead** — during playback the (zoomed) plot auto-scrolls to keep the playhead visible once it reaches the right margin, and a backward seek scrolls back too. It only follows while playing, so a paused file scrolls freely. Toggle from the toolbar or Settings; on by default.
+- **Settings inspector** — Settings moved out of a separate window into a trailing `.inspector` panel in the main window, toggled from the toolbar or with **⌥⌘I** (View → Toggle Inspector). Channel mode and magnitude scale also have a quick picker in the toolbar.
+- **Richer file info** — the file info popover now reports container, lossless/lossy compression, PCM sample format (e.g. *Float · 32-bit · LE*), Nyquist frequency, frames per packet, and total frame count, alongside the existing codec / sample rate / channels / bit depth / bitrate / duration / size.
+- **Playhead on its own clock** — the ~60 fps playhead ticks moved to a separate `PlayheadClock` `ObservableObject` so they no longer rebuild the toolbar every frame. Minimizing to the Dock now pauses (not stops) playback, so the prepared player survives a restore.
+- **Localizations refreshed** — every new string (channel mode, frequency scales, magnitude, color window, smoothing, follow playhead, file info fields) was translated across all 14 languages (Arabic, Bengali, German, Spanish, French, Hindi, Italian, Japanese, Korean, Portuguese (Brazil), Turkish, Chinese (Simplified), Russian, English).
 
 ### 2.0.3
 
