@@ -38,6 +38,15 @@ jobs:
             CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
             clean build | xcpretty && exit ${PIPESTATUS[0]}
 
+      - name: Ad-hoc sign the app
+        run: |
+          APP_PATH="build/Build/Products/Release/SimpleSpectr.app"
+          # Ad-hoc подпись (без Apple Developer аккаунта): убирает сообщение
+          # «приложение повреждено» на Apple Silicon. Предупреждение о
+          # неизвестном разработчике остаётся — карантин снимается вручную.
+          codesign --force --deep --sign - "$APP_PATH"
+          codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+
       - name: Make .dmg
         run: |
           APP_PATH="build/Build/Products/Release/SimpleSpectr.app"
