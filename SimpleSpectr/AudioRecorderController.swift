@@ -57,7 +57,7 @@ final class AudioRecorderController: ObservableObject {
             beginRecording()
         case .notDetermined:
             AVCaptureDevice.requestAccess(for: .audio) { [weak self] granted in
-                Task { @MainActor in
+                Task { @MainActor [weak self] in
                     guard let self else { return }
                     if granted { self.beginRecording() } else { self.phase = .denied }
                 }

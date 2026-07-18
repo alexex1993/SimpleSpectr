@@ -38,7 +38,7 @@ struct AudioFileInfo: Sendable {
     /// Read metadata for the file at `url`. Performs its own security-scoped
     /// access (the app is sandboxed), so it is safe to call independently of the
     /// spectrogram engine. Returns `nil` if the file cannot be opened.
-    static func load(url: URL) -> AudioFileInfo? {
+    nonisolated static func load(url: URL) -> AudioFileInfo? {
         let scoped = url.startAccessingSecurityScopedResource()
         defer { if scoped { url.stopAccessingSecurityScopedResource() } }
 

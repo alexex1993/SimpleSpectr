@@ -95,7 +95,7 @@ final class MeasurementModel: ObservableObject {
         let hi = timeRange.upperBound
         task = Task.detached(priority: .userInitiated) { [weak self] in
             let result = try? AudioStatsAnalyzer.analyze(url: url, startTime: lo, endTime: hi)
-            await MainActor.run {
+            await MainActor.run { [weak self] in
                 guard let self, current == self.token else { return }
                 self.isComputing = false
                 self.stats = result
