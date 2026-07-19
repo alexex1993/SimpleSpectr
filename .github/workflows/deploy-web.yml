@@ -5,6 +5,7 @@ on:
     branches: [ main ]
     paths:
       - 'web/**'
+      - 'wrangler.jsonc'
       - '.github/workflows/deploy-web.yml'
   # Позволяет запустить деплой вручную из вкладки Actions.
   workflow_dispatch:
@@ -23,11 +24,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Deploy to Cloudflare Pages
+      - name: Deploy to Cloudflare Workers (Static Assets)
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          # Имя существующего Pages-проекта (тот, куда сейчас перетаскиваешь папку вручную).
-          # Если проект называется иначе — поправь здесь.
-          command: pages deploy web --project-name=simplespectr --branch=main
+          # Деплоим статику web/ в существующий Worker "simplespectr".
+          # Конфиг — wrangler.jsonc в корне репозитория (assets.directory = ./web).
+          command: deploy

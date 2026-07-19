@@ -1,0 +1,10 @@
+{
+  // Деплой статического сайта из web/ в Worker "simplespectr" через Workers Static Assets.
+  // Docs: https://developers.cloudflare.com/workers/static-assets/
+  "name": "simplespectr",
+  "compatibility_date": "2025-07-01",
+  "assets": {
+    // Папка со статикой. Файлы _headers и _redirects внутри неё поддерживаются.
+    "directory": "./web"
+  }
+}
