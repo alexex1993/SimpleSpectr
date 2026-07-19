@@ -1,10 +1,17 @@
 {
-  // Деплой статического сайта из web/ в Worker "simplespectr" через Workers Static Assets.
+  // Конфиг деплоя статического сайта в Cloudflare Workers (Static Assets).
   // Docs: https://developers.cloudflare.com/workers/static-assets/
+  "$schema": "node_modules/wrangler/config-schema.json",
+
+  // Имя Worker'а в дашборде Workers & Pages. Если хочешь другое — поправь тут
+  // (должно совпадать с --project-name из прошлой версии, если проект уже создан).
   "name": "simplespectr",
+
   "compatibility_date": "2025-07-01",
+
+  // Ассеты-only деплой: нет серверного скрипта (main), только статика из web/.
+  // Wrangler сам поднимает встроенный роутер ассетов, поэтому entry-point не нужен.
   "assets": {
-    // Папка со статикой. Файлы _headers и _redirects внутри неё поддерживаются.
     "directory": "./web"
   }
 }
