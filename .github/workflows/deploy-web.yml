@@ -29,6 +29,10 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          # По умолчанию экшен ставит wrangler 3.90.0, где ассеты-only Worker
+          # (конфиг с assets, без main) ещё не поддерживается → Missing entry-point.
+          # Закрепляем версию 4.x, которая умеет Static Assets.
+          wranglerVersion: "4.112.0"
           # Деплоим статику web/ в существующий Worker "simplespectr".
           # Конфиг — wrangler.jsonc в корне репозитория (assets.directory = ./web).
           command: deploy
