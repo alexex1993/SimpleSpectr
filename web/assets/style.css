@@ -411,81 +411,19 @@ img { max-width: 100%; height: auto; }
 /* RTL adjustments for Arabic */
 [dir="rtl"] .header-actions { flex-direction: row-reverse; }
 
-/* ---------- Star-on-GitHub modal ---------- */
-.star-modal[hidden] { display: none; }
-.star-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 22px;
+/* ---------- Star-on-GitHub note under the download button ---------- */
+.hero-star-note {
+  margin: 14px 0 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
-body.star-modal-open { overflow: hidden; }
-.star-modal-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(6, 7, 12, 0.66);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
-.star-modal-card {
-  position: relative;
-  width: 100%;
-  max-width: 440px;
-  background: var(--bg-elev);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: 34px 30px 28px;
-  text-align: center;
-  animation: star-modal-in 0.22s ease;
-}
-@keyframes star-modal-in {
-  from { opacity: 0; transform: translateY(10px) scale(0.98); }
-  to   { opacity: 1; transform: none; }
-}
-.star-modal-x {
-  position: absolute;
-  top: 12px;
-  right: 14px;
-  width: 32px;
-  height: 32px;
-  border: 0;
-  background: transparent;
-  color: var(--text-faint);
-  font-size: 22px;
-  line-height: 1;
-  cursor: pointer;
-  border-radius: 8px;
-}
-[dir="rtl"] .star-modal-x { right: auto; left: 14px; }
-.star-modal-x:hover { color: var(--text); background: var(--bg-elev-2); }
-.star-modal-icon {
-  font-size: 44px;
-  line-height: 1;
-  margin-bottom: 14px;
-  filter: saturate(1.2) drop-shadow(0 6px 16px rgba(254, 159, 109, 0.35));
-}
-.star-modal-card h2 {
-  font-size: 1.35rem;
-  letter-spacing: -0.015em;
-  margin: 0 0 10px;
-  font-weight: 750;
-}
-.star-modal-card p {
+.hero-star-note a {
   color: var(--text-dim);
-  margin: 0 0 24px;
-  font-size: 0.98rem;
-  line-height: 1.55;
+  text-decoration: none;
+  border-bottom: 1px dashed var(--border);
+  transition: color 0.15s ease, border-color 0.15s ease;
 }
-.star-modal-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-}
-@media (prefers-reduced-motion: reduce) {
-  .star-modal-card { animation: none; }
+.hero-star-note a:hover {
+  color: var(--text);
+  border-bottom-color: var(--accent-4);
 }
