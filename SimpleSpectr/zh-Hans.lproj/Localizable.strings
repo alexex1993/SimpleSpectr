@@ -43,6 +43,8 @@
 "readout.time" = "时间";
 "readout.frequency" = "频率";
 "readout.signal" = "信号";
+"readout.channel" = "声道";
+"readout.correlation" = "相关性";
 
 /* Units */
 "unit.hz" = "%.0f Hz";
@@ -201,12 +203,19 @@
 "magnitude.logarithmic" = "对数 (dB)";
 "magnitude.linear" = "线性";
 "settings.channel" = "声道";
-"settings.channelHint" = "分析立体声文件的哪个声道：混合（单声道）、左、右，或 Mid/Side（M/S）的和与差。将重新分析文件。";
+"settings.channelHint" = "分析立体声文件的哪个声道：混合（单声道）、左、右，或 Mid/Side（M/S）的和与差。「立体声」将两个声道上下排列为两个独立图；「相关性」按每个频率上两声道的关系为单个图着色——单声道下相互抵消处为红色，同相处为蓝色。将重新分析文件。";
 "channel.mix" = "混合";
 "channel.left" = "左";
 "channel.right" = "右";
 "channel.mid" = "Mid (M)";
 "channel.side" = "Side (S)";
+"channel.stereo" = "立体声（L/R 上下）";
+"channel.correlation" = "相关性（L↔R）";
+"pane.left" = "左";
+"pane.right" = "右";
+"legend.correlation" = "相关性 L↔R";
+"legend.antiphase" = "反相";
+"legend.inphase" = "同相";
 "settings.smoothingEnabled" = "启用平滑";
 "button.smooth" = "平滑";
 "button.viewOptions" = "声道与幅度";

@@ -22,6 +22,10 @@ struct PlotSelection: Equatable {
     var anchorFreq: Double
     var focusTime: Double
     var focusFreq: Double
+    /// Stacked pane the drag started in (0 in a single-pane layout). The whole
+    /// selection is interpreted in this pane's frequency axis, so dragging out of
+    /// it clamps rather than silently switching channels mid-measurement.
+    var pane: Int = 0
 
     var timeRange: ClosedRange<Double> {
         min(anchorTime, focusTime)...max(anchorTime, focusTime)
@@ -40,10 +44,12 @@ struct PlotSelection: Equatable {
 
 extension SpectrogramResult {
     /// Loudest dB cell inside a time × frequency region, scanned from the cached
-    /// magnitude grid. Returns its resolved time, frequency and dB.
+    /// magnitude grid of `pane`. Returns its resolved time, frequency and dB.
     func regionPeak(timeRange: ClosedRange<Double>,
-                    freqRange: ClosedRange<Double>) -> (time: Double, frequency: Double, db: Double)? {
+                    freqRange: ClosedRange<Double>,
+                    pane: Int = 0) -> (time: Double, frequency: Double, db: Double)? {
         guard columns > 0, bins > 0, duration > 0, fftSize > 0 else { return nil }
+        let magnitudes = grid(forPane: pane)
 
         func column(_ t: Double) -> Int {
             max(0, min(columns - 1, Int(t / duration * Double(columns))))

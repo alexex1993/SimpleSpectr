@@ -194,7 +194,13 @@ final class SpectrogramModel: ObservableObject {
                     maxDB: window.max,
                     palette: palette,
                     frequencyAxis: axis,
-                    magnitudeScale: magnitudeScale)
+                    magnitudeScale: magnitudeScale,
+                    // The channel mode is an *analysis* setting, so a display
+                    // re-render keeps whatever multi-channel planes the cached
+                    // grid already carries (stacked right channel / correlation).
+                    secondary: result.secondary,
+                    secondaryPlane: result.secondaryPlane,
+                    paneLayout: result.paneLayout)
                 guard !Task.isCancelled else { return }
                 await self.commitRerender(token: token,
                                           name: name,

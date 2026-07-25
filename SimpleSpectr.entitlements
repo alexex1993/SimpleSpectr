@@ -10,5 +10,22 @@
 	<true/>
 	<key>com.apple.security.files.bookmarks.app-scope</key>
 	<true/>
+	<!-- Silences "PRECONDITION FAILURE: Process is sandboxed but
+	     'com.apple.security.exception.mach-lookup.global-name' doesn't contain
+	     'com.apple.audioanalyticsd'." Since the Xcode 26.4 SDK, AudioToolbox
+	     looks up audioanalyticsd (Apple's audio usage/diagnostics agent) while
+	     creating an audio component, so every sandboxed app that merely plays
+	     audio trips it — here via AVAudioPlayer / AVAudioEngine. Playback works
+	     without the exception; this only quiets the log. Drop both keys if the
+	     app is ever submitted to the Mac App Store, where a mach-lookup
+	     exception invites review questions. -->
+	<key>com.apple.security.exception.mach-lookup.global-name</key>
+	<array>
+		<string>com.apple.audioanalyticsd</string>
+	</array>
+	<key>com.apple.security.temporary-exception.mach-lookup.global-name</key>
+	<array>
+		<string>com.apple.audioanalyticsd</string>
+	</array>
 </dict>
 </plist>

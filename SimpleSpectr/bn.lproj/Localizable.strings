@@ -43,6 +43,8 @@
 "readout.time" = "সময়";
 "readout.frequency" = "কম্পাঙ্ক";
 "readout.signal" = "সংকেত";
+"readout.channel" = "চ্যানেল";
+"readout.correlation" = "সহসম্পর্ক";
 
 /* Units */
 "unit.hz" = "%.0f Hz";
@@ -201,12 +203,19 @@
 "magnitude.logarithmic" = "লগ (dB)";
 "magnitude.linear" = "লিনিয়ার";
 "settings.channel" = "চ্যানেল";
-"settings.channelHint" = "স্টেরিও ফাইলের কোন চ্যানেল বিশ্লেষণ করা হবে: মিক্স (মোনো), বাম, ডান, বা Mid/Side (M/S) যোগ ও পার্থক্য। ফাইল পুনরায় বিশ্লেষণ করা হয়।";
+"settings.channelHint" = "স্টেরিও ফাইলের কোন চ্যানেল বিশ্লেষণ করা হবে: মিক্স (মোনো), বাম, ডান, বা Mid/Side (M/S)-এর যোগ ও বিয়োগ। «স্টেরিও» দুটি চ্যানেলকে আলাদা প্লট হিসেবে উপর-নিচে দেখায়; «সহসম্পর্ক» প্রতিটি কম্পাঙ্কে চ্যানেল দুটির সম্পর্ক অনুযায়ী একটি প্লট রঙ করে — মোনোতে যেখানে বাতিল হয় সেখানে লাল, একই ফেজে থাকলে নীল। ফাইলটি পুনরায় বিশ্লেষণ করা হয়।";
 "channel.mix" = "মিক্স";
 "channel.left" = "বাম";
 "channel.right" = "ডান";
 "channel.mid" = "Mid (M)";
 "channel.side" = "Side (S)";
+"channel.stereo" = "স্টেরিও (L/R উপর-নিচে)";
+"channel.correlation" = "সহসম্পর্ক (L↔R)";
+"pane.left" = "বাম";
+"pane.right" = "ডান";
+"legend.correlation" = "সহসম্পর্ক L↔R";
+"legend.antiphase" = "বিপরীত ফেজ";
+"legend.inphase" = "একই ফেজ";
 "settings.smoothingEnabled" = "স্মুদিং সক্ষম করুন";
 "button.smooth" = "স্মুদ";
 "button.viewOptions" = "চ্যানেল ও ম্যাগনিটিউড";

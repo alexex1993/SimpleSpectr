@@ -43,6 +43,8 @@
 "readout.time" = "Tempo";
 "readout.frequency" = "Frequência";
 "readout.signal" = "Sinal";
+"readout.channel" = "Canal";
+"readout.correlation" = "Correlação";
 
 /* Units */
 "unit.hz" = "%.0f Hz";
@@ -201,12 +203,19 @@
 "magnitude.logarithmic" = "Log (dB)";
 "magnitude.linear" = "Linear";
 "settings.channel" = "Canal";
-"settings.channelHint" = "Qual canal de um arquivo estéreo analisar: Mix (mono), Esquerdo, Direito, ou a soma e diferença Mid/Side (M/S). Reanalisa o arquivo.";
+"settings.channelHint" = "Qual canal de um arquivo estéreo analisar: Mixagem (mono), Esquerdo, Direito, ou a soma/diferença Mid/Side (M/S). «Estéreo» empilha os dois canais como gráficos separados; «Correlação» colore um único gráfico conforme a relação entre os canais em cada frequência — vermelho onde se cancelam em mono, azul onde estão em fase. O arquivo é reanalisado.";
 "channel.mix" = "Mix";
 "channel.left" = "Esquerdo";
 "channel.right" = "Direito";
 "channel.mid" = "Mid (M)";
 "channel.side" = "Side (S)";
+"channel.stereo" = "Estéreo (L/R empilhados)";
+"channel.correlation" = "Correlação (L↔R)";
+"pane.left" = "Esquerdo";
+"pane.right" = "Direito";
+"legend.correlation" = "Correlação L↔R";
+"legend.antiphase" = "contrafase";
+"legend.inphase" = "em fase";
 "settings.smoothingEnabled" = "Ativar suavização";
 "button.smooth" = "Suavizar";
 "button.viewOptions" = "Canal e magnitude";

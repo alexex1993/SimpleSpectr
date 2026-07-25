@@ -35,7 +35,22 @@ struct SpectrogramResult: @unchecked Sendable {
     let waveformMin: [Float]
     let waveformMax: [Float]
 
-    /// Frequency-axis mapping the image and axes were rendered with.
+    /// Channel derivation the grid was analyzed with.
+    let channelMode: ChannelMode
+    /// Vertical stacking of `image` (one plot, or L above R).
+    let paneLayout: PaneLayout
+    /// Meaning of `secondary`, when a multi-channel mode produced one.
+    let secondaryPlane: SecondaryPlane?
+    /// Second data plane, same `[column * bins + bin]` layout as `magnitudes`:
+    /// the right channel's dB grid (stacked stereo) or the −1…+1 correlation
+    /// grid. `nil` for the single-signal channel modes.
+    let secondary: [Float]?
+
+    /// Number of stacked plots in `image`.
+    var paneCount: Int { paneLayout.paneCount }
+
+    /// Frequency-axis mapping the image and axes were rendered with. In a
+    /// stacked layout this is the axis of *one* pane, not of the whole image.
     var frequencyAxis: FrequencyAxis {
         FrequencyAxis(scale: frequencyScale,
                       sampleRate: sampleRate,
@@ -45,19 +60,66 @@ struct SpectrogramResult: @unchecked Sendable {
                       maxFrequency: maxFrequency)
     }
 
-    /// dB magnitude at a fractional position in the plot (0…1, origin bottom-left).
-    /// Returns the value plus the resolved time/frequency for a hover readout.
-    func sample(fractionX: Double, fractionY: Double) -> (time: Double, frequency: Double, db: Double)? {
+    /// The dB grid backing a pane: pane 0 is always `magnitudes`, pane 1 the
+    /// right channel. Falls back to the primary grid if a caller asks for a
+    /// pane this result doesn't have.
+    func grid(forPane pane: Int) -> [Float] {
+        (pane == 1 ? secondary : nil) ?? magnitudes
+    }
+
+    /// Split a whole-plot vertical fraction (0…1, bottom-origin) into the pane
+    /// under it and the fraction *within* that pane. Pane 0 is the top plot.
+    func pane(atFractionY fractionY: Double) -> (index: Int, local: Double) {
+        let f = min(max(fractionY, 0), 1)
+        let n = paneCount
+        guard n > 1 else { return (0, f) }
+        // Measure downward from the top so pane 0 is the first slice.
+        let fromTop = (1 - f) * Double(n)
+        let index = min(n - 1, max(0, Int(fromTop)))
+        return (index, 1 - (fromTop - Double(index)))
+    }
+
+    /// Inverse of `pane(atFractionY:)`: where a frequency sits in the whole plot
+    /// when drawn inside `pane`. Used by the overlays (harmonics, selection) so
+    /// they land on the pane the user is pointing at.
+    func fractionY(forFrequency frequency: Double, pane: Int) -> Double {
+        let local = frequencyAxis.fraction(forFrequency: frequency)
+        let n = paneCount
+        guard n > 1 else { return local }
+        let fromTop = (Double(pane) + (1 - min(max(local, 0), 1))) / Double(n)
+        return 1 - fromTop
+    }
+
+    /// One hovered cell of the plot: the value under the pointer plus the
+    /// coordinates it resolved to.
+    struct Probe: Equatable, Sendable {
+        let time: Double
+        let frequency: Double
+        let db: Double
+        /// Stacked plot the point landed in (0 = top / left channel).
+        let pane: Int
+        /// Inter-channel correlation at this cell, only in correlation mode.
+        let correlation: Double?
+    }
+
+    /// Value at a fractional position in the plot (0…1, origin bottom-left),
+    /// resolved through the pane under the point.
+    func sample(fractionX: Double, fractionY: Double) -> Probe? {
         guard columns > 0, bins > 0 else { return nil }
         let fx = min(max(fractionX, 0), 1)
-        let fy = min(max(fractionY, 0), 1)
+        let (paneIndex, local) = pane(atFractionY: fractionY)
         let column = min(Int(fx * Double(columns)), columns - 1)
         let axis = frequencyAxis
-        let bin = axis.bin(forFraction: fy)
-        let db = Double(magnitudes[column * bins + bin])
-        let frequency = axis.frequency(forFraction: fy)
-        let time = fx * duration
-        return (time, frequency, db)
+        let bin = axis.bin(forFraction: local)
+        let db = Double(grid(forPane: paneIndex)[column * bins + bin])
+        let corr: Double? = secondaryPlane == .correlation
+            ? secondary.map { Double($0[column * bins + bin]) }
+            : nil
+        return Probe(time: fx * duration,
+                     frequency: axis.frequency(forFraction: local),
+                     db: db,
+                     pane: paneIndex,
+                     correlation: corr)
     }
 
     /// Copy keeping the magnitudes but swapping the presented image and frequency
@@ -80,7 +142,11 @@ struct SpectrogramResult: @unchecked Sendable {
                           frequencyScale: scale ?? frequencyScale,
                           minDisplayedFrequency: minDisplayedFrequency ?? self.minDisplayedFrequency,
                           waveformMin: waveformMin,
-                          waveformMax: waveformMax)
+                          waveformMax: waveformMax,
+                          channelMode: channelMode,
+                          paneLayout: paneLayout,
+                          secondaryPlane: secondaryPlane,
+                          secondary: secondary)
     }
 }
 
@@ -167,52 +233,46 @@ enum SpectrogramEngine {
         vDSP_sve(window, 1, &winSum, vDSP_Length(fftSize))
         let twoOverWinSum: Float = 2.0 / winSum // one-sided spectrum, window-corrected
 
+        // Multi-channel modes (stacked stereo / correlation) transform L and R in
+        // the same pass, so every per-frame buffer is doubled. The single-signal
+        // modes leave the "B" side untouched.
+        let dual = channelMode.isDual
+
         // Scratch buffers for the real FFT (split-complex packing), hoisted out of the loop.
-        var realp = [Float](repeating: 0, count: bins)
-        var imagp = [Float](repeating: 0, count: bins)
+        var realA = [Float](repeating: 0, count: bins)
+        var imagA = [Float](repeating: 0, count: bins)
+        var realB = [Float](repeating: 0, count: dual ? bins : 0)
+        var imagB = [Float](repeating: 0, count: dual ? bins : 0)
         var windowed = [Float](repeating: 0, count: fftSize)
-        var mags = [Float](repeating: 0, count: bins)
+        var magsA = [Float](repeating: 0, count: bins)
+        var magsB = [Float](repeating: 0, count: dual ? bins : 0)
 
         // Column-major magnitude grid in dB: magnitudes[col * bins + bin].
         var magnitudes = [Float](repeating: 0, count: columns * bins)
+        // Second plane: the right channel's dB grid, or the correlation grid.
+        var secondary = [Float](repeating: 0, count: dual ? columns * bins : 0)
         var globalMax: Float = -.greatestFiniteMagnitude
 
         // Per-column overview waveform envelope.
         var waveMin = [Float](repeating: 0, count: columns)
         var waveMax = [Float](repeating: 0, count: columns)
 
-        // Decode on the fly through a sequential mono source so the whole file is
+        // Decode on the fly through a sequential source so the whole file is
         // never materialized in memory.
-        var source = try MonoSource(file: file, channelCount: channelCount, channelMode: channelMode)
-        var windowSamples = [Float](repeating: 0, count: fftSize)
-        _ = try source.fill(into: &windowSamples, offset: 0, count: fftSize)
+        var source = try ChannelSource(file: file, channelCount: channelCount, channelMode: channelMode)
+        var samplesA = [Float](repeating: 0, count: fftSize)
+        var samplesB = [Float](repeating: 0, count: dual ? fftSize : 0)
+        _ = try source.fill(into: &samplesA, and: &samplesB, offset: 0, count: fftSize)
 
-        for col in 0..<columns {
-            if col > 0 {
-                if hop < fftSize {
-                    // Overlapping windows: slide the buffer left by `hop`, refill the tail.
-                    let keep = fftSize - hop
-                    for i in 0..<keep { windowSamples[i] = windowSamples[i + hop] }
-                    _ = try source.fill(into: &windowSamples, offset: keep, count: hop)
-                } else {
-                    // Non-overlapping windows for very long files: skip the gap, read fresh.
-                    _ = try source.discard(count: hop - fftSize)
-                    _ = try source.fill(into: &windowSamples, offset: 0, count: fftSize)
-                }
-            }
-            try Task.checkCancellation()
-
-            // Overview waveform: peak min/max of the raw samples in this frame.
-            var frameMin: Float = 0
-            var frameMax: Float = 0
-            vDSP_minv(windowSamples, 1, &frameMin, vDSP_Length(fftSize))
-            vDSP_maxv(windowSamples, 1, &frameMax, vDSP_Length(fftSize))
-            waveMin[col] = frameMin
-            waveMax[col] = frameMax
-
-            // Apply window into `windowed`.
-            vDSP_vmul(windowSamples, 1, window, 1, &windowed, 1, vDSP_Length(fftSize))
-
+        /// Window one frame and run the forward real FFT into a split-complex pair.
+        /// With `fft_zrip`, slot 0 packs DC (real) and Nyquist (imag); Nyquist is
+        /// dropped so it does not contaminate the DC magnitude. `mags` receives
+        /// the raw (un-normalized) amplitude spectrum.
+        func transform(_ samples: [Float],
+                       _ realp: inout [Float],
+                       _ imagp: inout [Float],
+                       _ mags: inout [Float]) {
+            vDSP_vmul(samples, 1, window, 1, &windowed, 1, vDSP_Length(fftSize))
             realp.withUnsafeMutableBufferPointer { rp in
                 imagp.withUnsafeMutableBufferPointer { ip in
                     var split = DSPSplitComplex(realp: rp.baseAddress!, imagp: ip.baseAddress!)
@@ -221,33 +281,102 @@ enum SpectrogramEngine {
                             vDSP_ctoz(cp, 2, &split, 1, vDSP_Length(bins))
                         }
                     }
-                    // Forward real FFT.
                     vDSP_fft_zrip(setup, &split, 1, log2n, FFTDirection(FFT_FORWARD))
-
-                    // With fft_zrip, slot 0 packs DC (realp[0]) and Nyquist (imagp[0]).
-                    // Drop Nyquist so it does not contaminate the DC magnitude.
                     ip.baseAddress![0] = 0
-
-                    // Magnitude (sqrt of squared) into `mags`.
                     vDSP_zvabs(&split, 1, &mags, 1, vDSP_Length(bins))
                 }
             }
+        }
 
-            // Normalize to amplitude: factor 2 for the one-sided spectrum, divided by the
-            // window's coherent sum. DC has no spectral mirror, so it is not doubled.
+        /// Amplitude → dBFS in place: factor 2 for the one-sided spectrum divided
+        /// by the window's coherent sum, then 20·log₁₀. DC has no spectral mirror,
+        /// so it is not doubled.
+        func toDecibels(_ mags: inout [Float]) {
             var k = twoOverWinSum
-            vDSP_vsmul(mags, 1, &k, &mags, 1, vDSP_Length(bins))
-            mags[0] *= 0.5
-
-            // Convert to dB (20*log10), guarding against log(0).
             var ref: Float = 1.0
-            vDSP_vdbcon(mags, 1, &ref, &mags, 1, vDSP_Length(bins), 1)
+            let n = vDSP_Length(bins)
+            // In-place through one pointer: aliasing the same array as both the
+            // source and the destination argument is exactly what vDSP expects,
+            // and spelling it this way keeps Swift's exclusivity rules happy.
+            mags.withUnsafeMutableBufferPointer { p in
+                guard let base = p.baseAddress else { return }
+                vDSP_vsmul(base, 1, &k, base, 1, n)
+                base[0] *= 0.5
+                vDSP_vdbcon(base, 1, &ref, base, 1, n, 1)
+            }
+        }
+
+        for col in 0..<columns {
+            if col > 0 {
+                if hop < fftSize {
+                    // Overlapping windows: slide the buffer left by `hop`, refill the tail.
+                    let keep = fftSize - hop
+                    for i in 0..<keep { samplesA[i] = samplesA[i + hop] }
+                    if dual { for i in 0..<keep { samplesB[i] = samplesB[i + hop] } }
+                    _ = try source.fill(into: &samplesA, and: &samplesB, offset: keep, count: hop)
+                } else {
+                    // Non-overlapping windows for very long files: skip the gap, read fresh.
+                    _ = try source.discard(count: hop - fftSize)
+                    _ = try source.fill(into: &samplesA, and: &samplesB, offset: 0, count: fftSize)
+                }
+            }
+            try Task.checkCancellation()
+
+            // Overview waveform: peak min/max of the raw samples in this frame.
+            // In a dual mode it spans both channels, so the lane still shows the
+            // true envelope of the material.
+            var frameMin: Float = 0
+            var frameMax: Float = 0
+            vDSP_minv(samplesA, 1, &frameMin, vDSP_Length(fftSize))
+            vDSP_maxv(samplesA, 1, &frameMax, vDSP_Length(fftSize))
+            if dual {
+                var bMin: Float = 0
+                var bMax: Float = 0
+                vDSP_minv(samplesB, 1, &bMin, vDSP_Length(fftSize))
+                vDSP_maxv(samplesB, 1, &bMax, vDSP_Length(fftSize))
+                frameMin = min(frameMin, bMin)
+                frameMax = max(frameMax, bMax)
+            }
+            waveMin[col] = frameMin
+            waveMax[col] = frameMax
+
+            transform(samplesA, &realA, &imagA, &magsA)
+            if dual { transform(samplesB, &realB, &imagB, &magsB) }
 
             let colBase = col * bins
+
+            if channelMode == .correlation {
+                // Cross-spectrum, computed on the *raw* FFT output: the shared
+                // normalization cancels in the ratio.
+                //   cos Δφ = Re(L · conj(R)) / (|L| · |R|)
+                // The level plane keeps the mean channel energy so the readout
+                // and the color weighting stay meaningful where a phase-inverted
+                // pair would cancel in a plain mix.
+                for b in 0..<bins {
+                    let ma = magsA[b], mb = magsB[b]
+                    let den = ma * mb
+                    let c = den > 1e-20
+                        ? (realA[b] * realB[b] + imagA[b] * imagB[b]) / den
+                        : 0
+                    secondary[colBase + b] = min(max(c, -1), 1)
+                    magsA[b] = (0.5 * (ma * ma + mb * mb)).squareRoot()
+                }
+            }
+
+            toDecibels(&magsA)
             for b in 0..<bins {
-                let v = mags[b]
+                let v = magsA[b]
                 magnitudes[colBase + b] = v
                 if v > globalMax { globalMax = v }
+            }
+
+            if channelMode == .stereo {
+                toDecibels(&magsB)
+                for b in 0..<bins {
+                    let v = magsB[b]
+                    secondary[colBase + b] = v
+                    if v > globalMax { globalMax = v }
+                }
             }
         }
 
@@ -259,6 +388,7 @@ enum SpectrogramEngine {
                                       sampleRate: sampleRate,
                                       fftSize: fftSize,
                                       bins: bins)
+        let secondGrid: [Float]? = dual ? secondary : nil
         let image = try renderImage(magnitudes: magnitudes,
                                     columns: columns,
                                     bins: bins,
@@ -266,7 +396,10 @@ enum SpectrogramEngine {
                                     maxDB: hi,
                                     palette: palette,
                                     frequencyAxis: axis,
-                                    magnitudeScale: magnitudeScale)
+                                    magnitudeScale: magnitudeScale,
+                                    secondary: secondGrid,
+                                    secondaryPlane: channelMode.secondaryPlane,
+                                    paneLayout: channelMode.paneLayout)
 
         return SpectrogramResult(image: image,
                                  duration: Double(total) / sampleRate,
@@ -281,7 +414,11 @@ enum SpectrogramEngine {
                                  frequencyScale: frequencyScale,
                                  minDisplayedFrequency: axis.minFrequency,
                                  waveformMin: waveMin,
-                                 waveformMax: waveMax)
+                                 waveformMax: waveMax,
+                                 channelMode: channelMode,
+                                 paneLayout: channelMode.paneLayout,
+                                 secondaryPlane: channelMode.secondaryPlane,
+                                 secondary: secondGrid)
     }
 
     // MARK: - Image generation
@@ -294,6 +431,13 @@ enum SpectrogramEngine {
     /// `.logarithmic`, each output row is sampled at the matching frequency with
     /// linear interpolation between adjacent bins, warping the image to the log
     /// axis so it lines up with the on-screen note labels.
+    ///
+    /// `paneLayout` stacks several plots into one image: `.stackedStereo` gives
+    /// `paneCount * bins` rows, pane 0 (from `magnitudes`) on top and pane 1
+    /// (from `secondary`) below, split exactly in half so the on-screen fraction
+    /// math is a plain even subdivision. When `secondaryPlane` is `.correlation`
+    /// the single pane is colored by the signed correlation grid instead of the
+    /// palette, with `magnitudes` acting as the energy weight.
     nonisolated static func renderImage(magnitudes: [Float],
                                         columns: Int,
                                         bins: Int,
@@ -301,9 +445,13 @@ enum SpectrogramEngine {
                                         maxDB: Float,
                                         palette: Palette = .inferno,
                                         frequencyAxis: FrequencyAxis? = nil,
-                                        magnitudeScale: MagnitudeScale = .logarithmic) throws -> CGImage {
+                                        magnitudeScale: MagnitudeScale = .logarithmic,
+                                        secondary: [Float]? = nil,
+                                        secondaryPlane: SecondaryPlane? = nil,
+                                        paneLayout: PaneLayout = .single) throws -> CGImage {
+        let paneCount = paneLayout.paneCount
         let width = columns
-        let height = bins
+        let height = bins * paneCount
         let invRange = 1.0 / max(1e-6, (maxDB - minDB))
         let lut = palette.lut
         // Any non-linear axis (log/mel/bark/erb) warps each output row onto a
@@ -315,41 +463,67 @@ enum SpectrogramEngine {
         let ampMin = powf(10, minDB / 20)
         let ampMax = powf(10, maxDB / 20)
         let invAmpRange = 1.0 / max(1e-12, (ampMax - ampMin))
+        // Correlation colors the plot by the signed grid; anything else (a
+        // stacked right channel, or no second plane at all) is a plain dB pane.
+        let correlationGrid = secondaryPlane == .correlation ? secondary : nil
+        let panes: [[Float]] = paneCount > 1
+            ? [magnitudes, secondary ?? magnitudes]
+            : [magnitudes]
+
+        /// Where a row inside a pane samples the grid: an exact bin on the linear
+        /// axis, a fractional one on any warped axis.
+        func value(_ grid: [Float], colBase: Int, rowInPane: Int) -> Float {
+            if warpScale, let axis = frequencyAxis, bins > 1 {
+                let fracY = Double(bins - 1 - rowInPane) / Double(bins - 1)
+                let freq = axis.frequency(forFraction: fracY)
+                let fbin = freq * Double(axis.fftSize) / axis.sampleRate
+                return Self.sampleLinear(grid, colBase: colBase, bins: bins, at: fbin)
+            }
+            // Linear 1:1 — the first row of a pane (its top) is the highest bin.
+            return grid[colBase + bins - 1 - rowInPane]
+        }
+
+        // Bound once outside the pixel loops: re-binding the optional per pixel
+        // would retain/release the grid on every sample.
+        let corrGrid = correlationGrid ?? []
+        let colorByCorrelation = correlationGrid != nil
 
         var pixels = Data(count: width * height * 4)
         pixels.withUnsafeMutableBytes { raw in
             guard let p = raw.bindMemory(to: UInt8.self).baseAddress else { return }
-            for col in 0..<columns {
-                let colBase = col * bins
-                for row in 0..<height {
-                    // row 0 = top = highest frequency → fraction 1 at top, 0 at bottom.
-                    let db: Float
-                    if warpScale, let axis = frequencyAxis, height > 1 {
-                        let fracY = Double(height - 1 - row) / Double(height - 1)
-                        let freq = axis.frequency(forFraction: fracY)
-                        let fbin = freq * Double(axis.fftSize) / axis.sampleRate
-                        db = Self.sampleLinear(magnitudes, colBase: colBase, bins: bins, at: fbin)
-                    } else {
-                        // Linear 1:1 — row 0 (top) → highest bin.
-                        let bin = bins - 1 - row
-                        db = magnitudes[colBase + bin]
+            for pane in 0..<paneCount {
+                let grid = panes[pane]
+                let rowBase = pane * bins
+                for col in 0..<columns {
+                    let colBase = col * bins
+                    for rowInPane in 0..<bins {
+                        let db = value(grid, colBase: colBase, rowInPane: rowInPane)
+                        // Map to 0…1 either through the dB window (log) or the
+                        // equivalent amplitude window (linear magnitude).
+                        var t: Float
+                        if linearMagnitude {
+                            t = (powf(10, db / 20) - ampMin) * invAmpRange
+                        } else {
+                            t = (db - minDB) * invRange
+                        }
+                        if !t.isFinite { t = 0 }
+                        if t < 0 { t = 0 } else if t > 1 { t = 1 }
+                        let rgb: (UInt8, UInt8, UInt8)
+                        if colorByCorrelation {
+                            // `t` is the level, which fades quiet bins toward the
+                            // background so a noise floor's phase stays invisible.
+                            rgb = CorrelationColormap.color(
+                                correlation: value(corrGrid, colBase: colBase, rowInPane: rowInPane),
+                                weight: t)
+                        } else {
+                            rgb = lut[Int(t * 255)]
+                        }
+                        let offset = ((rowBase + rowInPane) * width + col) * 4
+                        p[offset + 0] = rgb.0
+                        p[offset + 1] = rgb.1
+                        p[offset + 2] = rgb.2
+                        p[offset + 3] = 255
                     }
-                    // Map to 0…1 either through the dB window (log) or the
-                    // equivalent amplitude window (linear magnitude).
-                    var t: Float
-                    if linearMagnitude {
-                        t = (powf(10, db / 20) - ampMin) * invAmpRange
-                    } else {
-                        t = (db - minDB) * invRange
-                    }
-                    if !t.isFinite { t = 0 }
-                    if t < 0 { t = 0 } else if t > 1 { t = 1 }
-                    let (r, g, b) = lut[Int(t * 255)]
-                    let offset = (row * width + col) * 4
-                    p[offset + 0] = r
-                    p[offset + 1] = g
-                    p[offset + 2] = b
-                    p[offset + 3] = 255
                 }
             }
         }
@@ -390,19 +564,26 @@ enum SpectrogramEngine {
     }
 }
 
-// MARK: - Sequential mono decoder
+// MARK: - Sequential decoder
 
-/// Reads an `AVAudioFile` forward, down-mixing to mono, and hands out samples on
+/// Reads an `AVAudioFile` forward and hands out the derived analysis signal(s) on
 /// demand. Only a small chunk is ever held in memory, so long files don't blow up
 /// the heap.
-nonisolated private struct MonoSource {
+///
+/// Single-signal modes (mix / left / right / mid / side) produce one stream in
+/// `pendingA`. The dual modes (`stereo`, `correlation`) additionally fill
+/// `pendingB`, so a stereo file's two channels stay aligned sample-for-sample
+/// through one forward pass — a second pass would have to re-decode the file.
+nonisolated private struct ChannelSource {
     private let file: AVAudioFile
     private let channelCount: Int
     private let channelMode: ChannelMode
+    private let isDual: Bool
     private let chunkFrames: AVAudioFrameCount
     private let buffer: AVAudioPCMBuffer
 
-    private var pending: [Float] = []
+    private var pendingA: [Float] = []
+    private var pendingB: [Float] = []
     private var pendingOffset = 0
     private var eof = false
 
@@ -410,6 +591,7 @@ nonisolated private struct MonoSource {
         self.file = file
         self.channelCount = channelCount
         self.channelMode = channelMode
+        self.isDual = channelMode.isDual
         self.chunkFrames = 1 << 18 // 262144 frames per read
         // Allocation can fail (invalid format / out of memory); fail loudly with a
         // recoverable error rather than trapping mid-decode.
@@ -419,18 +601,26 @@ nonisolated private struct MonoSource {
         self.buffer = buffer
     }
 
-    /// Copy up to `count` samples into `dst[offset..<]`. Returns the number copied.
-    mutating func fill(into dst: inout [Float], offset: Int, count: Int) throws -> Int {
+    /// Copy up to `count` samples into `a[offset..<]` (and, in a dual mode, the
+    /// matching right-channel samples into `b`). Returns the number copied.
+    /// `b` is ignored — and may be empty — outside the dual modes.
+    mutating func fill(into a: inout [Float], and b: inout [Float],
+                       offset: Int, count: Int) throws -> Int {
         var written = 0
         while written < count {
-            if pendingOffset >= pending.count {
+            if pendingOffset >= pendingA.count {
                 if eof { break }
                 try decodeNextChunk()
-                if pendingOffset >= pending.count { break }
+                if pendingOffset >= pendingA.count { break }
             }
-            let take = min(count - written, pending.count - pendingOffset)
+            let take = min(count - written, pendingA.count - pendingOffset)
             for i in 0..<take {
-                dst[offset + written + i] = pending[pendingOffset + i]
+                a[offset + written + i] = pendingA[pendingOffset + i]
+            }
+            if isDual {
+                for i in 0..<take {
+                    b[offset + written + i] = pendingB[pendingOffset + i]
+                }
             }
             pendingOffset += take
             written += take
@@ -442,21 +632,22 @@ nonisolated private struct MonoSource {
     mutating func discard(count: Int) throws -> Int {
         var discarded = 0
         while discarded < count {
-            if pendingOffset >= pending.count {
+            if pendingOffset >= pendingA.count {
                 if eof { break }
                 try decodeNextChunk()
-                if pendingOffset >= pending.count { break }
+                if pendingOffset >= pendingA.count { break }
             }
-            let take = min(count - discarded, pending.count - pendingOffset)
+            let take = min(count - discarded, pendingA.count - pendingOffset)
             pendingOffset += take
             discarded += take
         }
         return discarded
     }
 
-    /// Read one chunk from the file into `pending`. Safe at EOF: returns without
-    /// throwing, leaving `pending` empty. `read(into:)` throws at EOF, so the loop
-    /// is driven by `framePosition < length` and reads `min(chunk, remaining)`.
+    /// Read one chunk from the file into `pendingA` (+ `pendingB` when dual).
+    /// Safe at EOF: returns without throwing, leaving the buffers empty.
+    /// `read(into:)` throws at EOF, so the loop is driven by
+    /// `framePosition < length` and reads `min(chunk, remaining)`.
     private mutating func decodeNextChunk() throws {
         guard !eof, file.framePosition < file.length else {
             eof = true
@@ -475,47 +666,59 @@ nonisolated private struct MonoSource {
         if frames == 0 { eof = true; return }
         guard let channels = buffer.floatChannelData else { eof = true; return }
 
-        pending.removeAll(keepingCapacity: true)
+        pendingA.removeAll(keepingCapacity: true)
+        pendingB.removeAll(keepingCapacity: true)
         pendingOffset = 0
 
         // Mono files (or a source with a single channel) collapse every mode to
-        // the one available channel.
+        // the one available channel — including the dual modes, where both sides
+        // then carry the same signal (correlation reads a constant +1).
         if channelCount == 1 {
             let p = channels[0]
-            pending.append(contentsOf: UnsafeBufferPointer(start: p, count: frames))
+            pendingA.append(contentsOf: UnsafeBufferPointer(start: p, count: frames))
+            if isDual { pendingB = pendingA }
             return
         }
 
         let left = channels[0]
         let right = channels[1]   // channelCount >= 2 here
-        pending = [Float](repeating: 0, count: frames)
+
+        if isDual {
+            pendingA.append(contentsOf: UnsafeBufferPointer(start: left, count: frames))
+            pendingB.append(contentsOf: UnsafeBufferPointer(start: right, count: frames))
+            return
+        }
+
+        pendingA = [Float](repeating: 0, count: frames)
 
         switch channelMode {
         case .left:
-            pending.withUnsafeMutableBufferPointer { dst in
+            pendingA.withUnsafeMutableBufferPointer { dst in
                 dst.baseAddress!.update(from: left, count: frames)
             }
         case .right:
-            pending.withUnsafeMutableBufferPointer { dst in
+            pendingA.withUnsafeMutableBufferPointer { dst in
                 dst.baseAddress!.update(from: right, count: frames)
             }
         case .mid:
             // Mid = (L + R) / 2.
-            vDSP_vadd(left, 1, right, 1, &pending, 1, vDSP_Length(frames))
+            vDSP_vadd(left, 1, right, 1, &pendingA, 1, vDSP_Length(frames))
             var half: Float = 0.5
-            vDSP_vsmul(pending, 1, &half, &pending, 1, vDSP_Length(frames))
+            vDSP_vsmul(pendingA, 1, &half, &pendingA, 1, vDSP_Length(frames))
         case .side:
             // Side = (L - R) / 2.
-            vDSP_vsub(right, 1, left, 1, &pending, 1, vDSP_Length(frames)) // L - R
+            vDSP_vsub(right, 1, left, 1, &pendingA, 1, vDSP_Length(frames)) // L - R
             var half: Float = 0.5
-            vDSP_vsmul(pending, 1, &half, &pending, 1, vDSP_Length(frames))
+            vDSP_vsmul(pendingA, 1, &half, &pendingA, 1, vDSP_Length(frames))
         case .mix:
             // Average of every channel (down-mix to mono).
             for ch in 0..<channelCount {
-                vDSP_vadd(pending, 1, channels[ch], 1, &pending, 1, vDSP_Length(frames))
+                vDSP_vadd(pendingA, 1, channels[ch], 1, &pendingA, 1, vDSP_Length(frames))
             }
             var inv = 1.0 / Float(channelCount)
-            vDSP_vsmul(pending, 1, &inv, &pending, 1, vDSP_Length(frames))
+            vDSP_vsmul(pendingA, 1, &inv, &pendingA, 1, vDSP_Length(frames))
+        case .stereo, .correlation:
+            break // handled above by the dual path
         }
     }
 }

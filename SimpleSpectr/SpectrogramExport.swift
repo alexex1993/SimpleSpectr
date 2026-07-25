@@ -179,22 +179,55 @@ nonisolated enum SpectrogramExporter {
             out += nl
         }
 
-        for b in bins {
-            if options.includeHeaders {
-                out += number(frequency(forBin: b, result), precision: 1, options)
-                out += sep
+        /// Emit one freq × time matrix. `raw` skips the dB→units conversion for
+        /// planes that aren't levels (the correlation grid is already −1…+1).
+        func matrix(_ grid: [Float], raw: Bool) {
+            for b in bins {
+                if options.includeHeaders {
+                    out += number(frequency(forBin: b, result), precision: 1, options)
+                    out += sep
+                }
+                var first = true
+                for c in columns {
+                    if first { first = false } else { out += sep }
+                    let v = grid[c * result.bins + b]
+                    out += number(raw ? Double(v) : value(v, result, options),
+                                  precision: options.precision, options)
+                }
+                out += nl
             }
-            let base = b
-            var first = true
-            for c in columns {
-                if first { first = false } else { out += sep }
-                let db = result.magnitudes[c * result.bins + base]
-                out += number(value(db, result, options), precision: options.precision, options)
-            }
+        }
+
+        matrix(result.magnitudes, raw: false)
+
+        // A multi-channel analysis carries a second plane. It is appended as its
+        // own labelled block after a blank line rather than widening the matrix,
+        // so a reader that only wants the first table can still parse this file.
+        if let second = result.secondary, let plane = result.secondaryPlane {
             out += nl
+            out += csvEscape(planeName(plane), delimiter: sep)
+            out += nl
+            if options.includeHeaders {
+                out += "frequency_Hz \\ time_s"
+                for c in columns {
+                    out += sep
+                    out += number(time(forColumn: c, result), precision: 3, options)
+                }
+                out += nl
+            }
+            matrix(second, raw: plane == .correlation)
         }
 
         return Data(out.utf8)
+    }
+
+    /// Stable, non-localized identifier for a second data plane, used in the
+    /// export files so downstream tools can key off it.
+    static func planeName(_ plane: SecondaryPlane) -> String {
+        switch plane {
+        case .rightChannel: return "right_channel_dB"
+        case .correlation:  return "correlation_-1..+1"
+        }
     }
 
     // MARK: JSON (grid + metadata)
@@ -213,12 +246,27 @@ nonisolated enum SpectrogramExporter {
             }
         }
 
+        // A multi-channel analysis carries a second plane alongside the levels.
+        // Correlation is already a −1…+1 ratio, so it skips the units conversion.
+        var secondaryValues: [[Double]]?
+        if let second = result.secondary, let plane = result.secondaryPlane {
+            let raw = plane == .correlation
+            secondaryValues = bins.map { b in
+                columns.map { c in
+                    let v = second[c * result.bins + b]
+                    return rounded(raw ? Double(v) : value(v, result, options),
+                                   precision: options.precision)
+                }
+            }
+        }
+
         let payload = ExportPayload(
             source: options.sourceName,
             sampleRate: result.sampleRate,
             fftSize: result.fftSize,
             windowFunction: options.windowFunction,
             overlapPercent: options.overlapPercent,
+            channelMode: result.channelMode.rawValue,
             units: options.units.rawValue,
             duration: result.duration,
             timeRange: [options.timeRange.lowerBound, options.timeRange.upperBound],
@@ -227,7 +275,9 @@ nonisolated enum SpectrogramExporter {
             bins: bins.count,
             times: times.map { rounded($0, precision: 4) },
             frequencies: frequencies.map { rounded($0, precision: 2) },
-            values: values)
+            values: values,
+            secondaryPlane: result.secondaryPlane.map { planeName($0) },
+            secondaryValues: secondaryValues)
 
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.withoutEscapingSlashes]
@@ -240,6 +290,7 @@ nonisolated enum SpectrogramExporter {
         let fftSize: Int
         let windowFunction: String
         let overlapPercent: Double
+        let channelMode: String
         let units: String
         let duration: Double
         let timeRange: [Double]
@@ -249,6 +300,10 @@ nonisolated enum SpectrogramExporter {
         let times: [Double]
         let frequencies: [Double]
         let values: [[Double]]
+        /// Present only for the multi-channel modes; names what `secondaryValues`
+        /// holds ("right_channel_dB" or "correlation_-1..+1").
+        let secondaryPlane: String?
+        let secondaryValues: [[Double]]?
     }
 
     // MARK: Markers CSV

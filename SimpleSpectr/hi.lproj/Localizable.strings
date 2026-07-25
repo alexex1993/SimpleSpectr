@@ -43,6 +43,8 @@
 "readout.time" = "समय";
 "readout.frequency" = "आवृत्ति";
 "readout.signal" = "संकेत";
+"readout.channel" = "चैनल";
+"readout.correlation" = "सहसंबंध";
 
 /* Units */
 "unit.hz" = "%.0f Hz";
@@ -201,12 +203,19 @@
 "magnitude.logarithmic" = "लॉग (dB)";
 "magnitude.linear" = "लीनियर";
 "settings.channel" = "चैनल";
-"settings.channelHint" = "स्टीरियो फ़ाइल का कौन-सा चैनल विश्लेषित करना है: मिक्स (मोनो), बायाँ, दायाँ, या Mid/Side (M/S) योग और अंतर। फ़ाइल का पुनर्विश्लेषण होता है।";
+"settings.channelHint" = "स्टीरियो फ़ाइल का कौन-सा चैनल विश्लेषित करना है: मिक्स (मोनो), बायाँ, दायाँ, या Mid/Side (M/S) का योग और अंतर। «स्टीरियो» दोनों चैनलों को अलग-अलग प्लॉट के रूप में ऊपर-नीचे दिखाता है; «सहसंबंध» एक ही प्लॉट को हर आवृत्ति पर चैनलों के संबंध से रंगता है — जहाँ वे मोनो में रद्द होते हैं वहाँ लाल, और जहाँ समान फेज़ में हैं वहाँ नीला। फ़ाइल का पुनः विश्लेषण होता है।";
 "channel.mix" = "मिक्स";
 "channel.left" = "बायाँ";
 "channel.right" = "दायाँ";
 "channel.mid" = "Mid (M)";
 "channel.side" = "Side (S)";
+"channel.stereo" = "स्टीरियो (L/R ऊपर-नीचे)";
+"channel.correlation" = "सहसंबंध (L↔R)";
+"pane.left" = "बायाँ";
+"pane.right" = "दायाँ";
+"legend.correlation" = "सहसंबंध L↔R";
+"legend.antiphase" = "विपरीत फेज़";
+"legend.inphase" = "समान फेज़";
 "settings.smoothingEnabled" = "स्मूदिंग सक्षम करें";
 "button.smooth" = "स्मूद";
 "button.viewOptions" = "चैनल और मैग्निट्यूड";

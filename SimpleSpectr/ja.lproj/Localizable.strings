@@ -43,6 +43,8 @@
 "readout.time" = "時間";
 "readout.frequency" = "周波数";
 "readout.signal" = "信号";
+"readout.channel" = "チャンネル";
+"readout.correlation" = "相関";
 
 /* Units */
 "unit.hz" = "%.0f Hz";
@@ -201,12 +203,19 @@
 "magnitude.logarithmic" = "対数 (dB)";
 "magnitude.linear" = "リニア";
 "settings.channel" = "チャンネル";
-"settings.channelHint" = "ステレオファイルのどのチャンネルを解析するか：ミックス（モノ）、左、右、または Mid/Side（M/S）の和と差。ファイルを再解析します。";
+"settings.channelHint" = "ステレオファイルのどのチャンネルを解析するか: ミックス（モノ）、左、右、または Mid/Side（M/S）の和と差。「ステレオ」は 2 つのチャンネルを別々のプロットとして上下に並べます。「相関」は 1 つのプロットを周波数ごとのチャンネル間の関係で色分けし、モノで打ち消し合う所を赤、同相の所を青で示します。ファイルは再解析されます。";
 "channel.mix" = "ミックス";
 "channel.left" = "左";
 "channel.right" = "右";
 "channel.mid" = "Mid (M)";
 "channel.side" = "Side (S)";
+"channel.stereo" = "ステレオ（L/R 上下）";
+"channel.correlation" = "相関（L↔R）";
+"pane.left" = "左";
+"pane.right" = "右";
+"legend.correlation" = "相関 L↔R";
+"legend.antiphase" = "逆相";
+"legend.inphase" = "同相";
 "settings.smoothingEnabled" = "スムージングを有効にする";
 "button.smooth" = "スムーズ";
 "button.viewOptions" = "チャンネルと振幅";

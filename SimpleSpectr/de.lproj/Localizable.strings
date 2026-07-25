@@ -43,6 +43,8 @@
 "readout.time" = "Zeit";
 "readout.frequency" = "Frequenz";
 "readout.signal" = "Signal";
+"readout.channel" = "Kanal";
+"readout.correlation" = "Korrelation";
 
 /* Units */
 "unit.hz" = "%.0f Hz";
@@ -201,12 +203,19 @@
 "magnitude.logarithmic" = "Log (dB)";
 "magnitude.linear" = "Linear";
 "settings.channel" = "Kanal";
-"settings.channelHint" = "Welcher Kanal einer Stereodatei analysiert wird: Mix (Mono), Links, Rechts oder die Mid/Side-Summe und -Differenz (M/S). Datei wird neu analysiert.";
+"settings.channelHint" = "Welcher Kanal einer Stereodatei analysiert wird: Mix (Mono), Links, Rechts oder Mid/Side (M/S) als Summe und Differenz. „Stereo“ stellt beide Kanäle als getrennte Diagramme übereinander dar; „Korrelation“ färbt ein einzelnes Diagramm danach ein, wie die Kanäle je Frequenz zusammenhängen — rot, wo sie sich in Mono auslöschen, blau, wo sie phasengleich sind. Die Datei wird neu analysiert.";
 "channel.mix" = "Mix";
 "channel.left" = "Links";
 "channel.right" = "Rechts";
 "channel.mid" = "Mitte (M)";
 "channel.side" = "Seite (S)";
+"channel.stereo" = "Stereo (L/R übereinander)";
+"channel.correlation" = "Korrelation (L↔R)";
+"pane.left" = "Links";
+"pane.right" = "Rechts";
+"legend.correlation" = "Korrelation L↔R";
+"legend.antiphase" = "gegenphasig";
+"legend.inphase" = "phasengleich";
 "settings.smoothingEnabled" = "Glättung aktivieren";
 "button.smooth" = "Glätten";
 "button.viewOptions" = "Kanal & Magnitude";

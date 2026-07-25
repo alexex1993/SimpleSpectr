@@ -43,6 +43,8 @@
 "readout.time" = "Время";
 "readout.frequency" = "Частота";
 "readout.signal" = "Сигнал";
+"readout.channel" = "Канал";
+"readout.correlation" = "Корреляция";
 
 /* Units */
 "unit.hz" = "%.0f Гц";
@@ -94,12 +96,19 @@
 "magnitude.linear" = "Линейная";
 
 "settings.channel" = "Канал";
-"settings.channelHint" = "Какой канал стереофайла анализировать: Микс (моно), Левый, Правый или сумму/разность Mid/Side (M/S). Файл анализируется заново.";
+"settings.channelHint" = "Какой канал стереофайла анализировать: Микс (моно), Левый, Правый или сумму/разность Mid/Side (M/S). «Стерео» показывает каналы двумя отдельными графиками; «Корреляция» раскрашивает один график по связи каналов на каждой частоте — красный там, где они гасятся в моно, синий там, где они в фазе. Файл анализируется заново.";
 "channel.mix" = "Микс";
 "channel.left" = "Левый";
 "channel.right" = "Правый";
 "channel.mid" = "Mid (M)";
 "channel.side" = "Side (S)";
+"channel.stereo" = "Стерео (L/R стопкой)";
+"channel.correlation" = "Корреляция (L↔R)";
+"pane.left" = "Левый";
+"pane.right" = "Правый";
+"legend.correlation" = "Корреляция L↔R";
+"legend.antiphase" = "противофаза";
+"legend.inphase" = "в фазе";
 
 "settings.smoothingEnabled" = "Включить сглаживание";
 "button.smooth" = "Сглаживание";

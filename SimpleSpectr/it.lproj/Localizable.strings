@@ -43,6 +43,8 @@
 "readout.time" = "Tempo";
 "readout.frequency" = "Frequenza";
 "readout.signal" = "Segnale";
+"readout.channel" = "Canale";
+"readout.correlation" = "Correlazione";
 
 /* Units */
 "unit.hz" = "%.0f Hz";
@@ -201,12 +203,19 @@
 "magnitude.logarithmic" = "Log (dB)";
 "magnitude.linear" = "Lineare";
 "settings.channel" = "Canale";
-"settings.channelHint" = "Quale canale di un file stereo analizzare: Mix (mono), Sinistro, Destro, o la somma e differenza Mid/Side (M/S). Rianalizza il file.";
+"settings.channelHint" = "Quale canale di un file stereo analizzare: Mix (mono), Sinistro, Destro, o la somma/differenza Mid/Side (M/S). «Stereo» impila i due canali come grafici separati; «Correlazione» colora un singolo grafico in base alla relazione tra i canali a ogni frequenza: rosso dove si annullano in mono, blu dove sono in fase. Il file viene rianalizzato.";
 "channel.mix" = "Mix";
 "channel.left" = "Sinistro";
 "channel.right" = "Destro";
 "channel.mid" = "Mid (M)";
 "channel.side" = "Side (S)";
+"channel.stereo" = "Stereo (L/R impilati)";
+"channel.correlation" = "Correlazione (L↔R)";
+"pane.left" = "Sinistro";
+"pane.right" = "Destro";
+"legend.correlation" = "Correlazione L↔R";
+"legend.antiphase" = "controfase";
+"legend.inphase" = "in fase";
 "settings.smoothingEnabled" = "Attiva smussatura";
 "button.smooth" = "Smussa";
 "button.viewOptions" = "Canale e magnitudine";

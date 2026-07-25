@@ -152,31 +152,85 @@ nonisolated enum MagnitudeScale: String, CaseIterable, Identifiable, Sendable {
     var isDefault: Bool { self == .logarithmic }
 }
 
-/// Which signal the mono STFT source analyzes from a multi-channel file.
-/// `mix` averages every channel (the classic behavior); `left`/`right` pick a
-/// single channel; `mid`/`side` form the M/S sum and difference. An analysis
-/// setting — changing it re-decodes the file. On mono files every mode collapses
-/// to the single available channel.
+/// Which signal the STFT analyzes from a multi-channel file.
+///
+/// The first five modes derive a *single* mono signal: `mix` averages every
+/// channel (the classic behavior), `left`/`right` pick a single channel, and
+/// `mid`/`side` form the M/S sum and difference.
+///
+/// The last two are **multi-channel** modes that analyze L and R side by side in
+/// one pass: `stereo` renders the two spectrograms stacked (L above R), and
+/// `correlation` renders a single plot whose color is the per-bin inter-channel
+/// correlation. An analysis setting — changing it re-decodes the file. On mono
+/// files every mode collapses to the single available channel (correlation then
+/// reads a constant +1).
 nonisolated enum ChannelMode: String, CaseIterable, Identifiable, Sendable {
     case mix
     case left
     case right
     case mid
     case side
+    case stereo
+    case correlation
 
     var id: String { rawValue }
 
     @MainActor var displayName: String {
         switch self {
-        case .mix:   return L("channel.mix")
-        case .left:  return L("channel.left")
-        case .right: return L("channel.right")
-        case .mid:   return L("channel.mid")
-        case .side:  return L("channel.side")
+        case .mix:         return L("channel.mix")
+        case .left:        return L("channel.left")
+        case .right:       return L("channel.right")
+        case .mid:         return L("channel.mid")
+        case .side:        return L("channel.side")
+        case .stereo:      return L("channel.stereo")
+        case .correlation: return L("channel.correlation")
         }
     }
 
     var isDefault: Bool { self == .mix }
+
+    /// `true` for modes that need both channels transformed per column, so the
+    /// engine runs two FFTs and fills a second data plane. The mono-derivation
+    /// modes keep the cheaper single-FFT path.
+    var isDual: Bool { self == .stereo || self == .correlation }
+
+    /// Vertical layout of the image this mode renders.
+    var paneLayout: PaneLayout { self == .stereo ? .stackedStereo : .single }
+
+    /// Which extra data plane (if any) accompanies the primary dB grid.
+    var secondaryPlane: SecondaryPlane? {
+        switch self {
+        case .stereo:      return .rightChannel
+        case .correlation: return .correlation
+        default:           return nil
+        }
+    }
+}
+
+/// How the rendered spectrogram image is stacked vertically. `single` is one
+/// plot spanning the full height; `stackedStereo` splits it into two equal
+/// plots — the left channel on top, the right below — that share one time axis.
+/// The panes are exact halves of the image (no pixel gutter), so the fraction ⇄
+/// pane math below is a plain even subdivision and the on-screen separator is
+/// drawn as an overlay rather than baked into the pixels.
+nonisolated enum PaneLayout: String, Sendable {
+    case single
+    case stackedStereo
+
+    var paneCount: Int { self == .stackedStereo ? 2 : 1 }
+}
+
+/// What the optional second data plane of a `SpectrogramResult` holds. Both
+/// planes share the primary grid's column-major `[column * bins + bin]` layout.
+nonisolated enum SecondaryPlane: String, Sendable {
+    /// dB magnitudes of the right channel; the primary grid is then the left.
+    /// Rendered as the lower pane of a `stackedStereo` image.
+    case rightChannel
+    /// Per-bin inter-channel correlation cos Δφ = Re(L·conj(R)) / (|L|·|R|),
+    /// in −1…+1. The primary grid is then the mean-energy level in dB, which
+    /// both keeps the hover/export readouts meaningful and weights the
+    /// correlation colors so silent bins don't show phase noise.
+    case correlation
 }
 
 /// Maps a 0…1 vertical fraction (bottom…top of the plot) to/from a physical

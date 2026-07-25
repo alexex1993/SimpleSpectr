@@ -43,6 +43,8 @@
 "readout.time" = "Temps";
 "readout.frequency" = "Fréquence";
 "readout.signal" = "Signal";
+"readout.channel" = "Canal";
+"readout.correlation" = "Corrélation";
 
 /* Units */
 "unit.hz" = "%.0f Hz";
@@ -201,12 +203,19 @@
 "magnitude.logarithmic" = "Log (dB)";
 "magnitude.linear" = "Linéaire";
 "settings.channel" = "Canal";
-"settings.channelHint" = "Quel canal d'un fichier stéréo analyser : Mix (mono), Gauche, Droite, ou la somme et la différence Mid/Side (M/S). Réanalyse le fichier.";
+"settings.channelHint" = "Quel canal d'un fichier stéréo analyser : Mix (mono), Gauche, Droite, ou la somme/différence Mid/Side (M/S). « Stéréo » superpose les deux canaux en graphiques distincts ; « Corrélation » colore un seul graphique selon la relation entre les canaux à chaque fréquence — rouge là où ils s'annulent en mono, bleu là où ils sont en phase. Le fichier est réanalysé.";
 "channel.mix" = "Mix";
 "channel.left" = "Gauche";
 "channel.right" = "Droite";
 "channel.mid" = "Mid (M)";
 "channel.side" = "Side (S)";
+"channel.stereo" = "Stéréo (L/R superposés)";
+"channel.correlation" = "Corrélation (L↔R)";
+"pane.left" = "Gauche";
+"pane.right" = "Droite";
+"legend.correlation" = "Corrélation L↔R";
+"legend.antiphase" = "hors phase";
+"legend.inphase" = "en phase";
 "settings.smoothingEnabled" = "Activer le lissage";
 "button.smooth" = "Lisser";
 "button.viewOptions" = "Canal et magnitude";

@@ -44,8 +44,9 @@ struct SpectrogramAxes: View {
     }
 }
 
-/// Frequency axis pieces: evenly spaced Hz labels on a linear scale, or
-/// octave-C/A4 note labels plus faint gridlines on a logarithmic scale.
+/// Frequency axis for the whole plot. In a stacked layout the plot rect is split
+/// into equal panes (left channel on top, right below) and the axis is drawn once
+/// per pane, with a separator line and an L/R badge marking each one.
 /// `showLabels` / `showGridlines` let callers split labels (pinned gutter) from
 /// gridlines (over the scrolling image).
 struct FrequencyAxisContent: View {
@@ -53,6 +54,76 @@ struct FrequencyAxisContent: View {
     let plot: CGRect
     var showLabels: Bool = true
     var showGridlines: Bool = true
+
+    @ObservedObject private var l10n = LocalizationManager.shared
+
+    var body: some View {
+        let panes = result.paneCount
+        ForEach(0..<panes, id: \.self) { pane in
+            let rect = paneRect(pane, of: panes)
+            PaneFrequencyAxis(result: result,
+                              plot: rect,
+                              showLabels: showLabels,
+                              showGridlines: showGridlines,
+                              // Half-height panes fit fewer labels before they collide.
+                              tickCount: panes > 1 ? 3 : SpectrogramPlot.tickCount,
+                              // A pane's 0 Hz label sits right on top of the next
+                              // pane's Nyquist label, so drop it except at the very
+                              // bottom of the plot.
+                              skipBottomTick: pane < panes - 1)
+
+            // Separator between stacked panes: the image itself has no gutter,
+            // so the boundary is drawn here on top of the pixels.
+            if showGridlines, pane > 0 {
+                Path { p in
+                    p.move(to: CGPoint(x: rect.minX, y: rect.minY))
+                    p.addLine(to: CGPoint(x: rect.maxX, y: rect.minY))
+                }
+                .stroke(Color.white.opacity(0.45), lineWidth: 1)
+            }
+
+            if showLabels, panes > 1, let badge = paneLabel(pane) {
+                Text(badge)
+                    .font(.system(size: SpectrogramPlot.tickFontSize + 1, weight: .semibold))
+                    .foregroundStyle(Color.accentColor)
+                    // The gutter is narrow and the channel name is localized
+                    // ("Izquierdo", "Левый"…), so let a long one shrink rather
+                    // than truncate to something unreadable.
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.75)
+                    .frame(width: SpectrogramPlot.leftInset - 8, alignment: .leading)
+                    .position(x: (SpectrogramPlot.leftInset - 8) / 2, y: rect.minY + 7)
+            }
+        }
+    }
+
+    /// Vertical slice of `plot` occupied by a pane (index 0 = top).
+    private func paneRect(_ index: Int, of count: Int) -> CGRect {
+        guard count > 1 else { return plot }
+        let h = plot.height / CGFloat(count)
+        return CGRect(x: plot.minX, y: plot.minY + CGFloat(index) * h,
+                      width: plot.width, height: h)
+    }
+
+    /// Channel badge for a stacked pane.
+    private func paneLabel(_ index: Int) -> String? {
+        guard result.paneLayout == .stackedStereo else { return nil }
+        return index == 0 ? L("pane.left") : L("pane.right")
+    }
+}
+
+/// The frequency axis of a single plot: evenly spaced Hz labels on a linear
+/// scale, octave-C/A4 note labels plus faint gridlines on a logarithmic scale,
+/// or evenly warped Hz ticks on the perceptual scales.
+private struct PaneFrequencyAxis: View {
+    let result: SpectrogramResult
+    let plot: CGRect
+    var showLabels: Bool = true
+    var showGridlines: Bool = true
+    var tickCount: Int = SpectrogramPlot.tickCount
+    /// Drop the label at this pane's 0 Hz end (it would collide with the label at
+    /// the top of the pane below).
+    var skipBottomTick: Bool = false
 
     var body: some View {
         switch result.frequencyScale {
@@ -66,16 +137,18 @@ struct FrequencyAxisContent: View {
     @ViewBuilder
     private var linearAxis: some View {
         if showLabels {
-            let ticks = SpectrogramPlot.tickCount
+            let ticks = max(1, tickCount)
             ForEach(0...ticks, id: \.self) { i in
-                let frac = Double(i) / Double(ticks)
-                let y = plot.maxY - CGFloat(frac) * plot.height
-                let hz = frac * result.maxFrequency
-                Text(AxisFormatting.hz(hz))
-                    .font(.system(size: SpectrogramPlot.tickFontSize))
-                    .foregroundStyle(SpectrogramPlot.axisColor)
-                    .frame(width: SpectrogramPlot.leftInset - 8, alignment: .trailing)
-                    .position(x: (SpectrogramPlot.leftInset - 8) / 2, y: y)
+                if !(skipBottomTick && i == 0) {
+                    let frac = Double(i) / Double(ticks)
+                    let y = plot.maxY - CGFloat(frac) * plot.height
+                    let hz = frac * result.maxFrequency
+                    Text(AxisFormatting.hz(hz))
+                        .font(.system(size: SpectrogramPlot.tickFontSize))
+                        .foregroundStyle(SpectrogramPlot.axisColor)
+                        .frame(width: SpectrogramPlot.leftInset - 8, alignment: .trailing)
+                        .position(x: (SpectrogramPlot.leftInset - 8) / 2, y: y)
+                }
             }
         }
     }
@@ -85,7 +158,7 @@ struct FrequencyAxisContent: View {
     /// the real frequency at that height, plus faint gridlines.
     private var perceptualAxis: some View {
         let axis = result.frequencyAxis
-        let ticks = SpectrogramPlot.tickCount
+        let ticks = max(1, tickCount)
         return ForEach(0...ticks, id: \.self) { i in
             let frac = Double(i) / Double(ticks)
             let y = plot.maxY - CGFloat(frac) * plot.height
@@ -99,7 +172,7 @@ struct FrequencyAxisContent: View {
                 .stroke(Color.white.opacity(0.08), lineWidth: 0.5)
             }
 
-            if showLabels {
+            if showLabels, !(skipBottomTick && i == 0) {
                 Text(AxisFormatting.hz(hz))
                     .font(.system(size: SpectrogramPlot.tickFontSize))
                     .foregroundStyle(SpectrogramPlot.axisColor)
@@ -114,9 +187,14 @@ struct FrequencyAxisContent: View {
     private var logAxis: some View {
         let axis = result.frequencyAxis
         let notes = axis.noteTicks()
-        return ForEach(notes, id: \.midi) { note in
+        // A stacked pane is half height, so label every other octave to keep the
+        // gutter readable; the gridlines themselves stay at full density.
+        let labelStride = tickCount < SpectrogramPlot.tickCount ? 2 : 1
+        return ForEach(Array(notes.enumerated()), id: \.element.midi) { item in
+            let note = item.element
             let y = plot.maxY - CGFloat(note.frac) * plot.height
             let isRef = note.midi == MusicNotes.a4MIDI
+            let labelled = isRef || item.offset % labelStride == 0
 
             if showGridlines {
                 Path { p in
@@ -128,7 +206,7 @@ struct FrequencyAxisContent: View {
                         lineWidth: 0.5)
             }
 
-            if showLabels {
+            if showLabels, labelled {
                 HStack(spacing: 2) {
                     Text(MusicNotes.name(midi: note.midi))
                     if isRef {

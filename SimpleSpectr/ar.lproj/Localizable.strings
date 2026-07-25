@@ -43,6 +43,8 @@
 "readout.time" = "الوقت";
 "readout.frequency" = "التردد";
 "readout.signal" = "الإشارة";
+"readout.channel" = "القناة";
+"readout.correlation" = "الارتباط";
 
 /* Units */
 "unit.hz" = "%.0f Hz";
@@ -201,12 +203,19 @@
 "magnitude.logarithmic" = "لوغاريتمي (dB)";
 "magnitude.linear" = "خطي";
 "settings.channel" = "القناة";
-"settings.channelHint" = "أي قناة من ملف ستيريو يتم تحليلها: مزج (أحادي)، يسار، يمين، أو مجموع وفرق Mid/Side (M/S). يُعاد تحليل الملف.";
+"settings.channelHint" = "أي قناة من ملف الستيريو يتم تحليلها: المزج (أحادي)، اليسرى، اليمنى، أو مجموع وفرق Mid/Side ‏(M/S). يعرض «ستيريو» القناتين كرسمين منفصلين فوق بعضهما؛ ويلوّن «الارتباط» رسمًا واحدًا حسب علاقة القناتين عند كل تردد — أحمر حيث تتلاشيان في الأحادي، وأزرق حيث تتوافقان في الطور. تتم إعادة تحليل الملف.";
 "channel.mix" = "مزج";
 "channel.left" = "يسار";
 "channel.right" = "يمين";
 "channel.mid" = "Mid (M)";
 "channel.side" = "Side (S)";
+"channel.stereo" = "ستيريو (L/R فوق بعضهما)";
+"channel.correlation" = "الارتباط (L↔R)";
+"pane.left" = "يسار";
+"pane.right" = "يمين";
+"legend.correlation" = "الارتباط L↔R";
+"legend.antiphase" = "معاكس الطور";
+"legend.inphase" = "متوافق الطور";
 "settings.smoothingEnabled" = "تفعيل التنعيم";
 "button.smooth" = "تنعيم";
 "button.viewOptions" = "القناة والمقدار";

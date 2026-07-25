@@ -43,6 +43,8 @@
 "readout.time" = "시간";
 "readout.frequency" = "주파수";
 "readout.signal" = "신호";
+"readout.channel" = "채널";
+"readout.correlation" = "상관관계";
 
 /* Units */
 "unit.hz" = "%.0f Hz";
@@ -201,12 +203,19 @@
 "magnitude.logarithmic" = "로그 (dB)";
 "magnitude.linear" = "선형";
 "settings.channel" = "채널";
-"settings.channelHint" = "스테레오 파일에서 분석할 채널: 믹스(모노), 왼쪽, 오른쪽 또는 Mid/Side(M/S) 합과 차. 파일을 재분석합니다.";
+"settings.channelHint" = "스테레오 파일에서 분석할 채널: 믹스(모노), 왼쪽, 오른쪽 또는 Mid/Side(M/S)의 합과 차. 「스테레오」는 두 채널을 별도의 플롯으로 위아래에 쌓습니다. 「상관관계」는 주파수마다 두 채널의 관계로 하나의 플롯을 색칠합니다 — 모노에서 상쇄되는 곳은 빨강, 동위상인 곳은 파랑. 파일을 다시 분석합니다.";
 "channel.mix" = "믹스";
 "channel.left" = "왼쪽";
 "channel.right" = "오른쪽";
 "channel.mid" = "Mid (M)";
 "channel.side" = "Side (S)";
+"channel.stereo" = "스테레오 (L/R 상하)";
+"channel.correlation" = "상관관계 (L↔R)";
+"pane.left" = "왼쪽";
+"pane.right" = "오른쪽";
+"legend.correlation" = "상관관계 L↔R";
+"legend.antiphase" = "역위상";
+"legend.inphase" = "동위상";
 "settings.smoothingEnabled" = "스무딩 사용";
 "button.smooth" = "스무딩";
 "button.viewOptions" = "채널 및 크기";

@@ -43,6 +43,8 @@
 "readout.time" = "Süre";
 "readout.frequency" = "Frekans";
 "readout.signal" = "Sinyal";
+"readout.channel" = "Kanal";
+"readout.correlation" = "Korelasyon";
 
 /* Units */
 "unit.hz" = "%.0f Hz";
@@ -201,12 +203,19 @@
 "magnitude.logarithmic" = "Log (dB)";
 "magnitude.linear" = "Doğrusal";
 "settings.channel" = "Kanal";
-"settings.channelHint" = "Bir stereo dosyanın hangi kanalının analiz edileceği: Mix (mono), Sol, Sağ veya Mid/Side (M/S) toplamı ve farkı. Dosyayı yeniden analiz eder.";
+"settings.channelHint" = "Stereo dosyanın hangi kanalının analiz edileceği: Miks (mono), Sol, Sağ ya da Mid/Side (M/S) toplam ve farkı. «Stereo» iki kanalı ayrı grafikler olarak üst üste gösterir; «Korelasyon» tek bir grafiği her frekansta kanalların ilişkisine göre renklendirir — monoda birbirini götürdükleri yerde kırmızı, aynı fazda oldukları yerde mavi. Dosya yeniden analiz edilir.";
 "channel.mix" = "Mix";
 "channel.left" = "Sol";
 "channel.right" = "Sağ";
 "channel.mid" = "Mid (M)";
 "channel.side" = "Side (S)";
+"channel.stereo" = "Stereo (L/R üst üste)";
+"channel.correlation" = "Korelasyon (L↔R)";
+"pane.left" = "Sol";
+"pane.right" = "Sağ";
+"legend.correlation" = "Korelasyon L↔R";
+"legend.antiphase" = "ters faz";
+"legend.inphase" = "aynı faz";
 "settings.smoothingEnabled" = "Yumuşatmayı etkinleştir";
 "button.smooth" = "Yumuşat";
 "button.viewOptions" = "Kanal ve büyüklük";

@@ -85,6 +85,7 @@ struct SpectrumSliceView: View {
             Text(L("slice.title"))
                 .font(.system(size: 11, weight: .semibold))
             Spacer()
+            channelKey
             Text(formatTime(slice.time))
                 .font(.system(size: 11, design: .monospaced))
                 .foregroundStyle(.secondary)
@@ -152,31 +153,51 @@ struct SpectrumSliceView: View {
         .stroke(Color.white.opacity(0.12), lineWidth: 0.5)
     }
 
+    /// True when the slice can draw a second (right-channel) curve.
+    private var hasRightChannel: Bool {
+        result.secondaryPlane == .rightChannel && result.secondary != nil
+    }
+
     private func curve(in area: CGRect) -> some View {
-        let pts = points(in: area)
+        // In stacked-stereo mode both channels are drawn over each other, which
+        // is where the 1-D view earns its keep: level differences between L and R
+        // are far easier to read as two curves than as two color fields.
+        let left = points(result.grid(forPane: 0), in: area)
+        let right = hasRightChannel ? points(result.grid(forPane: 1), in: area) : []
         return ZStack {
-            if pts.count > 1 {
+            if left.count > 1 {
                 // Soft fill under the curve.
                 Path { p in
-                    p.move(to: CGPoint(x: pts[0].x, y: area.maxY))
-                    for pt in pts { p.addLine(to: pt) }
-                    p.addLine(to: CGPoint(x: pts[pts.count - 1].x, y: area.maxY))
+                    p.move(to: CGPoint(x: left[0].x, y: area.maxY))
+                    for pt in left { p.addLine(to: pt) }
+                    p.addLine(to: CGPoint(x: left[left.count - 1].x, y: area.maxY))
                     p.closeSubpath()
                 }
-                .fill(Color.accentColor.opacity(0.18))
+                .fill(Color.accentColor.opacity(hasRightChannel ? 0.10 : 0.18))
 
                 Path { p in
-                    p.move(to: pts[0])
-                    for pt in pts.dropFirst() { p.addLine(to: pt) }
+                    p.move(to: left[0])
+                    for pt in left.dropFirst() { p.addLine(to: pt) }
                 }
                 .stroke(Color.accentColor, lineWidth: 1)
+            }
+            if right.count > 1 {
+                Path { p in
+                    p.move(to: right[0])
+                    for pt in right.dropFirst() { p.addLine(to: pt) }
+                }
+                .stroke(Self.rightChannelColor, lineWidth: 1)
             }
         }
         .clipped()
     }
 
+    /// Second curve's color — distinct from the accent used for the left channel
+    /// and from the orange peak marker.
+    private static let rightChannelColor = Color(red: 0.36, green: 0.86, blue: 0.62)
+
     /// One screen point per bin (skipping bins that fall left of the log axis).
-    private func points(in area: CGRect) -> [CGPoint] {
+    private func points(_ grid: [Float], in area: CGRect) -> [CGPoint] {
         guard result.bins > 0, result.fftSize > 0 else { return [] }
         let base = slice.column * result.bins
         var pts: [CGPoint] = []
@@ -186,11 +207,30 @@ struct SpectrumSliceView: View {
             let frac = axis.fraction(forFrequency: freq)
             if frac < 0 { continue }            // below the log axis floor
             if frac > 1 { break }
-            let db = Double(result.magnitudes[base + b])
+            let db = Double(grid[base + b])
             pts.append(CGPoint(x: area.minX + CGFloat(frac) * area.width,
                                y: y(db, in: area)))
         }
         return pts
+    }
+
+    /// Channel key (Left / Right), shown only when both channels are plotted.
+    @ViewBuilder
+    private var channelKey: some View {
+        if hasRightChannel {
+            HStack(spacing: 8) {
+                key(L("pane.left"), Color.accentColor)
+                key(L("pane.right"), Self.rightChannelColor)
+            }
+            .font(.system(size: 9, design: .monospaced))
+        }
+    }
+
+    private func key(_ label: String, _ color: Color) -> some View {
+        HStack(spacing: 3) {
+            RoundedRectangle(cornerRadius: 1).fill(color).frame(width: 10, height: 2)
+            Text(label).foregroundStyle(.secondary)
+        }
     }
 
     @ViewBuilder

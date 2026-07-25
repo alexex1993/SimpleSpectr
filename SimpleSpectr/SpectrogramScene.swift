@@ -24,7 +24,7 @@ struct SpectrogramScene: View {
     @ObservedObject private var l10n = LocalizationManager.shared
     @ObservedObject private var render = RenderPreferences.shared
     @StateObject private var measurement = MeasurementModel()
-    @State private var hover: (time: Double, frequency: Double, db: Double)?
+    @State private var hover: SpectrogramResult.Probe?
     @State private var cursor: CGPoint?
     @State private var measureMode = false
     @State private var selection: PlotSelection?
@@ -154,6 +154,13 @@ struct SpectrogramScene: View {
                         measurementPanel(sel)
                             .padding(.trailing, SpectrogramPlot.rightInset + 6)
                             .padding(.bottom, SpectrogramPlot.bottomInset + 6)
+                    }
+                }
+                .overlay(alignment: .topTrailing) {
+                    if result.secondaryPlane == .correlation {
+                        correlationLegend
+                            .padding(.trailing, SpectrogramPlot.rightInset + 6)
+                            .padding(.top, plotTop + 6)
                     }
                 }
                 .overlay(alignment: .bottomLeading) {
@@ -312,21 +319,35 @@ struct SpectrogramScene: View {
 
     // MARK: - Measurement selection
 
-    /// Resolve a point in content coordinates to a (time, frequency) pair.
-    private func point(at p: CGPoint, content: CGRect) -> (time: Double, frequency: Double) {
+    /// Resolve a point in content coordinates to a time, a frequency and the
+    /// stacked pane it landed in. `pane` can be forced so a drag keeps measuring
+    /// the channel it started in even if the pointer strays into the other one.
+    private func point(at p: CGPoint, content: CGRect,
+                       pane forced: Int? = nil) -> (time: Double, frequency: Double, pane: Int) {
         let fx = min(max(p.x / content.width, 0), 1)
         let fy = min(max((content.maxY - p.y) / content.height, 0), 1)
+        var (pane, local) = result.pane(atFractionY: Double(fy))
+        if let forced {
+            pane = forced
+            // Re-project onto the forced pane so the frequency stays in range.
+            let n = result.paneCount
+            if n > 1 {
+                local = min(max(Double(fy) * Double(n) - Double(n - 1 - forced), 0), 1)
+            }
+        }
         return (Double(fx) * result.duration,
-                result.frequencyAxis.frequency(forFraction: Double(fy)))
+                result.frequencyAxis.frequency(forFraction: local),
+                pane)
     }
 
     /// Update the live selection while dragging in measure mode.
     private func updateSelection(start: CGPoint, current: CGPoint, content: CGRect) {
         guard content.width > 0, content.height > 0, result.duration > 0 else { return }
         let a = point(at: start, content: content)
-        let b = point(at: current, content: content)
+        let b = point(at: current, content: content, pane: a.pane)
         selection = PlotSelection(anchorTime: a.time, anchorFreq: a.frequency,
-                                  focusTime: b.time, focusFreq: b.frequency)
+                                  focusTime: b.time, focusFreq: b.frequency,
+                                  pane: a.pane)
     }
 
     /// Drag ended: kick off (or clear) the amplitude-stats computation.
@@ -346,11 +367,10 @@ struct SpectrogramScene: View {
     @ViewBuilder
     private func selectionOverlay(in content: CGRect) -> some View {
         if let sel = selection, sel.isMeaningful, result.duration > 0 {
-            let axis = result.frequencyAxis
             let x0 = CGFloat(sel.timeRange.lowerBound / result.duration) * content.width
             let x1 = CGFloat(sel.timeRange.upperBound / result.duration) * content.width
-            let yLow = content.maxY - CGFloat(axis.fraction(forFrequency: sel.freqRange.lowerBound)) * content.height
-            let yHigh = content.maxY - CGFloat(axis.fraction(forFrequency: sel.freqRange.upperBound)) * content.height
+            let yLow = screenY(forFrequency: sel.freqRange.lowerBound, pane: sel.pane, in: content)
+            let yHigh = screenY(forFrequency: sel.freqRange.upperBound, pane: sel.pane, in: content)
             let rect = CGRect(x: x0, y: min(yLow, yHigh),
                               width: max(1, x1 - x0), height: max(1, abs(yLow - yHigh)))
             ZStack {
@@ -362,6 +382,12 @@ struct SpectrogramScene: View {
             }
             .allowsHitTesting(false)
         }
+    }
+
+    /// Screen y of a frequency inside a stacked pane (identical to the plain
+    /// axis mapping in a single-pane layout).
+    private func screenY(forFrequency freq: Double, pane: Int, in content: CGRect) -> CGFloat {
+        content.maxY - CGFloat(result.fractionY(forFrequency: freq, pane: pane)) * content.height
     }
 
     // MARK: - Header
@@ -492,7 +518,8 @@ struct SpectrogramScene: View {
                 if freq <= result.maxFrequency {
                     let frac = axis.fraction(forFrequency: freq)
                     if frac >= 0, frac <= 1 {
-                        let y = content.maxY - CGFloat(frac) * content.height
+                        // Draw inside the pane being hovered, not across the image.
+                        let y = screenY(forFrequency: freq, pane: h.pane, in: content)
                         Path { p in
                             p.move(to: CGPoint(x: content.minX, y: y))
                             p.addLine(to: CGPoint(x: content.maxX, y: y))
@@ -576,7 +603,13 @@ struct SpectrogramScene: View {
             VStack(alignment: .leading, spacing: 2) {
                 readoutRow(L("readout.time"), formatTimeMS(h.time))
                 readoutRow(L("readout.frequency"), formatFreq(h.frequency))
+                if let channel = paneLabel(h.pane) {
+                    readoutRow(L("readout.channel"), channel)
+                }
                 readoutRow(L("readout.signal"), L("unit.db", h.db))
+                if let corr = h.correlation {
+                    readoutRow(L("readout.correlation"), String(format: "%+.2f", corr))
+                }
             }
             .font(.system(size: 11, design: .monospaced))
             .padding(.horizontal, 8)
@@ -609,6 +642,43 @@ struct SpectrogramScene: View {
         .frame(width: 124)
     }
 
+    /// Channel name of a stacked pane; nil when there is only one plot.
+    private func paneLabel(_ pane: Int) -> String? {
+        guard result.paneLayout == .stackedStereo else { return nil }
+        return pane == 0 ? L("pane.left") : L("pane.right")
+    }
+
+    /// Key for the correlation view: the diverging scale from anti-phase (what
+    /// cancels in a mono fold-down) through uncorrelated to fully in phase.
+    private var correlationLegend: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Text(L("legend.correlation"))
+                .font(.system(size: 9, weight: .semibold))
+                .foregroundStyle(.secondary)
+            LinearGradient(colors: CorrelationColormap.gradientColors(count: 48),
+                           startPoint: .leading, endPoint: .trailing)
+                .frame(width: 150, height: 8)
+                .clipShape(RoundedRectangle(cornerRadius: 2))
+            HStack(spacing: 0) {
+                Text(L("legend.antiphase"))
+                Spacer(minLength: 4)
+                Text("0")
+                Spacer(minLength: 4)
+                Text(L("legend.inphase"))
+            }
+            .font(.system(size: 8, design: .monospaced))
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+            .frame(width: 150)
+        }
+        .padding(.horizontal, 7)
+        .padding(.vertical, 5)
+        .background(.black.opacity(0.6), in: RoundedRectangle(cornerRadius: 6))
+        .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(.white.opacity(0.15)))
+        .allowsHitTesting(false)
+    }
+
     // MARK: - Formatting
 
     /// Header duration: seconds with one decimal below a minute, otherwise m:ss.
@@ -633,11 +703,20 @@ struct SpectrogramScene: View {
     /// Floating results card for the current selection: time/frequency deltas,
     /// the loudest bin in the region, and time-domain amplitude statistics.
     private func measurementPanel(_ sel: PlotSelection) -> some View {
-        let peak = result.regionPeak(timeRange: sel.timeRange, freqRange: sel.freqRange)
+        let peak = result.regionPeak(timeRange: sel.timeRange,
+                                     freqRange: sel.freqRange,
+                                     pane: sel.pane)
         return VStack(alignment: .leading, spacing: 5) {
-            Text(L("measure.title"))
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(.secondary)
+            HStack(spacing: 6) {
+                Text(L("measure.title"))
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.secondary)
+                if let channel = paneLabel(sel.pane) {
+                    Text(channel)
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(Color.accentColor)
+                }
+            }
 
             measureRow(L("measure.deltaTime"), formatDeltaTime(sel.deltaTime))
             measureRow(L("measure.deltaFreq"), formatDeltaFreq(sel.deltaFreq))

@@ -43,6 +43,8 @@
 "readout.time" = "Time";
 "readout.frequency" = "Frequency";
 "readout.signal" = "Signal";
+"readout.channel" = "Channel";
+"readout.correlation" = "Correlation";
 
 /* Units */
 "unit.hz" = "%.0f Hz";
@@ -94,12 +96,19 @@
 "magnitude.linear" = "Linear";
 
 "settings.channel" = "Channel";
-"settings.channelHint" = "Which channel of a stereo file to analyze: Mix (mono), Left, Right, or the Mid/Side (M/S) sum and difference. Re-analyzes the file.";
+"settings.channelHint" = "Which channel of a stereo file to analyze: Mix (mono), Left, Right, or the Mid/Side (M/S) sum and difference. Stereo stacks the two channels as separate plots; Correlation colors a single plot by how the channels relate at each frequency — red where they cancel in mono, blue where they are in phase. Re-analyzes the file.";
 "channel.mix" = "Mix";
 "channel.left" = "Left";
 "channel.right" = "Right";
 "channel.mid" = "Mid (M)";
 "channel.side" = "Side (S)";
+"channel.stereo" = "Stereo (L/R stacked)";
+"channel.correlation" = "Correlation (L↔R)";
+"pane.left" = "Left";
+"pane.right" = "Right";
+"legend.correlation" = "Correlation L↔R";
+"legend.antiphase" = "anti-phase";
+"legend.inphase" = "in phase";
 
 "settings.smoothingEnabled" = "Enable smoothing";
 "button.smooth" = "Smooth";

@@ -188,7 +188,7 @@ nonisolated enum Palette: String, CaseIterable, Identifiable, Sendable {
         return dict
     }()
 
-    private static func sampleLab(_ t: Double, lab: [(Double, Double, Double)]) -> (Double, Double, Double) {
+    fileprivate static func sampleLab(_ t: Double, lab: [(Double, Double, Double)]) -> (Double, Double, Double) {
         let segments = lab.count - 1
         let scaled = min(max(t, 0), 1) * Double(segments)
         let idx = min(Int(scaled), segments - 1)
@@ -202,7 +202,7 @@ nonisolated enum Palette: String, CaseIterable, Identifiable, Sendable {
 
     // MARK: - Oklab ↔ sRGB (Björn Ottosson)
 
-    private static func srgbToOklab(_ rgb: (Double, Double, Double)) -> (Double, Double, Double) {
+    fileprivate static func srgbToOklab(_ rgb: (Double, Double, Double)) -> (Double, Double, Double) {
         let r = srgbToLinear(rgb.0 / 255.0)
         let g = srgbToLinear(rgb.1 / 255.0)
         let bl = srgbToLinear(rgb.2 / 255.0)
@@ -215,7 +215,7 @@ nonisolated enum Palette: String, CaseIterable, Identifiable, Sendable {
                 0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_)
     }
 
-    private static func oklabToSRGB8(_ lab: (Double, Double, Double)) -> (UInt8, UInt8, UInt8) {
+    fileprivate static func oklabToSRGB8(_ lab: (Double, Double, Double)) -> (UInt8, UInt8, UInt8) {
         let l_ = lab.0 + 0.3963377774 * lab.1 + 0.2158037573 * lab.2
         let m_ = lab.0 - 0.1055613458 * lab.1 - 0.0638541728 * lab.2
         let s_ = lab.0 - 0.0894841775 * lab.1 - 1.2914855480 * lab.2
@@ -237,5 +237,61 @@ nonisolated enum Palette: String, CaseIterable, Identifiable, Sendable {
     private static func to255(_ linear: Double) -> UInt8 {
         let v = linearToSRGB(min(max(linear, 0), 1)) * 255.0
         return UInt8(min(max(v.rounded(), 0), 255))
+    }
+}
+
+/// Diverging colormap for the inter-channel correlation view. Correlation is
+/// *signed* data with a meaningful zero, so the sequential palettes above would
+/// misrepresent it: the eye reads their brightness ramp as "more", when what
+/// matters here is which side of zero a bin falls on. This map is therefore
+/// fixed rather than user-selectable — red at −1 (anti-phase, what cancels in a
+/// mono fold-down), neutral grey at 0 (uncorrelated / wide), blue at +1 (in
+/// phase, mono-safe) — and every color is blended toward the plot background by
+/// an energy weight, so a silent bin's meaningless phase stays invisible.
+nonisolated enum CorrelationColormap {
+    /// Background the colors fade into where there is no energy. Matches the
+    /// dark end of the sequential palettes so the plot reads consistently.
+    static let background: (UInt8, UInt8, UInt8) = (8, 8, 10)
+
+    /// Anchors from −1 to +1 (8-bit sRGB), interpolated in Oklab like the rest.
+    private static let anchors: [(Double, Double, Double)] = [
+        (232, 62,  50),    // −1  anti-phase
+        (206, 116, 104),
+        (148, 148, 154),   //  0  uncorrelated
+        (96,  152, 206),
+        (56,  150, 246),   // +1  in phase
+    ]
+
+    /// 256-entry LUT, index 0 = −1 … 255 = +1.
+    static let lut: [(UInt8, UInt8, UInt8)] = {
+        let lab = anchors.map { Palette.srgbToOklab($0) }
+        return (0..<256).map { i in
+            Palette.oklabToSRGB8(Palette.sampleLab(Double(i) / 255.0, lab: lab))
+        }
+    }()
+
+    /// Color for a correlation value in −1…+1, faded toward `background` by
+    /// `weight` (0…1, the bin's normalized level).
+    static func color(correlation: Float, weight: Float) -> (UInt8, UInt8, UInt8) {
+        let c = min(max(correlation, -1), 1)
+        let w = min(max(weight, 0), 1)
+        let (r, g, b) = lut[Int((c + 1) * 0.5 * 255)]
+        return (blend(background.0, r, w), blend(background.1, g, w), blend(background.2, b, w))
+    }
+
+    private static func blend(_ from: UInt8, _ to: UInt8, _ t: Float) -> UInt8 {
+        let v = Float(from) + (Float(to) - Float(from)) * t
+        return UInt8(min(max(v.rounded(), 0), 255))
+    }
+
+    /// SwiftUI gradient stops for the on-screen legend.
+    static func gradientColors(count: Int = 32) -> [Color] {
+        let n = max(2, count)
+        return (0..<n).map { i in
+            let (r, g, b) = lut[Int(Double(i) / Double(n - 1) * 255.0)]
+            return Color(red: Double(r) / 255.0,
+                         green: Double(g) / 255.0,
+                         blue: Double(b) / 255.0)
+        }
     }
 }
