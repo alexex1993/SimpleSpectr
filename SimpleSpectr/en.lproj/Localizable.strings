@@ -232,3 +232,37 @@
 "unit.kbps" = "%.0f kbps";
 "unit.channels" = "%d channels";
 "unit.frames" = "%d frames";
+
+/* Video export (3D flyover) */
+"button.exportVideo" = "Export Video…";
+"video.title" = "Export 3D Flyover Video";
+"video.subtitle" = "A share-ready clip: the camera flies over your track's spectrogram as the music plays.";
+"video.section.format" = "Format";
+"video.section.camera" = "Camera";
+"video.aspect" = "Aspect ratio";
+"video.aspect.landscape" = "Landscape 16:9 — YouTube";
+"video.aspect.vertical" = "Vertical 9:16 — Reels / TikTok";
+"video.aspect.square" = "Square 1:1 — Feed";
+"video.quality" = "Quality";
+"video.fps" = "Frame rate";
+"video.height" = "Peak height";
+"video.tilt" = "Camera angle";
+"video.sway" = "Camera drift";
+"video.resolution" = "Resolution";
+"video.codec" = "Codec";
+"video.duration" = "Length";
+"video.hint" = "Higher resolutions and 60 fps take longer to export. 4K uses HEVC.";
+"video.export" = "Export…";
+"video.done" = "Video exported";
+"video.reveal" = "Show in Finder";
+"video.close" = "Done";
+"video.error.noGPU" = "No compatible GPU is available for rendering.";
+"video.error.writer" = "Could not write the video: %@";
+"video.error.pool" = "Could not allocate video frame buffers.";
+"video.error.append" = "The video encoder rejected a frame.";
+"video.error.cancelled" = "Export cancelled.";
+"video.section.background" = "Background";
+"video.stars" = "Star field";
+"video.grid" = "Neon floor grid";
+"video.pulse" = "Pulse with the music";
+"video.backgroundHint" = "The sky gradient is taken from the current color scheme, so the backdrop always matches the spectrogram.";

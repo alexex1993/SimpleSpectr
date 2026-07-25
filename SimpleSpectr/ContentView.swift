@@ -23,6 +23,7 @@ struct ContentView: View {
     @State private var showImporter = false
     @State private var isTargetedForDrop = false
     @State private var showExporter = false
+    @State private var showVideoExporter = false
     @State private var showRecordingExporter = false
     @State private var showInfo = false
     @State private var showMarkers = false
@@ -139,6 +140,15 @@ struct ContentView: View {
                 .disabled(loaded == nil)
             }
             ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showVideoExporter = true
+                } label: {
+                    Label(L("button.exportVideo"), systemImage: "film")
+                }
+                .disabled(loaded == nil)
+                .help(L("button.exportVideo"))
+            }
+            ToolbarItem(placement: .primaryAction) {
                 Button(role: .destructive) {
                     startRecording()
                 } label: {
@@ -179,6 +189,15 @@ struct ContentView: View {
                              windowFunction: RenderPreferences.shared.windowFunction.displayName,
                              overlapPercent: RenderPreferences.shared.overlapPercent,
                              onClose: { showExporter = false })
+            }
+        }
+        .sheet(isPresented: $showVideoExporter) {
+            if let loaded {
+                VideoExportDialog(sourceName: loaded.name,
+                                  sourceURL: loaded.url,
+                                  result: loaded.result,
+                                  palette: ColormapPreferences.shared.palette,
+                                  onClose: { showVideoExporter = false })
             }
         }
         .fileExporter(isPresented: $showRecordingExporter,

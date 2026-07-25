@@ -232,3 +232,37 @@
 "unit.kbps" = "%.0f кбит/с";
 "unit.channels" = "%d канала";
 "unit.frames" = "%d отсчётов";
+
+/* Video export (3D flyover) */
+"button.exportVideo" = "Экспорт видео…";
+"video.title" = "Экспорт 3D-видео (полёт)";
+"video.subtitle" = "Готовый для соцсетей ролик: камера летит над спектрограммой трека под музыку.";
+"video.section.format" = "Формат";
+"video.section.camera" = "Камера";
+"video.aspect" = "Соотношение сторон";
+"video.aspect.landscape" = "Горизонт. 16:9 — YouTube";
+"video.aspect.vertical" = "Вертикаль 9:16 — Reels / TikTok";
+"video.aspect.square" = "Квадрат 1:1 — лента";
+"video.quality" = "Качество";
+"video.fps" = "Частота кадров";
+"video.height" = "Высота пиков";
+"video.tilt" = "Угол камеры";
+"video.sway" = "Дрейф камеры";
+"video.resolution" = "Разрешение";
+"video.codec" = "Кодек";
+"video.duration" = "Длительность";
+"video.hint" = "Высокое разрешение и 60 fps экспортируются дольше. 4K использует HEVC.";
+"video.export" = "Экспорт…";
+"video.done" = "Видео экспортировано";
+"video.reveal" = "Показать в Finder";
+"video.close" = "Готово";
+"video.error.noGPU" = "Нет совместимого GPU для рендеринга.";
+"video.error.writer" = "Не удалось записать видео: %@";
+"video.error.pool" = "Не удалось выделить буферы кадров.";
+"video.error.append" = "Кодировщик отклонил кадр.";
+"video.error.cancelled" = "Экспорт отменён.";
+"video.section.background" = "Фон";
+"video.stars" = "Звёздное небо";
+"video.grid" = "Неоновая сетка";
+"video.pulse" = "Пульсация под музыку";
+"video.backgroundHint" = "Градиент неба берётся из текущей цветовой схемы, поэтому фон всегда сочетается со спектрограммой.";
