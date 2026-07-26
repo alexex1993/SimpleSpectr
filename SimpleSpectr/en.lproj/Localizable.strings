@@ -233,9 +233,9 @@
 "unit.channels" = "%d channels";
 "unit.frames" = "%d frames";
 
-/* Video export (3D flyover) */
+/* Video export (3D flyover / 2D bars) */
 "button.exportVideo" = "Export Video…";
-"video.title" = "Export 3D Flyover Video";
+"video.title" = "Export Video";
 "video.subtitle" = "A share-ready clip: the camera flies over your track's spectrogram as the music plays.";
 "video.section.format" = "Format";
 "video.section.camera" = "Camera";
@@ -266,3 +266,20 @@
 "video.grid" = "Neon floor grid";
 "video.pulse" = "Pulse with the music";
 "video.backgroundHint" = "The sky gradient is taken from the current color scheme, so the backdrop always matches the spectrogram.";
+"video.style" = "Style";
+"video.style.flyover" = "3D flyover";
+"video.style.bars" = "2D bars";
+"video.subtitle.bars" = "A share-ready clip: a row of glowing bars dances with the spectrum, mirrored over a bright baseline.";
+"video.section.bars" = "Bars";
+"video.bars.count" = "Bar count";
+"video.bars.glow" = "Glow";
+"video.bars.smoothing" = "Smoothing";
+"video.bars.segments" = "Segmented bars";
+"video.bars.mirror" = "Mirror reflection";
+"video.bars.hint" = "Bars are spread across the frequency axis and colored with the current color scheme.";
+"video.section.colors" = "Colors";
+"video.bars.customColors" = "Custom colors";
+"video.bars.color.background" = "Background";
+"video.bars.color.base" = "Bars at the baseline";
+"video.bars.color.peak" = "Bars at full height";
+"video.bars.colorHint" = "Bars fade from the first color at the baseline to the second at full height. Switch this off to follow the current color scheme again.";

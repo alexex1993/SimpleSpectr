@@ -79,6 +79,17 @@ Shared `nonisolated` types used by both the engine and the UI: `WindowFunction` 
 - **`MarkersStore`** / **`RecentFilesStore`** — session markers (time + label) and recent files (persisted via security-scoped bookmarks).
 - **`AudioFileInfo`** — metadata for the toolbar info popover, loaded off-main (so it stores *raw* Core Audio flags and lets the popover localize on the MainActor). Beyond the basics it exposes `container` (uppercased extension), `frameCount`, `framesPerPacket` (only for packetized/compressed codecs), `isLossless` (PCM/ALAC/FLAC), the raw PCM `pcmIsFloat`/`pcmBigEndian` flags, and a computed `nyquist` (sampleRate / 2). The popover renders these as extra rows (Container, Compression lossless/lossy, Sample format e.g. "Float · 32-bit · LE", Nyquist, Frames per packet, Total frames).
 
+### Video export (two styles, one pipeline)
+
+`SpectrogramVideoExport` renders the cached grid to an `.mp4` (H.264 ≤ 1080p, HEVC above) muxed with the original audio. `VideoGridSnapshot` is the MainActor-taken, `Sendable` copy of the grid + palette LUT the detached export task works from; `VideoExportOptions` holds everything else, including `style: VideoStyle`.
+
+Only the per-frame painter differs between the two styles — writer setup, the interleaved audio pump, back-pressure and cancellation are shared. `FramePainter` (private, in `SpectrogramVideoExport.swift`) is that seam: `make(...)` builds the style's renderer once, `render(into:progress:time:dt:level:)` paints one frame.
+
+- **`.flyover` (3D)** — `SpectrogramVideoRenderer`: the grid becomes a static height-field mesh (X = frequency, Z = time, Y = magnitude) that scrolls past a fixed camera, with a palette-derived sky, star field and neon floor grid.
+- **`.bars` (2D)** — `SpectrumBarsVideoRenderer`: a flat visualizer — segmented (LED) bars over a glowing baseline with a mirrored reflection. Nothing is uploaded up front; `BarSpectrumAnimator` (a **class**, because its attack/release envelope and peak caps carry across frames) produces one small `[levels…, peaks…]` buffer per frame and a full-screen fragment shader draws the rest. Bars are laid out on the *displayed* frequency axis so they line up with the plot — except a purely linear axis, which gets a Mel spread instead (linear crams everything musical into the first couple of bars).
+
+Both shader sets are compiled from source at runtime, so neither needs a `.metal` file or a build-system change. Colors come from the active palette LUT so a clip matches the on-screen spectrogram; 2D mode can override them (`barCustomColors` + the `RGBColor?` trio — `nil` means "whatever the palette gives", and `VideoExportOptions.paletteBarColors` seeds the pickers with exactly that, so opting in never jumps the look).
+
 ### Conventions / gotchas
 
 - **AVAudioFile reading**: `read(into:frameCount:)` *throws* at EOF instead of returning 0 frames. The chunked read loops (`MonoSource.decodeNextChunk`, `AudioStatsAnalyzer.analyze`) are driven by `framePosition < length` reading `min(chunk, remaining)` — do not switch them to `while true` + zero-frame-break, that crashes.

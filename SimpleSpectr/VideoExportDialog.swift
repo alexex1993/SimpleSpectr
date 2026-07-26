@@ -2,9 +2,10 @@
 //  VideoExportDialog.swift
 //  SimpleSpectr
 //
-//  Sheet that configures and drives the "3D flyover" video export
-//  (SpectrogramVideoExport.swift): pick an aspect ratio, resolution, frame rate
-//  and a bit of camera drama, choose where to save, then watch the progress bar.
+//  Sheet that configures and drives the video export
+//  (SpectrogramVideoExport.swift): pick a style (3D flyover or 2D bars), an
+//  aspect ratio, resolution, frame rate and a bit of drama, choose where to save,
+//  then watch the progress bar.
 //
 
 import SwiftUI
@@ -12,6 +13,27 @@ import AppKit
 import Combine
 import AVFoundation
 import UniformTypeIdentifiers
+
+// MARK: - Color bridge
+
+// `RGBColor` is the plain, Sendable form the export task carries; `Color` is
+// what a ColorPicker speaks. Both directions go through sRGB so a picked color
+// round-trips unchanged.
+
+extension Color {
+    init(_ c: RGBColor) {
+        self.init(.sRGB, red: c.red, green: c.green, blue: c.blue, opacity: 1)
+    }
+}
+
+extension RGBColor {
+    init(_ color: Color) {
+        let ns = NSColor(color).usingColorSpace(.sRGB) ?? .black
+        self.init(red: Double(ns.redComponent),
+                  green: Double(ns.greenComponent),
+                  blue: Double(ns.blueComponent))
+    }
+}
 
 /// Thread-safe cancel flag shared with the detached export task.
 nonisolated final class ExportCancelToken: @unchecked Sendable {
@@ -96,13 +118,27 @@ struct VideoExportDialog: View {
             Text(L("video.title"))
                 .font(.headline)
                 .padding(.horizontal, 20).padding(.top, 18).padding(.bottom, 4)
-            Text(L("video.subtitle"))
+            Text(subtitle)
                 .font(.caption).foregroundStyle(.secondary)
-                .padding(.horizontal, 20).padding(.bottom, 12)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 20).padding(.bottom, 10)
+
+            Picker(L("video.style"), selection: $controller.options.style) {
+                ForEach(VideoStyle.allCases) { s in Text(s.displayName).tag(s) }
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .padding(.horizontal, 20).padding(.bottom, 12)
+            .disabled(controller.isExporting)
 
             Form {
                 formatSection
-                cameraSection
+                if controller.options.style == .flyover {
+                    cameraSection
+                } else {
+                    barsSection
+                    barColorsSection
+                }
                 backgroundSection
                 estimateSection
             }
@@ -142,12 +178,70 @@ struct VideoExportDialog: View {
         }
     }
 
+    private var barsSection: some View {
+        Section {
+            HStack {
+                Text(L("video.bars.count")).frame(width: 130, alignment: .leading)
+                Slider(value: Binding(get: { Double(controller.options.barCount) },
+                                      set: { controller.options.barCount = Int($0) }),
+                       in: 16...128, step: 8)
+                Text("\(controller.options.barCount)")
+                    .font(.callout).monospacedDigit().foregroundStyle(.secondary)
+                    .frame(width: 30, alignment: .trailing)
+            }
+            // Same control (and label) as the flyover's peak height.
+            slider(L("video.height"), value: $controller.options.barHeight, range: 0.4...2.0)
+            slider(L("video.bars.glow"), value: $controller.options.barGlow, range: 0...2)
+            slider(L("video.bars.smoothing"), value: $controller.options.barSmoothing, range: 0...1)
+            Toggle(L("video.bars.segments"), isOn: $controller.options.barSegments)
+            Toggle(L("video.bars.mirror"), isOn: $controller.options.barMirror)
+        } header: {
+            Text(L("video.section.bars"))
+        }
+    }
+
+    private var barColorsSection: some View {
+        // Off, the colors track the palette. On, the pickers open on exactly
+        // those same colors, so switching over never jumps the look.
+        let seeds = VideoExportOptions.paletteBarColors(palette)
+        return Section {
+            Toggle(L("video.bars.customColors"), isOn: $controller.options.barCustomColors)
+            if controller.options.barCustomColors {
+                ColorPicker(L("video.bars.color.background"),
+                            selection: color(\.barBackgroundColor, default: seeds.background),
+                            supportsOpacity: false)
+                ColorPicker(L("video.bars.color.base"),
+                            selection: color(\.barBaseColor, default: seeds.base),
+                            supportsOpacity: false)
+                ColorPicker(L("video.bars.color.peak"),
+                            selection: color(\.barPeakColor, default: seeds.peak),
+                            supportsOpacity: false)
+            }
+        } header: {
+            Text(L("video.section.colors"))
+        } footer: {
+            Text(L(controller.options.barCustomColors ? "video.bars.colorHint" : "video.bars.hint"))
+                .font(.caption).foregroundStyle(.secondary)
+        }
+    }
+
+    /// Bridges an optional stored `RGBColor` (nil = "use the palette") to the
+    /// `Color` a `ColorPicker` wants.
+    private func color(_ keyPath: WritableKeyPath<VideoExportOptions, RGBColor?>,
+                       default fallback: RGBColor) -> Binding<Color> {
+        Binding(get: { Color(controller.options[keyPath: keyPath] ?? fallback) },
+                set: { controller.options[keyPath: keyPath] = RGBColor($0) })
+    }
+
     private var backgroundSection: some View {
         // A titled section with a footer needs the header/footer form — there is
         // no `Section(_ title:) { } footer: { }` overload.
         Section {
             Toggle(L("video.stars"), isOn: $controller.options.showStars)
-            Toggle(L("video.grid"), isOn: $controller.options.showGrid)
+            // The neon floor grid only exists in the 3D world.
+            if controller.options.style == .flyover {
+                Toggle(L("video.grid"), isOn: $controller.options.showGrid)
+            }
             Toggle(L("video.pulse"), isOn: $controller.options.pulseWithAudio)
         } header: {
             Text(L("video.section.background"))
@@ -220,10 +314,14 @@ struct VideoExportDialog: View {
         return String(format: "%d:%02d", s / 60, s % 60)
     }
 
+    private var subtitle: String {
+        controller.options.style == .flyover ? L("video.subtitle") : L("video.subtitle.bars")
+    }
+
     private var defaultFilename: String {
         let base = (sourceName as NSString).deletingPathExtension
         let stem = base.isEmpty ? "spectrogram" : base
-        return stem + "-flyover.mp4"
+        return stem + (controller.options.style == .flyover ? "-flyover.mp4" : "-bars.mp4")
     }
 
     private func chooseAndExport() {

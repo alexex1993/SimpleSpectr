@@ -93,6 +93,13 @@ audio-file spectrogram. No SPM/CocoaPods, no test target, no CI.
 - **Settings are a trailing `.inspector`,** not a `Settings` scene — toggled by
   ⌥⌘I and a toolbar button sharing one `showInspector` `@State` in
   `SimpleSpectrApp`.
+- **Video export has two styles, one pipeline.** `VideoStyle` picks `.flyover`
+  (3D Metal landscape, `SpectrogramVideoRenderer`) or `.bars` (2D visualizer,
+  `SpectrumBarsVideoRenderer`). Everything else — writer setup, the interleaved
+  audio pump, back-pressure, cancellation — is shared; the only seam is the
+  private `FramePainter` in `SpectrogramVideoExport.swift`. Add a new style
+  there, not by forking the exporter. Both shader sets are compiled from source
+  at runtime, so no `.metal` file and no build-system change.
 - **Adding an audio format:** add the UTI to `LSItemContentTypes` in
   `SimpleSpectr/Info.plist`. Decoding is whatever Core Audio supports (no code
   change). Ogg/Opus are not supported out of the box.

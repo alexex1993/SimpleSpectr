@@ -2,11 +2,17 @@
 //  SpectrogramVideoExport.swift
 //  SimpleSpectr
 //
-//  "3D flyover" video export. Renders the cached spectrogram as a moving 3D
-//  landscape (SpectrogramVideoRenderer) and muxes it with the original audio via
-//  AVAssetWriter into an .mp4 (H.264 up to 1080p, HEVC above) — a share-ready
-//  clip for social media: the camera watches the track's spectrogram rise out of
-//  the distance and flow past a glowing "now" line, in time with the music.
+//  Video export. Renders the cached spectrogram in one of two styles and muxes
+//  it with the original audio via AVAssetWriter into an .mp4 (H.264 up to 1080p,
+//  HEVC above) — a share-ready clip for social media:
+//
+//  • 3D flyover (SpectrogramVideoRenderer) — the camera watches the track's
+//    spectrogram rise out of the distance and flow past a glowing "now" line.
+//  • 2D bars (SpectrumBarsVideoRenderer) — the classic flat visualizer: a row of
+//    segmented bars over a glowing baseline with a mirrored reflection.
+//
+//  Both styles share this file's options, snapshot and writer pipeline; only the
+//  per-frame painter differs (see `FramePainter`).
 //
 
 import Foundation
@@ -15,6 +21,20 @@ import CoreVideo
 import simd
 
 // MARK: - Options
+
+/// Which visualizer the clip is rendered with.
+nonisolated enum VideoStyle: String, CaseIterable, Identifiable, Sendable {
+    case flyover   // 3D landscape
+    case bars      // 2D bar visualizer
+
+    var id: String { rawValue }
+    @MainActor var displayName: String {
+        switch self {
+        case .flyover: return L("video.style.flyover")
+        case .bars:    return L("video.style.bars")
+        }
+    }
+}
 
 /// Aspect ratio of the exported clip, framed for where it will be posted.
 nonisolated enum VideoAspect: String, CaseIterable, Identifiable, Sendable {
@@ -66,8 +86,41 @@ nonisolated enum VideoQuality: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
+/// A user-picked color, stored as plain sRGB components: SwiftUI's `Color` is a
+/// UI type, and these have to ride along into the detached export task.
+nonisolated struct RGBColor: Sendable, Equatable {
+    var red: Double
+    var green: Double
+    var blue: Double
+
+    init(red: Double, green: Double, blue: Double) {
+        self.red = red
+        self.green = green
+        self.blue = blue
+    }
+
+    /// Linear RGB, which is what the shaders work in.
+    var linear: SIMD3<Float> {
+        func lin(_ v: Double) -> Float {
+            let s = Float(min(max(v, 0), 1))
+            return s <= 0.04045 ? s / 12.92 : powf((s + 0.055) / 1.055, 2.4)
+        }
+        return SIMD3<Float>(lin(red), lin(green), lin(blue))
+    }
+
+    /// Back from linear RGB — used to seed the pickers from the active palette.
+    init(linear c: SIMD3<Float>) {
+        func srgb(_ v: Float) -> Double {
+            let l = min(max(v, 0), 1)
+            return Double(l <= 0.0031308 ? 12.92 * l : 1.055 * powf(l, 1 / 2.4) - 0.055)
+        }
+        self.init(red: srgb(c.x), green: srgb(c.y), blue: srgb(c.z))
+    }
+}
+
 /// Everything the exporter needs except the audio data itself.
 nonisolated struct VideoExportOptions: Sendable {
+    var style: VideoStyle = .flyover
     var aspect: VideoAspect = .vertical
     var quality: VideoQuality = .p1080
     var fps: Int32 = 60
@@ -77,8 +130,24 @@ nonisolated struct VideoExportOptions: Sendable {
     var sway: Float = 0.35                // gentle camera drift
     var freqLines: Int = 220              // landscape frequency resolution
 
+    // 2D bar visualizer.
+    var barCount: Int = 64
+    var barHeight: Float = 1.0            // scales how tall the bars grow
+    var barSegments = true                // LED-style cells instead of solid bars
+    var barMirror = true                  // mirrored reflection under the baseline
+    var barGlow: Float = 1.0
+    var barSmoothing: Float = 0.5         // 0 = snappy, 1 = fluid
+    /// Off = colors come from the active palette (the default look). On = the
+    /// three `bar*Color` overrides below take over; `nil` still means "whatever
+    /// the palette would have given", so the pickers open on the current look.
+    var barCustomColors = false
+    var barBackgroundColor: RGBColor?
+    var barBaseColor: RGBColor?           // at the baseline
+    var barPeakColor: RGBColor?           // at full height
+
     // Backdrop layers. The palette-derived sky gradient is always on; these three
-    // sit on top of it and can be switched off individually.
+    // sit on top of it and can be switched off individually. (The floor grid is
+    // 3D-only; the other two apply to both styles.)
     var showStars = true
     var showGrid = true
     var pulseWithAudio = true
@@ -90,6 +159,53 @@ nonisolated struct VideoExportOptions: Sendable {
         bg.grid = showGrid ? 1 : 0
         bg.pulse = pulseWithAudio ? 1 : 0
         return bg
+    }
+
+    /// Bar-visualizer styling: palette colors from the snapshot, the rest from
+    /// the user. The ramp runs bright (at the baseline) → deep (at full height),
+    /// so the row reads as one gradient no matter how tall each bar is.
+    func barsLook(from snapshot: VideoGridSnapshot) -> BarsLook {
+        var look = BarsLook()
+        look.barCount = max(8, min(barCount, SpectrumBarsVideoRenderer.maxBars))
+        look.heightScale = max(0.2, barHeight)
+        look.segmented = barSegments
+        look.mirror = barMirror
+        look.glow = max(0, barGlow)
+        look.stars = showStars ? 1 : 0
+        look.pulse = pulseWithAudio ? 1 : 0
+        look.skyTop = snapshot.background.skyTop
+        look.skyBottom = snapshot.background.skyBottom
+        let lut = snapshot.lutLinear
+        look.barLow = lut[Self.barBaseIndex]
+        look.barHigh = lut[Self.barPeakIndex]
+        look.accent = lut[245] * 0.7 + SIMD3<Float>(repeating: 0.3)
+
+        guard barCustomColors else { return look }
+        // The picked background is the frame itself; the lift around the
+        // baseline (and the blobs behind the bars) is the same color, brighter.
+        let one = SIMD3<Float>(repeating: 1)
+        let bg = barBackgroundColor?.linear ?? look.skyTop
+        look.skyTop = bg
+        look.skyBottom = simd_min(bg * 2.4, one)
+        if let base = barBaseColor?.linear { look.barLow = base }
+        if let peak = barPeakColor?.linear { look.barHigh = peak }
+        // The baseline line is the bar color pushed toward white, so it still
+        // reads as the hot core of the bars it sits under.
+        look.accent = simd_min(look.barLow * 0.6 + SIMD3<Float>(repeating: 0.4), one)
+        return look
+    }
+
+    /// Palette LUT positions the bar gradient is sampled at — shared with the
+    /// color-picker defaults so "custom colors" opens on the current look.
+    static let barBaseIndex = 215
+    static let barPeakIndex = 135
+
+    /// What the 2D color pickers show until the user picks something else.
+    static func paletteBarColors(_ palette: Palette) -> (background: RGBColor, base: RGBColor, peak: RGBColor) {
+        let lut = VideoGridSnapshot.linearLUT(palette)
+        return (RGBColor(linear: VideoGridSnapshot.skyTop(lut)),
+                RGBColor(linear: lut[barBaseIndex]),
+                RGBColor(linear: lut[barPeakIndex]))
     }
 
     /// Output pixel size (even numbers), derived from aspect + quality.
@@ -160,7 +276,7 @@ nonisolated struct VideoGridSnapshot: Sendable {
         maxDB = Float(result.maxDB)
         duration = result.duration
         axis = result.frequencyAxis
-        let lut = palette.lut.map { Self.srgb8ToLinear($0) }
+        let lut = Self.linearLUT(palette)
         lutLinear = lut
 
         // Derive the backdrop from the palette so the sky, the grid and the
@@ -168,8 +284,8 @@ nonisolated struct VideoGridSnapshot: Sendable {
         // upper sky, a mid tone becomes the horizon glow, and a bright tone the
         // neon grid — each dimmed so the landscape stays the subject.
         var bg = FlyoverBackground()
-        bg.skyTop = lut[24] * 0.30 + SIMD3<Float>(0.004, 0.004, 0.007)
-        bg.skyBottom = lut[112] * 0.10 + SIMD3<Float>(0.006, 0.006, 0.012)
+        bg.skyTop = Self.skyTop(lut)
+        bg.skyBottom = Self.skyBottom(lut)
         bg.gridColor = lut[186] * 0.28
         background = bg
 
@@ -210,6 +326,22 @@ nonisolated struct VideoGridSnapshot: Sendable {
         return levels[i] + (levels[j] - levels[i]) * f
     }
 
+    // The palette → backdrop derivation, shared with the color-picker defaults in
+    // the export sheet so "custom colors" starts from exactly what it replaces.
+
+    /// 256-entry palette LUT in linear RGB, which is what the shaders work in.
+    static func linearLUT(_ palette: Palette) -> [SIMD3<Float>] {
+        palette.lut.map { srgb8ToLinear($0) }
+    }
+    /// Deep tint at the edges of the frame.
+    static func skyTop(_ lut: [SIMD3<Float>]) -> SIMD3<Float> {
+        lut[24] * 0.30 + SIMD3<Float>(0.004, 0.004, 0.007)
+    }
+    /// Brighter tint where the backdrop lifts (the horizon, or the baseline).
+    static func skyBottom(_ lut: [SIMD3<Float>]) -> SIMD3<Float> {
+        lut[112] * 0.10 + SIMD3<Float>(0.006, 0.006, 0.012)
+    }
+
     private static func srgb8ToLinear(_ c: (UInt8, UInt8, UInt8)) -> SIMD3<Float> {
         func lin(_ v: UInt8) -> Float {
             let s = Float(v) / 255.0
@@ -239,9 +371,75 @@ nonisolated enum VideoExportError: LocalizedError {
     }
 }
 
+// MARK: - Frame painter
+
+/// The per-frame half of the export, which is all the two styles disagree on.
+/// Everything around it — writer setup, audio pump, back-pressure — is shared.
+nonisolated private enum FramePainter {
+    case flyover(SpectrogramVideoRenderer, SpectroMesh, FlyoverCamera, FlyoverBackground)
+    /// The animator is a class, so stepping it mutates through this `let` case.
+    case bars(SpectrumBarsVideoRenderer, BarSpectrumAnimator, BarsLook)
+
+    /// Build the renderer and whatever geometry/state the style needs. Runs once,
+    /// before the frame loop.
+    static func make(snapshot: VideoGridSnapshot,
+                     options: VideoExportOptions,
+                     width: Int,
+                     height: Int) throws -> FramePainter {
+        switch options.style {
+        case .flyover:
+            let camera = options.camera()
+            let mesh = SpectroMesh.build(magnitudes: snapshot.magnitudes,
+                                         columns: snapshot.columns,
+                                         bins: snapshot.bins,
+                                         minDB: snapshot.minDB,
+                                         maxDB: snapshot.maxDB,
+                                         freqLines: options.freqLines,
+                                         axis: snapshot.axis,
+                                         lut: snapshot.lutLinear,
+                                         camera: camera)
+            try Task.checkCancellation()
+            let renderer = try SpectrogramVideoRenderer(width: width, height: height)
+            renderer.upload(mesh: mesh)
+            return .flyover(renderer, mesh, camera, options.background(from: snapshot))
+
+        case .bars:
+            let look = options.barsLook(from: snapshot)
+            let animator = BarSpectrumAnimator(snapshot: snapshot,
+                                               barCount: look.barCount,
+                                               smoothing: options.barSmoothing)
+            try Task.checkCancellation()
+            return .bars(try SpectrumBarsVideoRenderer(width: width, height: height), animator, look)
+        }
+    }
+
+    /// - Parameter dt: seconds since the previous frame (drives the bar envelope).
+    func render(into pixelBuffer: CVPixelBuffer,
+                progress: Float,
+                time: Float,
+                dt: Float,
+                level: Float) throws {
+        switch self {
+        case let .flyover(renderer, mesh, camera, background):
+            try renderer.render(into: pixelBuffer,
+                                mesh: mesh,
+                                camera: camera,
+                                background: background,
+                                progress: progress,
+                                time: time,
+                                level: level)
+        case let .bars(renderer, animator, look):
+            let bars = animator.step(progress: progress, dt: dt)
+            try renderer.render(into: pixelBuffer, bars: bars, look: look, time: time, level: level)
+        }
+    }
+}
+
+// MARK: - Exporter
+
 nonisolated enum SpectrogramVideoExporter {
 
-    /// Render + mux the flyover clip to `outputURL`.
+    /// Render + mux the clip to `outputURL`.
     /// - Parameters:
     ///   - progress: called (off-main) with 0…1 as frames are written.
     ///   - isCancelled: polled between frames to allow a user cancel.
@@ -253,23 +451,12 @@ nonisolated enum SpectrogramVideoExporter {
                        isCancelled: @escaping @Sendable () -> Bool) async throws {
         let (width, height) = options.pixelSize
         let fps = max(Int32(1), options.fps)
-        let camera = options.camera()
-        let background = options.background(from: snapshot)
 
-        // Build the landscape mesh from the cached grid.
-        let mesh = SpectroMesh.build(magnitudes: snapshot.magnitudes,
-                                     columns: snapshot.columns,
-                                     bins: snapshot.bins,
-                                     minDB: snapshot.minDB,
-                                     maxDB: snapshot.maxDB,
-                                     freqLines: options.freqLines,
-                                     axis: snapshot.axis,
-                                     lut: snapshot.lutLinear,
-                                     camera: camera)
-        try Task.checkCancellation()
-
-        let renderer = try SpectrogramVideoRenderer(width: width, height: height)
-        renderer.upload(mesh: mesh)
+        // Build the renderer for the chosen style (mesh + camera, or bar state).
+        let painter = try FramePainter.make(snapshot: snapshot,
+                                            options: options,
+                                            width: width,
+                                            height: height)
 
         // Remove any stale file so the writer can create a fresh one.
         try? FileManager.default.removeItem(at: outputURL)
@@ -432,13 +619,11 @@ nonisolated enum SpectrogramVideoExporter {
 
             let t = Double(frame) / Double(fps)
             let p = Float(min(1.0, t / max(snapshot.duration, 1e-6)))
-            try renderer.render(into: pixelBuffer,
-                                mesh: mesh,
-                                camera: camera,
-                                background: background,
-                                progress: p,
-                                time: Float(t),
-                                level: snapshot.level(atProgress: p))
+            try painter.render(into: pixelBuffer,
+                               progress: p,
+                               time: Float(t),
+                               dt: 1 / Float(fps),
+                               level: snapshot.level(atProgress: p))
 
             let pts = CMTime(value: CMTimeValue(frame), timescale: fps)
             if !adaptor.append(pixelBuffer, withPresentationTime: pts) {

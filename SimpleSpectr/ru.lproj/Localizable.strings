@@ -233,9 +233,9 @@
 "unit.channels" = "%d канала";
 "unit.frames" = "%d отсчётов";
 
-/* Video export (3D flyover) */
+/* Video export (3D flyover / 2D bars) */
 "button.exportVideo" = "Экспорт видео…";
-"video.title" = "Экспорт 3D-видео (полёт)";
+"video.title" = "Экспорт видео";
 "video.subtitle" = "Готовый для соцсетей ролик: камера летит над спектрограммой трека под музыку.";
 "video.section.format" = "Формат";
 "video.section.camera" = "Камера";
@@ -266,3 +266,20 @@
 "video.grid" = "Неоновая сетка";
 "video.pulse" = "Пульсация под музыку";
 "video.backgroundHint" = "Градиент неба берётся из текущей цветовой схемы, поэтому фон всегда сочетается со спектрограммой.";
+"video.style" = "Стиль";
+"video.style.flyover" = "3D-полёт";
+"video.style.bars" = "2D-полосы";
+"video.subtitle.bars" = "Готовый для соцсетей ролик: ряд светящихся полос танцует под спектр, с отражением над яркой линией.";
+"video.section.bars" = "Полосы";
+"video.bars.count" = "Число полос";
+"video.bars.glow" = "Свечение";
+"video.bars.smoothing" = "Сглаживание";
+"video.bars.segments" = "Сегментные полосы";
+"video.bars.mirror" = "Зеркальное отражение";
+"video.bars.hint" = "Полосы распределены по оси частот и окрашены текущей цветовой схемой.";
+"video.section.colors" = "Цвета";
+"video.bars.customColors" = "Свои цвета";
+"video.bars.color.background" = "Фон";
+"video.bars.color.base" = "Полосы у линии";
+"video.bars.color.peak" = "Полосы на максимуме";
+"video.bars.colorHint" = "Полосы переходят от первого цвета у линии ко второму на полной высоте. Выключите, чтобы снова следовать текущей цветовой схеме.";
