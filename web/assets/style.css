@@ -343,6 +343,7 @@ section { padding: 64px 0; }
   transition: border-color .15s ease, color .15s ease;
 }
 .feature .video-link:hover { color: var(--accent-5); border-bottom-color: var(--accent-5); }
+.feature .video-link + .video-link { margin-inline-start: 16px; }
 
 /* ---------- How it works ---------- */
 .howto {
