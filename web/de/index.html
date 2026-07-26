@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SimpleSpectr — Kostenlos audio spectrogram viewer für macOS</title>
-  <meta name="description" content="Kostenloses, quelloffenes audio spectrogram viewer für macOS. FFT-Analyse in Echtzeit, 5 Frequenzskalen, Kanalmodi, Live-Mikrofoneingang, CSV/JSON-Export, 14 Sprachen. Für Mac herunterladen.">
+  <meta name="description" content="Kostenloser Audio-Spektrogramm-Viewer für macOS, Quellcode auf GitHub verfügbar. FFT-Analyse in Echtzeit, 5 Frequenzskalen, Kanalmodi, Live-Mikrofoneingang, CSV/JSON-Export, 14 Sprachen. Für Mac herunterladen.">
   <meta name="keywords" content="audio spektrogramm viewer, kostenloses spektrogramm, macOS spektrogramm, spektrum analysator mac, FFT analysator, STFT visualisierung, frequenzanalyse audio, sonogramm, spektrogramm software">
   <meta name="author" content="Alex New">
   <meta name="theme-color" content="#0c0d12">
@@ -14,7 +14,7 @@
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="SimpleSpectr">
   <meta property="og:title" content="SimpleSpectr — Kostenlos audio spectrogram viewer für macOS">
-  <meta property="og:description" content="Eine kostenlose, quelloffene macOS-App, die jede Audiodatei in ein schönes, messbares Spektrogramm verwandelt. FFT-Analyse, Live-Mikrofon, 14 Sprachen.">
+  <meta property="og:description" content="Eine kostenlose macOS-App, die jede Audiodatei in ein schönes, messbares Spektrogramm verwandelt. FFT-Analyse, Live-Mikrofon, 14 Sprachen.">
   <meta property="og:url" content="https://simplespectr.alexnew.ru/de/">
   <meta property="og:locale" content="de">
   <meta property="og:image" content="https://simplespectr.alexnew.ru/img/og-image.webp">
@@ -23,7 +23,7 @@
 
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="SimpleSpectr — Kostenlos audio spectrogram viewer für macOS">
-  <meta name="twitter:description" content="Eine kostenlose, quelloffene macOS-App für audio Spektrogramme.">
+  <meta name="twitter:description" content="Eine kostenlose macOS-App für Audio-Spektrogramme.">
   <meta name="twitter:image" content="https://simplespectr.alexnew.ru/img/og-image.webp">
 
   <link rel="alternate" hreflang="en" href="https://simplespectr.alexnew.ru/">
@@ -52,9 +52,9 @@
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": "SimpleSpectr",
-    "operatingSystem": "macOS 13+",
+    "operatingSystem": "macOS 26.5+",
     "applicationCategory": "MultimediaApplication",
-    "description": "Kostenlose, quelloffene audio spectrogram viewer für macOS. FFT-Analyse in Echtzeit, mehrere Frequenzskalen, Live-Mikrofoneingang und Datenexport in CSV/JSON/PNG.",
+    "description": "Kostenloser Audio-Spektrogramm-Viewer für macOS. FFT-Analyse in Echtzeit, mehrere Frequenzskalen, Live-Mikrofoneingang und Datenexport in CSV/JSON/PNG.",
     "url": "https://simplespectr.alexnew.ru/de/",
     "downloadUrl": "https://github.com/alexex1993/SimpleSpectr/releases",
     "screenshot": "https://simplespectr.alexnew.ru/img/screenshot-1.webp",
@@ -99,7 +99,7 @@
 <main>
   <section class="hero">
     <div class="container">
-      <span class="eyebrow"><span class="dot"></span> Kostenlos &amp; quelloffen · macOS</span>
+      <span class="eyebrow"><span class="dot"></span> Kostenlos · Quellcode verfügbar · macOS</span>
       <h1>Audiospektrogramm <span class="grad">für macOS</span></h1>
       <p class="lead">Eine kostenlose App zum Anzeigen, Messen und Exportieren von Audiospektrogrammen.</p>
       <div class="hero-cta">
@@ -108,9 +108,9 @@
       </div>
       <p class="hero-star-note"><a href="https://github.com/alexex1993/SimpleSpectr" target="_blank" rel="noopener">⭐ Wenn dir SimpleSpectr nützlich ist, gib ihm bitte einen Stern auf GitHub — das ist kostenlos und der beste Weg, dem Autor Danke zu sagen.</a></p>
       <div class="hero-badges">
-        <span><span class="pip">●</span> 100 % kostenlos</span>
-        <span><span class="pip">●</span> Quelloffen auf GitHub</span>
-        <span><span class="pip">●</span> Native macOS-App</span>
+        <span><span class="pip">●</span> Kostenlos für nicht-kommerzielle Nutzung</span>
+        <span><span class="pip">●</span> Quellcode auf GitHub</span>
+        <span><span class="pip">●</span> Native App · macOS 26.5+</span>
         <span><span class="pip">●</span> 14 Sprachen</span>
         <span><span class="pip">●</span> WAV · MP3 · FLAC · AAC · AIFF · ALAC</span>
       </div>
@@ -148,7 +148,7 @@
         <div class="feature">
           <div class="ico" aria-hidden="true">🎚️</div>
           <h3>Genaue FFT-Analyse</h3>
-          <p>Short-Time Fourier Transform mit Hann-Fenster und Amplitudennormierung, berechnet über Accelerate (<span class="inline-code">vDSP</span>) von Apple. Hover liefert echte dBFS-Werte.</p>
+          <p>Short-Time Fourier Transform mit Amplitudennormierung, berechnet über Accelerate (<span class="inline-code">vDSP</span>) von Apple — Hover liefert echte dBFS-Werte. FFT-Größe (256 – 16384), Overlap (bis 87,5 %) und Fenster (Hann, Blackman-Harris, Kaiser, Flattop) sind frei wählbar.</p>
         </div>
         <div class="feature">
           <div class="ico" aria-hidden="true">🎹</div>
@@ -204,8 +204,18 @@
         </div>
         <div class="feature">
           <div class="ico" aria-hidden="true">🎨</div>
-          <h3>7 wahrnehmungsbasierte Colormaps</h3>
-          <p>Inferno, Viridis, Magma, Plasma, Turbo, Cividis und Grayscale — im Oklab-Raum interpoliert, mit Live-Vorschau und einstellbarem dB-Fenster.</p>
+          <h3>9 wahrnehmungsbasierte Colormaps</h3>
+          <p>Inferno, Viridis, Magma, Plasma, Turbo, Cividis, Jet, Hot und Grayscale — im Oklab-Raum interpoliert, mit Live-Vorschau und einstellbarem dB-Fenster. Der Korrelationsmodus nutzt eine eigene divergierende Rot↔Blau-Karte.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">🎛️</div>
+          <h3>Pegel &amp; Magnitude</h3>
+          <p>Setze das Farbfenster in dBFS — Minimum, Maximum und einen Referenzpegel, der leises Material anhebt — und bilde die Werte als log-dB oder lineare Amplitude ab. Alles rendert sofort aus dem gecachten Raster, ohne neue Analyse.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" aria-hidden="true">ℹ️</div>
+          <h3>Datei-Infos auf einen Blick</h3>
+          <p>Ein Klick zeigt Container, Codec, verlustfreie oder verlustbehaftete Kompression, PCM-Sampleformat, Samplerate und Nyquist, Kanäle, Bittiefe, Bitrate, Frames pro Paket, Dauer, Gesamt-Frames und Dateigröße.</p>
         </div>
         <div class="feature">
           <div class="ico" aria-hidden="true">▶️</div>
@@ -237,7 +247,7 @@
         <h2>How it works</h2>
       </div>
       <div class="howto">
-        <p>Audio is decoded with Core Audio and <strong>streamed</strong> through the analyzer, so long files never sit fully in memory. It's mixed down to mono and transformed via a short-time Fourier transform (Hann window + real FFT) using Accelerate's <span class="inline-code">vDSP</span>. The one-sided spectrum is amplitude-normalized and window-corrected, magnitudes are converted to dB, and mapped through a perceptual colormap into a crisp image — low frequencies at the bottom, high at the top, time advancing left to right.</p>
+        <p>Audio is decoded with Core Audio and <strong>streamed</strong> through the analyzer, so long files never sit fully in memory. The channel you picked (mix, left, right, mid/side — or both channels at once for the stereo and correlation modes) is transformed via a short-time Fourier transform (your chosen window + real FFT) using Accelerate's <span class="inline-code">vDSP</span>. The one-sided spectrum is amplitude-normalized and window-corrected, magnitudes are converted to dB, and mapped through a perceptual colormap into a crisp image — low frequencies at the bottom, high at the top, time advancing left to right. The dB grid is cached, so switching palette, scale or dB window re-renders instantly without touching the audio again.</p>
       </div>
     </div>
   </section>
@@ -249,6 +259,7 @@
     <div class="footer-links">
       <a href="../sitemap.xml">Sitemap</a>
       <a href="https://github.com/alexex1993/SimpleSpectr">GitHub</a>
+      <a href="https://github.com/alexex1993/SimpleSpectr/blob/main/LICENSE">Lizenz: PolyForm Noncommercial 1.0.0</a>
       <a href="https://github.com/alexex1993/SimpleSpectr/releases">Releases</a>
       <a href="https://sourceforge.net/projects/simplespectr/">SourceForge</a>
     </div>
