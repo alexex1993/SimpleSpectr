@@ -333,6 +333,16 @@ section { padding: 64px 0; }
 }
 .feature h3 { margin: 0 0 7px; font-size: 1.05rem; letter-spacing: -0.01em; font-weight: 700; }
 .feature p { margin: 0; color: var(--text-dim); font-size: 0.95rem; line-height: 1.55; }
+.feature .video-link {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-top: 9px;
+  font-size: 0.88rem; font-weight: 600;
+  color: var(--accent-4);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-4) 40%, transparent);
+  transition: border-color .15s ease, color .15s ease;
+}
+.feature .video-link:hover { color: var(--accent-5); border-bottom-color: var(--accent-5); }
 
 /* ---------- How it works ---------- */
 .howto {
